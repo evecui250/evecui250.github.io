@@ -8,32 +8,202 @@
 </head>
 <body>
 
-  <header class="site-header">
-    <h1 class="site-title"><a href="index.html">Windy Desert</a></h1>
-    <p class="site-tagline">Essays on whatever the wind carries in.</p>
-  </header>
+<!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+<header class="hero">
+  <nav class="hero-nav">
+    <span class="hero-nav-title">Windy Desert</span>
+    <button class="hero-translate-btn"
+      onclick="window.open('https://translate.google.com/translate?sl=auto&tl=en&u='+encodeURIComponent(location.href),'_blank')">
+      🌐 Translate page
+    </button>
+  </nav>
 
-  <main>
-    <ul class="post-list">
+  <h1 class="hero-title">Windy Desert</h1>
+  <p class="hero-tagline">Essays on whatever the wind carries in.</p>
 
-      <li class="post-item">
-        <h2 class="post-item-title">
-          <a href="posts/hello-world.html">Hello, Windy Desert</a>
-        </h2>
-        <p class="post-item-meta">June 12, 2026</p>
-        <p class="post-item-excerpt">
-          A first post. Every blog needs one — a small act of planting a flag in the sand before the wind shifts again.
-        </p>
-      </li>
+  <!-- Desert landscape SVG -->
+  <svg class="hero-scene" viewBox="0 0 1440 220" preserveAspectRatio="xMidYMax slice"
+       xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 
-      <!-- Add new posts above this line, copying the <li> block above -->
+    <!-- Stars -->
+    <circle cx="72"  cy="18" r="1.5" fill="#fff" opacity=".75"/>
+    <circle cx="160" cy="38" r="1"   fill="#fff" opacity=".55"/>
+    <circle cx="250" cy="12" r="1.3" fill="#fff" opacity=".8"/>
+    <circle cx="340" cy="30" r="0.9" fill="#fff" opacity=".6"/>
+    <circle cx="430" cy="16" r="1.4" fill="#fff" opacity=".7"/>
+    <circle cx="520" cy="8"  r="1"   fill="#fff" opacity=".5"/>
+    <circle cx="620" cy="24" r="1.6" fill="#fff" opacity=".8"/>
+    <circle cx="710" cy="10" r="0.9" fill="#fff" opacity=".6"/>
+    <circle cx="800" cy="32" r="1.2" fill="#fff" opacity=".7"/>
+    <circle cx="880" cy="14" r="1"   fill="#fff" opacity=".5"/>
+    <circle cx="960" cy="6"  r="1.4" fill="#fff" opacity=".8"/>
+    <circle cx="1060" cy="26" r="1"  fill="#fff" opacity=".6"/>
+    <circle cx="1150" cy="16" r="1.3" fill="#fff" opacity=".7"/>
+    <circle cx="1240" cy="38" r="0.9" fill="#fff" opacity=".5"/>
+    <circle cx="1340" cy="12" r="1.2" fill="#fff" opacity=".75"/>
+    <circle cx="380"  cy="6"  r="1"   fill="#fff" opacity=".65"/>
+    <circle cx="570"  cy="40" r="1.1" fill="#fff" opacity=".55"/>
+    <circle cx="910"  cy="36" r="0.8" fill="#fff" opacity=".5"/>
+    <circle cx="200"  cy="52" r="1"   fill="#fff" opacity=".4"/>
+    <circle cx="660"  cy="46" r="0.9" fill="#fff" opacity=".5"/>
 
-    </ul>
-  </main>
+    <!-- Crescent moon -->
+    <circle cx="1300" cy="34" r="22"  fill="#f5e6c0" opacity=".9"/>
+    <circle cx="1314" cy="28" r="18"  fill="#0d1528"/>
 
-  <footer class="site-footer">
-    Windy Desert &mdash; written by hand, hosted free.
-  </footer>
+    <!-- Far dune (background, pale) -->
+    <path d="M0,130 Q180,100 360,125 Q540,150 720,118 Q900,86 1080,118 Q1260,150 1440,125 L1440,220 L0,220 Z"
+          fill="#a07850" opacity=".3"/>
+
+    <!-- Mid dune -->
+    <path d="M0,152 Q240,118 480,148 Q720,178 960,142 Q1200,106 1440,142 L1440,220 L0,220 Z"
+          fill="#b8956a" opacity=".65"/>
+
+    <!-- Front dune -->
+    <path d="M0,175 Q360,142 720,175 Q1080,208 1440,175 L1440,220 L0,220 Z"
+          fill="#c9a96e"/>
+
+    <!-- Ground strip -->
+    <path d="M0,208 Q360,196 720,208 Q1080,220 1440,208 L1440,220 L0,220 Z"
+          fill="#b8956a"/>
+
+    <!-- Palm tree (left) -->
+    <!-- Trunk -->
+    <path d="M210,218 Q206,192 210,168 Q213,148 207,132"
+          stroke="#5c3d1e" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <!-- Leaves -->
+    <path d="M207,132 Q184,118 168,126" stroke="#3d5c28" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M207,132 Q228,116 246,123" stroke="#3d5c28" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M207,132 Q198,113 200,100" stroke="#3d5c28" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M207,132 Q218,112 222,100" stroke="#3d5c28" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M207,132 Q182,128 164,134" stroke="#3d5c28" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M207,132 Q230,126 248,130" stroke="#3d5c28" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <!-- Dates cluster -->
+    <circle cx="206" cy="138" r="5"   fill="#6b3d1e"/>
+    <circle cx="212" cy="135" r="4.5" fill="#7a4820"/>
+    <circle cx="203" cy="143" r="4"   fill="#6b3d1e"/>
+
+    <!-- Second palm (far right, fainter) -->
+    <path d="M1260,212 Q1257,188 1261,166 Q1263,149 1257,136"
+          stroke="#5c3d1e" stroke-width="5" fill="none" stroke-linecap="round" opacity=".55"/>
+    <path d="M1257,136 Q1237,122 1222,130" stroke="#3d5c28" stroke-width="3" fill="none" stroke-linecap="round" opacity=".55"/>
+    <path d="M1257,136 Q1275,121 1290,128" stroke="#3d5c28" stroke-width="3" fill="none" stroke-linecap="round" opacity=".55"/>
+    <path d="M1257,136 Q1249,118 1251,107" stroke="#3d5c28" stroke-width="3" fill="none" stroke-linecap="round" opacity=".55"/>
+    <path d="M1257,136 Q1266,118 1270,107" stroke="#3d5c28" stroke-width="3" fill="none" stroke-linecap="round" opacity=".55"/>
+
+    <!-- Camel (center-right, on dune) -->
+    <!-- Body -->
+    <ellipse cx="880" cy="170" rx="54" ry="20" fill="#8b6340"/>
+    <!-- Hump -->
+    <ellipse cx="860" cy="154" rx="22" ry="16" fill="#8b6340"/>
+    <!-- Neck -->
+    <path d="M920,162 Q930,148 926,136" stroke="#8b6340" stroke-width="14" fill="none" stroke-linecap="round"/>
+    <!-- Head -->
+    <ellipse cx="930" cy="130" rx="13" ry="9.5" fill="#8b6340"/>
+    <!-- Snout -->
+    <ellipse cx="942" cy="133" rx="7"  ry="5"   fill="#8b6340"/>
+    <!-- Eye -->
+    <circle cx="934" cy="127" r="2.5" fill="#2c1810"/>
+    <circle cx="934" cy="127" r="1"   fill="#fff"/>
+    <!-- Ear -->
+    <path d="M922,122 Q925,115 930,120" stroke="#8b6340" stroke-width="2.5" fill="#8b6340" stroke-linejoin="round"/>
+    <!-- Tail -->
+    <path d="M826,168 Q814,160 817,151" stroke="#7a5530" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="817" cy="151" r="4" fill="#7a5530"/>
+    <!-- Legs -->
+    <rect x="843" y="186" width="8"  height="24" rx="4" fill="#7a5530"/>
+    <rect x="857" y="186" width="8"  height="24" rx="4" fill="#7a5530"/>
+    <rect x="893" y="186" width="8"  height="24" rx="4" fill="#7a5530"/>
+    <rect x="907" y="186" width="8"  height="24" rx="4" fill="#7a5530"/>
+  </svg>
+</header>
+
+<!-- ═══════════════════════════ POST LIST ═══════════════════════════ -->
+<div class="page-content">
+  <ul class="post-list">
+
+    <li class="post-item">
+      <h2 class="post-item-title">
+        <a href="posts/hello-world.html">Hello, Windy Desert</a>
+      </h2>
+      <p class="post-item-meta">
+        <span>June 12, 2026</span>
+        <span class="post-item-views" id="views-hello-world">·</span>
+      </p>
+      <p class="post-item-excerpt">
+        A first post. Every blog needs one — a small act of planting a flag in the sand before the wind shifts again.
+      </p>
+    </li>
+
+    <!-- Add new posts above this line, copying the <li> block above -->
+
+  </ul>
+</div>
+
+<!-- ═══════════════════════════ SUBSCRIBE ═══════════════════════════ -->
+<section class="subscribe-section">
+  <div class="subscribe-inner">
+    <h2 class="subscribe-title">Stay with the wind</h2>
+    <p class="subscribe-sub">New essays, delivered quietly to your inbox.</p>
+
+    <!--
+      SETUP: Create a free account at buttondown.com, then replace
+      YOUR_BUTTONDOWN_USERNAME below with your username.
+    -->
+    <form class="subscribe-form" id="subscribe-form"
+          action="https://buttondown.com/api/emails/embed-subscribe/YOUR_BUTTONDOWN_USERNAME"
+          method="post">
+      <input type="email" name="email" placeholder="your@email.com" required />
+      <button type="submit">Subscribe</button>
+    </form>
+    <p class="subscribe-ok" id="subscribe-ok">You're in. Thank you.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+<footer class="site-footer">
+  Windy Desert &mdash; written by hand, hosted free on
+  <a href="https://pages.github.com" target="_blank">GitHub Pages</a>.
+</footer>
+
+<script>
+/* ── Load view counts from GoatCounter ──
+   SETUP: Register a free site at goatcounter.com, then replace
+   YOUR_SITE below with your site code (e.g. "windydesert"). */
+const GC_SITE = 'YOUR_SITE';
+
+async function loadViewCount(slug, elId) {
+  if (!GC_SITE || GC_SITE === 'YOUR_SITE') return;
+  try {
+    const path = encodeURIComponent('/posts/' + slug + '.html');
+    const r = await fetch(`https://${GC_SITE}.goatcounter.com/counter/${path}.json`);
+    if (!r.ok) return;
+    const { count } = await r.json();
+    const el = document.getElementById(elId);
+    if (el) el.textContent = `· ${count} view${count === 1 ? '' : 's'}`;
+  } catch { /* GoatCounter not configured yet */ }
+}
+
+loadViewCount('hello-world', 'views-hello-world');
+
+/* ── Subscribe form: prevent redirect, show inline message ── */
+document.getElementById('subscribe-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn  = this.querySelector('button');
+  const ok   = document.getElementById('subscribe-ok');
+  btn.textContent = 'Subscribing…';
+  btn.disabled = true;
+  try {
+    await fetch(this.action, { method: 'POST', body: new FormData(this), mode: 'no-cors' });
+    this.style.display = 'none';
+    ok.style.display = 'block';
+  } catch {
+    btn.textContent = 'Subscribe';
+    btn.disabled = false;
+    alert('Something went wrong. Please try again.');
+  }
+});
+</script>
 
 </body>
 </html>
