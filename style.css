@@ -1,14 +1,14 @@
-/* ── Sahara Nights — dark desert palette ── */
+/* ── Sahara Nights — warm candlelit desert palette ── */
 :root {
-  --bg:          #0c0820;
-  --card:        #130f28;
-  --text:        #e8d8b0;
-  --muted:       #9a8860;
+  --bg:          #211c14;
+  --card:        #2a2418;
+  --text:        #f0e4c4;
+  --muted:       #a08860;
   --accent:      #d4aa20;
-  --accent-dark: #c09020;
-  --border:      #281f48;
-  --sand-light:  #1a1535;
-  --sand:        #241d45;
+  --accent-dark: #b89018;
+  --border:      #3c3428;
+  --sand-light:  #2e2820;
+  --sand:        #3c3828;
   --sand-dark:   #d4aa20;
   --night:       #030210;
   --night2:      #0a0935;
@@ -319,39 +319,39 @@ body { top: 0 !important; }
    COLOR THEMES
 ═══════════════════════════════════════ */
 
-/* Dusk — twilight purples (dark) */
+/* Dusk — warm purple night */
 body.theme-dusk {
-  --bg:          #0a0618;
-  --card:        #100828;
+  --bg:          #1c1420;
+  --card:        #241a2c;
   --accent:      #c070e0;
   --accent-dark: #9a50c0;
-  --sand-light:  #1c1230;
-  --sand:        #281848;
+  --sand-light:  #2a1e38;
+  --sand:        #342848;
   --sand-dark:   #c070e0;
-  --border:      #382050;
+  --border:      #3c2858;
   --muted:       #9a7aaa;
 }
 body.theme-dusk .hero {
   background: linear-gradient(180deg, #030108 0%, #0a0520 20%, #180a40 45%, #2a1060 65%, #4a1010 82%, #5c2818 100%);
 }
-body.theme-dusk .site-footer { background: #050110; }
+body.theme-dusk .site-footer { background: #0d0820; }
 
-/* Oasis — desert night greenery (dark) */
+/* Oasis — warm green night */
 body.theme-oasis {
-  --bg:          #050c0a;
-  --card:        #0a1410;
+  --bg:          #101c14;
+  --card:        #14201a;
   --accent:      #30b860;
   --accent-dark: #208040;
-  --sand-light:  #0c1814;
-  --sand:        #121e18;
+  --sand-light:  #182818;
+  --sand:        #1e3020;
   --sand-dark:   #30b860;
-  --border:      #1a3020;
+  --border:      #1e3828;
   --muted:       #70a080;
 }
 body.theme-oasis .hero {
   background: linear-gradient(180deg, #010805 0%, #040e0a 20%, #081820 45%, #0f2818 65%, #2a3010 82%, #3a4010 100%);
 }
-body.theme-oasis .site-footer { background: #010805; }
+body.theme-oasis .site-footer { background: #061610; }
 
 /* ═══════════════════════════════════════
    RESPONSIVE
