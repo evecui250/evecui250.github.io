@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Windy Desert</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐪</text></svg>">
 </head>
 <body>
 
@@ -203,6 +204,7 @@
 <footer class="site-footer">
   Windy Desert &mdash; written by hand, hosted free on
   <a href="https://pages.github.com" target="_blank">GitHub Pages</a>.
+  &nbsp;·&nbsp; <a href="/admin/">Admin</a>
 </footer>
 
 <script data-goatcounter="https://evecui250.goatcounter.com/count"
@@ -224,7 +226,24 @@ async function loadViewCount(slug, elId) {
   } catch {}
 }
 
-loadViewCount('hello-world', 'views-hello-world');
+// Sort posts newest-first
+(function() {
+  const ul = document.querySelector('.post-list');
+  if (!ul) return;
+  const items = [...ul.querySelectorAll('li.post-item')];
+  items.sort((a, b) => {
+    const da = new Date(a.querySelector('.post-item-meta span')?.textContent || 0);
+    const db = new Date(b.querySelector('.post-item-meta span')?.textContent || 0);
+    return db - da;
+  });
+  items.forEach(li => ul.appendChild(li));
+})();
+
+// Load view counts for all posts dynamically
+document.querySelectorAll('[id^="views-"]').forEach(el => {
+  const slug = el.id.replace('views-', '');
+  if (slug) loadViewCount(slug, el.id);
+});
 </script>
 
 </body>

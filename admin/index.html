@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin — Windy Desert</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐪</text></svg>">
   <style>
     :root {
       --bg: #faf7f2; --surface: #f2ede4; --text: #2a2520;
@@ -455,10 +456,12 @@ async function openDashboard() {
   await loadPosts();
 }
 
-let currentDraftId = null; // tracks draft being edited
+let currentDraftId  = null;
+let currentEditSlug = null;
 
 function openEditor(draftId) {
-  currentDraftId = draftId || null;
+  currentDraftId  = draftId || null;
+  currentEditSlug = null;
   document.getElementById('post-title').value   = '';
   document.getElementById('post-content').value = '';
   document.getElementById('post-date').value    = today();
@@ -550,6 +553,64 @@ function renderDrafts() {
 }
 
 /* ─────────────────────────────────────────
+   EDIT PUBLISHED POST
+───────────────────────────────────────── */
+async function editPost(slug) {
+  const btn = event?.target;
+  if (btn) { btn.disabled = true; btn.textContent = '…'; }
+  try {
+    const data   = await ghGet(`posts/${slug}.html`);
+    const html   = decode(data.content);
+    const doc    = new DOMParser().parseFromString(html, 'text/html');
+    const title  = doc.querySelector('.post-title')?.textContent?.trim() || '';
+    const dateStr= doc.querySelector('.post-meta')?.textContent?.trim()  || '';
+    const bodyEl = doc.querySelector('.post-body');
+    const md     = bodyEl ? htmlToMd(bodyEl) : '';
+
+    currentDraftId  = null;
+    currentEditSlug = slug;
+    document.getElementById('post-title').value   = title;
+    document.getElementById('post-date').value    = parseDateToIso(dateStr);
+    document.getElementById('post-content').value = md;
+    document.getElementById('editor-mode-label').textContent = 'Editing Essay';
+    livePreview();
+    show('screen-editor');
+  } catch (e) {
+    toast('Error loading post: ' + e.message, 'err');
+    if (btn) { btn.disabled = false; btn.textContent = 'Edit'; }
+  }
+}
+
+function htmlToMd(el) {
+  const blocks = [];
+  for (const child of el.children) {
+    const tag = child.tagName.toLowerCase();
+    if (tag === 'h2') {
+      blocks.push('## ' + child.textContent.trim());
+    } else if (tag === 'h3') {
+      blocks.push('### ' + child.textContent.trim());
+    } else if (tag === 'blockquote') {
+      blocks.push(child.textContent.trim().split('\n')
+        .map(l => '> ' + l.trim()).join('\n'));
+    } else if (tag === 'p') {
+      const inner = child.innerHTML
+        .replace(/<strong>([\s\S]*?)<\/strong>/g, '**$1**')
+        .replace(/<em>([\s\S]*?)<\/em>/g, '*$1*')
+        .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"')
+        .replace(/<[^>]+>/g,'');
+      blocks.push(inner);
+    }
+  }
+  return blocks.join('\n\n');
+}
+
+function parseDateToIso(dateStr) {
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return today();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+/* ─────────────────────────────────────────
    PUBLISHED POSTS (GitHub)
 ───────────────────────────────────────── */
 async function loadPosts() {
@@ -567,22 +628,38 @@ async function loadPosts() {
     }
     ul.innerHTML = '';
     items.forEach(item => {
-      const a    = item.querySelector('.post-item-title a');
-      const meta = item.querySelector('.post-item-meta');
-      const href = a?.getAttribute('href') || '#';
-      const slug = href.replace('posts/', '').replace('.html', '');
-      const li   = document.createElement('li');
+      const a      = item.querySelector('.post-item-title a');
+      const dateEl = item.querySelector('.post-item-meta span:first-child');
+      const href   = a?.getAttribute('href') || '#';
+      const slug   = href.replace('posts/', '').replace('.html', '');
+      const title  = a?.textContent?.trim() || 'Untitled';
+      const date   = dateEl?.textContent?.trim() || '';
+      const li     = document.createElement('li');
       li.className = 'post-row';
-      li.innerHTML = `
-        <div class="post-row-info">
-          <div class="post-row-title">${esc(a?.textContent || 'Untitled')}</div>
-          <div class="post-row-date">${esc(meta?.textContent?.trim() || '')}</div>
-        </div>
-        <div class="post-row-actions">
-          <a class="view-link" href="https://${OWNER}.github.io/${href}" target="_blank">View ↗</a>
-          <button class="btn btn-danger btn-sm"
-            onclick="deletePost('${esc(slug)}','${esc(a?.textContent||'')}')">Delete</button>
-        </div>`;
+
+      if (!slug) {
+        li.innerHTML = `
+          <div class="post-row-info">
+            <div class="post-row-title">${esc(title)} <span class="draft-badge" style="background:#fde8e8;color:#c0392b">invalid slug</span></div>
+            <div class="post-row-date">${esc(date)} — delete and re-publish with a Latin title or add English slug</div>
+          </div>
+          <div class="post-row-actions">
+            <button class="btn btn-danger btn-sm"
+              onclick="deletePost('${esc(slug)}','${esc(title)}')">Delete</button>
+          </div>`;
+      } else {
+        li.innerHTML = `
+          <div class="post-row-info">
+            <div class="post-row-title">${esc(title)}</div>
+            <div class="post-row-date">${esc(date)}</div>
+          </div>
+          <div class="post-row-actions">
+            <a class="view-link" href="https://${OWNER}.github.io/${href}" target="_blank">View ↗</a>
+            <button class="btn btn-ghost btn-sm" onclick="editPost('${esc(slug)}')">Edit</button>
+            <button class="btn btn-danger btn-sm"
+              onclick="deletePost('${esc(slug)}','${esc(title)}')">Delete</button>
+          </div>`;
+      }
       ul.appendChild(li);
     });
   } catch (e) {
@@ -683,7 +760,7 @@ async function publish() {
   btn.innerHTML = '<span class="spinner"></span>Publishing…';
 
   try {
-    const slug      = slugify(title);
+    const slug      = currentEditSlug || slugify(title);
     const dateLabel = fmtDate(dateStr);
     const bodyHtml  = mdToHtml(content);
     const blurb     = toExcerpt(content);
@@ -692,7 +769,7 @@ async function publish() {
     let existingSha;
     try { existingSha = (await ghGet(`posts/${slug}.html`)).sha; } catch { /* new post */ }
     await ghPut(`posts/${slug}.html`, buildPost(title, dateLabel, bodyHtml),
-                `add essay: ${title}`, existingSha);
+                `${existingSha ? 'update' : 'add'} essay: ${title}`, existingSha);
 
     // Update index.html
     const idxData = await ghGet('index.html');
@@ -700,10 +777,15 @@ async function publish() {
     const marker  = '<!-- Add new posts above this line, copying the <li> block above -->';
     if (!idxHtml.includes(marker)) throw new Error('Marker not found in index.html');
 
-    // Only add to index if it's a new post (no existing SHA)
     let updatedIdx = idxHtml;
     if (!existingSha) {
+      // New post: prepend to list
       updatedIdx = idxHtml.replace(marker, buildListItem(title, slug, dateLabel, blurb) + '      ' + marker);
+    } else if (currentEditSlug) {
+      // Edited post: replace existing list entry with updated title/date/blurb
+      updatedIdx = idxHtml.replace(/<li class="post-item">[\s\S]*?<\/li>/g, match =>
+        match.includes(`posts/${slug}.html`) ? buildListItem(title, slug, dateLabel, blurb) : match
+      );
     }
     await ghPut('index.html', updatedIdx, `index: ${existingSha ? 'update' : 'add'} ${title}`, idxData.sha);
 
@@ -712,6 +794,7 @@ async function publish() {
       setDrafts(getDrafts().filter(d => d.id !== currentDraftId));
       currentDraftId = null;
     }
+    currentEditSlug = null;
 
     toast('Published! Live in ~30 seconds.', 'ok');
     setTimeout(() => openDashboard(), 2000);
@@ -773,7 +856,7 @@ function buildPost(title, dateLabel, bodyHtml) {
   </main>
 
   <footer class="site-footer">
-    Windy Desert &mdash; written by hand, hosted free.
+    Windy Desert &mdash; written by hand, hosted free. &nbsp;·&nbsp; <a href="/admin/">Admin</a>
   </footer>
 
 <script>
@@ -794,6 +877,9 @@ function buildPost(title, dateLabel, bodyHtml) {
 
     // Apply color theme
     if (cfg.theme && cfg.theme !== 'sand') document.body.classList.add('theme-' + cfg.theme);
+
+    // Update tagline if changed in settings
+    if (cfg.tagline) { const t = document.querySelector('.site-tagline'); if (t) t.textContent = cfg.tagline; }
 
     // Inject Giscus dynamically so it works on all existing posts too
     if (cfg.giscusScript) {
@@ -867,7 +953,8 @@ function toExcerpt(md, len = 160) {
    UTILITIES
 ───────────────────────────────────────── */
 function slugify(s) {
-  return s.toLowerCase().replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-');
+  const slug = s.toLowerCase().replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-');
+  return slug || 'post-' + Date.now();
 }
 function today() {
   const d = new Date();
