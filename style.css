@@ -1,15 +1,15 @@
-/* ── Sahara Nights — warm candlelit desert palette ── */
+/* ── Sahara Nights — warm sandy desert palette ── */
 :root {
-  --bg:          #211c14;
-  --card:        #2a2418;
-  --text:        #f0e4c4;
-  --muted:       #a08860;
-  --accent:      #d4aa20;
-  --accent-dark: #b89018;
-  --border:      #3c3428;
-  --sand-light:  #2e2820;
-  --sand:        #3c3828;
-  --sand-dark:   #d4aa20;
+  --bg:          #ddcdb0;  /* warm Sahara sand */
+  --card:        #d5c7ac;  /* slightly deeper sand */
+  --text:        #2e1f0a;  /* dark brown — comfortable on warm bg */
+  --muted:       #7a6040;  /* medium brown for secondary text */
+  --accent:      #8a4f10;  /* Saharan amber — legible on light bg */
+  --accent-dark: #6a3808;
+  --border:      #c7bba4;  /* warm sandy border */
+  --sand-light:  #cfc1a8;  /* blockquote backgrounds */
+  --sand:        #d1c4aa;
+  --sand-dark:   #d4aa20;  /* bright gold — used in dark hero/footer */
   --night:       #030210;
   --night2:      #0a0935;
   --max:         700px;
