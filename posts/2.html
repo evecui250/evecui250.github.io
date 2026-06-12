@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>养狗记 2 — Windy Desert</title>
+  <link rel="stylesheet" href="../style.css" />
+  <script data-goatcounter="https://evecui250.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header-inner">
+      <h1 class="site-title"><a href="../index.html"><!-- blog-name -->Windy Desert<!-- /blog-name --></a></h1>
+      <p class="site-tagline"><!-- blog-tagline -->Essays on whatever the wind carries in.<!-- /blog-tagline --></p>
+    </div>
+  </header>
+
+  <main>
+    <a class="back-link" href="../index.html">← All essays</a>
+
+    <article>
+      <header>
+        <h1 class="post-title">养狗记 2</h1>
+        <div class="post-meta-row">
+          <span class="post-meta">July 5, 2025</span>
+          <span class="post-views" id="view-count"></span>
+          <button class="translate-btn"
+            onclick="window.open('https://translate.google.com/translate?sl=auto&tl=en&u='+encodeURIComponent(location.href),'_blank')">
+            🌐 Translate to English
+          </button>
+        </div>
+      </header>
+
+      <div class="post-body">
+        <p>转眼间我的狗狗Photon已经到苏黎世一周了。过去的两周真的是惊心动魄。在见到狗狗之前我就买好了笼子，很沉很大，然后淘宝下单了十几件物品。我会焦虑，怕自己照顾不好他。到了上海那天，正好下大雨，我没能吃饭就开车到了中转家庭。第一眼就见到了狗狗，比我想象中的大、陌生。他从笼子里出来躲到了厨房的角落里。我探头看了他一眼，他大声吼了我。我内心十分崩溃，第一次后悔接管这条狗。我觉得我自找了个大麻烦。接下来我和中转家庭的姐姐一起遛他，也很不好遛。他很怕人，怕垃圾桶，路也不好好走。我还是耐心地第一次给他捡屎，紧紧地握着牵引绳。当天晚上他被迫和我睡一个屋子，我感觉我失眠到了凌晨三四点，狗狗也一直在捣鼓着什么，发出各种小声音。第二天中午我开始恶心（我妈说是咽炎），还觉得心慌，很想哭，但又没机会哭出来。同时也很焦虑，准备各种之后的事情。</p>
+        <p>我们把狗狗运到了机场附近的宠物友好酒店。我写下了备忘录，要给他喂什么饭、带他去遛弯上厕所。第二天五点我就起床开始行动，但是最后他还是没有按照计划大便，也没有吃饭。我们好几个人把他连带航空箱一起运到了班车上，差一点班车就走了。到了机场，我发现他拉在箱子里了，便进了一个残疾人厕所给他收拾。经过漫长的博弈，他终于出了航空箱，这样我就可以清理了。时间已经不多，我们又带着他去办托运手续。大大的箱子里有只狗狗，这件事找来了不少小朋友的关注。在付托运费的时候，我们差点因为没带信用卡而无法支付，好在最终我用别的卡解决了问题。我们给狗狗打包、提交了各种文件，最后终于送进了托运传送带。</p>
+        <p>我在候机的时候还是很紧张，一整个早上我的压力值都爆满。直到起飞了，我才慢慢地缓下来。我已经两个晚上没怎么睡觉了。14小时的飞机倒也不是特别煎熬，不知不觉就落地了。我一眼就见到了航空箱，跑了过去，惊喜地发现狗狗还活着，好像一块石头落地了一样。虽然接下来还有点挫折——箱子太大，没发放到推车上——我还是想方法解决了问题。在海关申报的时候，工作人员说“现在他是一只瑞士狗了”，我觉得好神奇。出去见到了来帮忙接机的两个朋友，我很感动。我们顺利地打到了出租车，开回了家。</p>
+        <p>这一周，狗狗的习性变化很大。从一开始的因恐惧而温顺，到习惯后的任性，再到现在有命令后的顺从，我每次遛狗都有不一样的体验。有时候真的很崩溃，很后悔养狗，但我希望这种感受能慢慢过去。一周下来我非常疲惫，有时候下午就能睡着。渐渐地他开始偶尔吃我手上给的零食，开始舔舔我的手，而昨天他趁我不在跳到了床上，今天又在我在床上的时候也跳了上去。他好像开始信任我了。</p>
+      </div>
+    </article>
+
+    <section class="comments-section">
+      <p class="comments-label">Comments</p>
+      <div id="giscus-container"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    Windy Desert &mdash; written by hand, hosted free. &nbsp;·&nbsp; <a href="/admin/">Admin</a>
+  </footer>
+
+<script>
+(async function() {
+  try {
+    // View count
+    const r = await fetch('https://evecui250.goatcounter.com/counter/' + encodeURIComponent(location.pathname) + '.json');
+    if (r.ok) {
+      const { count } = await r.json();
+      const el = document.getElementById('view-count');
+      if (el) el.textContent = '· ' + count + ' view' + (count===1?'':'s');
+    }
+  } catch {}
+
+  try {
+    // Load config (theme + comments)
+    const cfg = await fetch('/config.json').then(r => r.json());
+
+    // Apply color theme
+    if (cfg.theme && cfg.theme !== 'sand') document.body.classList.add('theme-' + cfg.theme);
+
+    // Update tagline if changed in settings
+    if (cfg.tagline) { const t = document.querySelector('.site-tagline'); if (t) t.textContent = cfg.tagline; }
+
+    // Inject Giscus dynamically so it works on all existing posts too
+    if (cfg.giscusScript) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = cfg.giscusScript;
+      const orig = tmp.querySelector('script');
+      if (orig) {
+        const s = document.createElement('script');
+        for (const a of orig.attributes) s.setAttribute(a.name, a.value);
+        document.getElementById('giscus-container').appendChild(s);
+      }
+    }
+  } catch {}
+})();
+</script>
+</body>
+</html>
