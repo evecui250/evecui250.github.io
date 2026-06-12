@@ -176,78 +176,6 @@ a:hover { color: var(--accent-dark); text-decoration: underline; }
 
 .post-item-excerpt { font-size: 0.9rem; color: #5a4030; line-height: 1.7; }
 
-/* ═══════════════════════════════════════
-   SUBSCRIBE SECTION
-═══════════════════════════════════════ */
-.subscribe-section {
-  background: var(--night);
-  color: var(--sand-light);
-  padding: 4rem 1.5rem 3rem;
-  text-align: center;
-  position: relative;
-}
-
-.subscribe-section::before {
-  content: '';
-  position: absolute;
-  top: -1px; left: 0; right: 0; height: 48px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 48' preserveAspectRatio='none'%3E%3Cpath d='M0,24 Q300,0 600,24 Q900,48 1200,24 L1200,48 L0,48 Z' fill='%23fdf8f0'/%3E%3C/svg%3E");
-  background-size: 100% 100%;
-}
-
-.subscribe-inner { max-width: 460px; margin: 0 auto; }
-
-.subscribe-title {
-  font-size: 1.25rem;
-  font-weight: normal;
-  margin-bottom: 0.4rem;
-  color: var(--sand-light);
-}
-
-.subscribe-sub {
-  font-size: 0.82rem;
-  color: var(--sand-dark);
-  margin-bottom: 1.4rem;
-  font-style: italic;
-}
-
-.subscribe-form {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.subscribe-form input[type="email"] {
-  flex: 1;
-  min-width: 200px;
-  padding: 0.6rem 1rem;
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 4px;
-  font-size: 0.88rem;
-  font-family: Georgia, serif;
-  background: rgba(255,255,255,0.08);
-  color: #fff;
-}
-
-.subscribe-form input::placeholder { color: rgba(255,255,255,0.38); }
-.subscribe-form input:focus { outline: none; border-color: var(--sand-dark); }
-
-.subscribe-form button {
-  padding: 0.6rem 1.3rem;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.88rem;
-  font-family: system-ui, sans-serif;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.subscribe-form button:hover { background: var(--accent-dark); }
-
-.subscribe-ok { font-size: 0.85rem; color: var(--sand); margin-top: 0.75rem; display: none; }
 
 /* ═══════════════════════════════════════
    FOOTER
@@ -386,6 +314,44 @@ main {
 body { top: 0 !important; }
 .goog-te-gadget { font-size: 0 !important; }
 .goog-te-gadget a { display: none !important; }
+
+/* ═══════════════════════════════════════
+   COLOR THEMES
+═══════════════════════════════════════ */
+
+/* Dusk — twilight purples */
+body.theme-dusk {
+  --accent:      #9b59b6;
+  --accent-dark: #7d3c98;
+  --sand-light:  #f5ecfc;
+  --sand:        #e8d5f5;
+  --sand-dark:   #c9a0d4;
+  --night:       #2d1b4e;
+  --night2:      #4a2d7a;
+  --border:      #ddc8ee;
+  --muted:       #8a6a9a;
+}
+body.theme-dusk .hero {
+  background: linear-gradient(180deg, #0d0820 0%, #2d1b4e 30%, #5a3080 55%, #9b6ab0 75%, #e8d5f5 100%);
+}
+body.theme-dusk .site-footer { background: #0d0820; }
+
+/* Oasis — desert greenery */
+body.theme-oasis {
+  --accent:      #2e8b57;
+  --accent-dark: #1e6b3e;
+  --sand-light:  #eaf5ee;
+  --sand:        #d0e8d8;
+  --sand-dark:   #8cbfa0;
+  --night:       #0d2818;
+  --night2:      #1a4a2e;
+  --border:      #b8d8c4;
+  --muted:       #5a8a6a;
+}
+body.theme-oasis .hero {
+  background: linear-gradient(180deg, #061610 0%, #0d2818 30%, #1a4a2e 55%, #2e6b42 75%, #d0e8d8 100%);
+}
+body.theme-oasis .site-footer { background: #061610; }
 
 /* ═══════════════════════════════════════
    RESPONSIVE

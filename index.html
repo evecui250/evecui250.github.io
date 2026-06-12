@@ -11,15 +11,15 @@
 <!-- ═══════════════════════════ HERO ═══════════════════════════ -->
 <header class="hero">
   <nav class="hero-nav">
-    <span class="hero-nav-title">Windy Desert</span>
+    <span class="hero-nav-title"><!-- blog-name -->Windy Desert<!-- /blog-name --></span>
     <button class="hero-translate-btn"
       onclick="window.open('https://translate.google.com/translate?sl=auto&tl=en&u='+encodeURIComponent(location.href),'_blank')">
       🌐 Translate page
     </button>
   </nav>
 
-  <h1 class="hero-title">Windy Desert</h1>
-  <p class="hero-tagline">Essays on whatever the wind carries in.</p>
+  <h1 class="hero-title"><!-- blog-name -->Windy Desert<!-- /blog-name --></h1>
+  <p class="hero-tagline"><!-- blog-tagline -->Essays on whatever the wind carries in.<!-- /blog-tagline --></p>
 
   <!-- Desert landscape SVG -->
   <svg class="hero-scene" viewBox="0 0 1440 220" preserveAspectRatio="xMidYMax slice"
@@ -180,6 +180,11 @@
 <script data-goatcounter="https://evecui250.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 <script>
+// Apply color theme from config.json
+fetch('/config.json').then(r => r.json()).then(cfg => {
+  if (cfg.theme && cfg.theme !== 'sand') document.body.classList.add('theme-' + cfg.theme);
+}).catch(() => {});
+
 async function loadViewCount(slug, elId) {
   try {
     const path = encodeURIComponent('/posts/' + slug + '.html');

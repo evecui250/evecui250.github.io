@@ -82,18 +82,19 @@
     .field-date  { width: 160px; flex-shrink: 0; }
     #post-title  { font-size: 1rem; font-weight: 500; }
 
-    .editor-panes { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; height: calc(100vh - 280px); min-height: 320px; }
-    .pane { display: flex; flex-direction: column; }
+    .editor-panes { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; height: calc(100vh - 220px); min-height: 400px; }
+    /* min-height:0 is the key fix — without it flex children won't shrink and scroll */
+    .pane { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
     .pane + .pane { border-left: 1px solid var(--border); }
-    .pane-head { padding: .4rem .75rem; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); background: var(--surface); border-bottom: 1px solid var(--border); }
-    .toolbar { display: flex; gap: .25rem; padding: .35rem .6rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .pane-head { padding: .4rem .75rem; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .toolbar { display: flex; gap: .25rem; padding: .35rem .6rem; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
     .tb-btn { padding: .15rem .45rem; border: 1px solid var(--border); border-radius: 3px; background: #fff; font-size: .78rem; cursor: pointer; color: var(--text); font-family: inherit; }
     .tb-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-    #post-content { flex: 1; border: none; border-radius: 0; padding: 1rem; resize: none; font-family: 'Courier New', monospace; font-size: .87rem; line-height: 1.75; background: #fff; }
+    #post-content { flex: 1; min-height: 0; border: none; border-radius: 0; padding: 1rem; resize: none; overflow-y: auto; font-family: 'Courier New', monospace; font-size: .87rem; line-height: 1.75; background: #fff; }
     #post-content:focus { outline: none; }
 
-    .preview-body { flex: 1; overflow-y: auto; padding: 1.2rem 1.5rem; font-family: Georgia,serif; font-size: .95rem; line-height: 1.8; color: var(--text); background: #fff; }
+    .preview-body { flex: 1; min-height: 0; overflow-y: auto; padding: 1.2rem 1.5rem; font-family: Georgia,serif; font-size: .95rem; line-height: 1.8; color: var(--text); background: #fff; }
     .preview-body p          { margin-bottom: 1.1rem; }
     .preview-body h2         { font-size: 1.1rem; font-weight: normal; margin: 1.5rem 0 .6rem; }
     .preview-body h3         { font-size: 1rem; margin: 1.2rem 0 .5rem; }
@@ -157,19 +158,48 @@
 
     <!-- Settings panel -->
     <div class="settings-panel" id="settings-panel">
-      <p class="section-label" style="margin-bottom:1rem">Service Setup</p>
-      <div style="margin-bottom:1rem">
-        <p class="settings-note">GoatCounter is configured as <strong>evecui250</strong> — view counts are live.</p>
+      <p class="section-label" style="margin-bottom:1rem">Blog Settings</p>
+
+      <div class="settings-grid">
+        <div>
+          <label for="s-name">Blog name</label>
+          <input type="text" id="s-name" placeholder="Windy Desert" />
+        </div>
+        <div>
+          <label for="s-tagline">Tagline</label>
+          <input type="text" id="s-tagline" placeholder="Essays on whatever the wind carries in." />
+        </div>
       </div>
+
+      <div style="margin-bottom:1.2rem">
+        <label>Color theme</label>
+        <div style="display:flex;gap:.5rem;margin-top:.4rem;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:.35rem;font-weight:normal;cursor:pointer">
+            <input type="radio" name="s-theme" value="sand" style="width:auto" /> Sand (default)
+          </label>
+          <label style="display:flex;align-items:center;gap:.35rem;font-weight:normal;cursor:pointer">
+            <input type="radio" name="s-theme" value="dusk" style="width:auto" /> Dusk
+          </label>
+          <label style="display:flex;align-items:center;gap:.35rem;font-weight:normal;cursor:pointer">
+            <input type="radio" name="s-theme" value="oasis" style="width:auto" /> Oasis
+          </label>
+        </div>
+      </div>
+
       <div style="margin-bottom:1rem">
-        <label for="s-giscus">Giscus &lt;script&gt; tag</label>
+        <label for="s-giscus">Giscus &lt;script&gt; tag (comments)</label>
         <textarea id="s-giscus" placeholder='<script src="https://giscus.app/client.js" data-repo="evecui250/evecui250.github.io" ...></script>'></textarea>
         <p class="settings-note">
-          Enable Discussions on your GitHub repo → install <a href="https://github.com/apps/giscus" target="_blank">Giscus app</a> →
-          generate your embed at <a href="https://giscus.app" target="_blank">giscus.app</a> → paste the full &lt;script&gt; tag here.
+          Paste your embed from <a href="https://giscus.app" target="_blank">giscus.app</a>.
+          Saving pushes it live to all posts immediately.
         </p>
       </div>
-      <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save settings</button>
+
+      <div style="margin-bottom:.5rem">
+        <p class="settings-note">GoatCounter is configured as <strong>evecui250</strong> — view counts are live.</p>
+      </div>
+
+      <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save &amp; publish settings</button>
       <span style="font-size:.78rem;color:var(--muted);margin-left:.75rem" id="settings-saved"></span>
     </div>
 
@@ -307,15 +337,67 @@ async function ghDelete(path, sha, message) {
 /* ─────────────────────────────────────────
    SETTINGS (localStorage)
 ───────────────────────────────────────── */
-function loadSettings() {
-  document.getElementById('s-giscus').value = localStorage.getItem('wd_giscus') || '';
+async function loadSettings() {
+  // Try to load from config.json on GitHub first
+  try {
+    const data = await ghGet('config.json');
+    const cfg  = JSON.parse(decode(data.content));
+    document.getElementById('s-name').value    = cfg.blogName    || 'Windy Desert';
+    document.getElementById('s-tagline').value = cfg.tagline     || '';
+    document.getElementById('s-giscus').value  = cfg.giscusScript || localStorage.getItem('wd_giscus') || '';
+    const theme = cfg.theme || 'sand';
+    const radio = document.querySelector(`input[name="s-theme"][value="${theme}"]`);
+    if (radio) radio.checked = true;
+    return;
+  } catch { /* config.json doesn't exist yet, fall back to localStorage */ }
+  document.getElementById('s-name').value    = localStorage.getItem('wd_name')    || 'Windy Desert';
+  document.getElementById('s-tagline').value = localStorage.getItem('wd_tagline') || '';
+  document.getElementById('s-giscus').value  = localStorage.getItem('wd_giscus')  || '';
+  const radio = document.querySelector('input[name="s-theme"][value="sand"]');
+  if (radio) radio.checked = true;
 }
 
-function saveSettings() {
-  localStorage.setItem('wd_giscus', document.getElementById('s-giscus').value.trim());
-  const el = document.getElementById('settings-saved');
-  el.textContent = 'Saved ✓';
-  setTimeout(() => { el.textContent = ''; }, 2500);
+async function saveSettings() {
+  const name    = document.getElementById('s-name').value.trim()    || 'Windy Desert';
+  const tagline = document.getElementById('s-tagline').value.trim() || '';
+  const giscus  = document.getElementById('s-giscus').value.trim();
+  const theme   = document.querySelector('input[name="s-theme"]:checked')?.value || 'sand';
+
+  // Save to localStorage as backup
+  localStorage.setItem('wd_name',    name);
+  localStorage.setItem('wd_tagline', tagline);
+  localStorage.setItem('wd_giscus',  giscus);
+
+  const btn = document.querySelector('#settings-panel .btn-primary');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Saving…';
+
+  try {
+    // Write config.json to GitHub
+    const configJson = JSON.stringify({ blogName: name, tagline, theme, giscusScript: giscus }, null, 2);
+    let existingSha;
+    try { existingSha = (await ghGet('config.json')).sha; } catch { /* new file */ }
+    await ghPut('config.json', configJson, 'update: blog settings', existingSha);
+
+    // Update blog name + tagline in index.html
+    const idxData  = await ghGet('index.html');
+    let   idxHtml  = decode(idxData.content);
+    idxHtml = idxHtml
+      .replace(/<!-- blog-name -->.*?<!-- \/blog-name -->/g,
+               `<!-- blog-name -->${esc(name)}<!-- /blog-name -->`)
+      .replace(/<!-- blog-tagline -->.*?<!-- \/blog-tagline -->/g,
+               `<!-- blog-tagline -->${esc(tagline)}<!-- /blog-tagline -->`);
+    await ghPut('index.html', idxHtml, `update: blog name/tagline`, idxData.sha);
+
+    const el = document.getElementById('settings-saved');
+    el.textContent = 'Saved and live ✓';
+    setTimeout(() => { el.textContent = ''; }, 3000);
+  } catch (e) {
+    toast('Error saving settings: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save & publish settings';
+  }
 }
 
 function cfg(key) { return localStorage.getItem(key) || ''; }
@@ -645,14 +727,6 @@ async function publish() {
    HTML BUILDERS
 ───────────────────────────────────────── */
 function buildPost(title, dateLabel, bodyHtml) {
-  const giscus = cfg('wd_giscus');
-
-  const commentsBlock = giscus
-    ? giscus
-    : `<p style="font-size:.82rem;color:var(--muted);font-family:system-ui,sans-serif">
-        Comments are powered by Giscus. <a href="https://giscus.app" target="_blank">Set it up in 2 minutes →</a>
-       </p>`;
-
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -666,8 +740,8 @@ function buildPost(title, dateLabel, bodyHtml) {
 
   <header class="site-header">
     <div class="site-header-inner">
-      <h1 class="site-title"><a href="../index.html">Windy Desert</a></h1>
-      <p class="site-tagline">Essays on whatever the wind carries in.</p>
+      <h1 class="site-title"><a href="../index.html"><!-- blog-name -->Windy Desert<!-- /blog-name --></a></h1>
+      <p class="site-tagline"><!-- blog-tagline -->Essays on whatever the wind carries in.<!-- /blog-tagline --></p>
     </div>
   </header>
 
@@ -694,7 +768,7 @@ function buildPost(title, dateLabel, bodyHtml) {
 
     <section class="comments-section">
       <p class="comments-label">Comments</p>
-      ${commentsBlock}
+      <div id="giscus-container"></div>
     </section>
   </main>
 
@@ -705,11 +779,32 @@ function buildPost(title, dateLabel, bodyHtml) {
 <script>
 (async function() {
   try {
+    // View count
     const r = await fetch('https://evecui250.goatcounter.com/counter/' + encodeURIComponent(location.pathname) + '.json');
     if (r.ok) {
       const { count } = await r.json();
       const el = document.getElementById('view-count');
       if (el) el.textContent = '· ' + count + ' view' + (count===1?'':'s');
+    }
+  } catch {}
+
+  try {
+    // Load config (theme + comments)
+    const cfg = await fetch('/config.json').then(r => r.json());
+
+    // Apply color theme
+    if (cfg.theme && cfg.theme !== 'sand') document.body.classList.add('theme-' + cfg.theme);
+
+    // Inject Giscus dynamically so it works on all existing posts too
+    if (cfg.giscusScript) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = cfg.giscusScript;
+      const orig = tmp.querySelector('script');
+      if (orig) {
+        const s = document.createElement('script');
+        for (const a of orig.attributes) s.setAttribute(a.name, a.value);
+        document.getElementById('giscus-container').appendChild(s);
+      }
     }
   } catch {}
 })();
