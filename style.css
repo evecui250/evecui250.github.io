@@ -1,15 +1,15 @@
-/* ── Sahara Nights palette ── */
+/* ── Sahara Nights — dark desert palette ── */
 :root {
-  --bg:          #fdf8ee;
-  --card:        #fffdf5;
-  --text:        #1a1530;
-  --muted:       #6a5888;
-  --accent:      #c89818;
-  --accent-dark: #9a7408;
-  --border:      #d8cce0;
-  --sand-light:  #f5ecdb;
-  --sand:        #e8d878;
-  --sand-dark:   #c8a828;
+  --bg:          #0c0820;
+  --card:        #130f28;
+  --text:        #e8d8b0;
+  --muted:       #9a8860;
+  --accent:      #d4aa20;
+  --accent-dark: #c09020;
+  --border:      #281f48;
+  --sand-light:  #1a1535;
+  --sand:        #241d45;
+  --sand-dark:   #d4aa20;
   --night:       #030210;
   --night2:      #0a0935;
   --max:         700px;
@@ -174,7 +174,7 @@ a:hover { color: var(--accent-dark); text-decoration: underline; }
   gap: 0.2rem;
 }
 
-.post-item-excerpt { font-size: 0.9rem; color: #5a4030; line-height: 1.7; }
+.post-item-excerpt { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
 
 
 /* ═══════════════════════════════════════
@@ -319,39 +319,39 @@ body { top: 0 !important; }
    COLOR THEMES
 ═══════════════════════════════════════ */
 
-/* Dusk — twilight purples */
+/* Dusk — twilight purples (dark) */
 body.theme-dusk {
-  --accent:      #9b59b6;
-  --accent-dark: #7d3c98;
-  --sand-light:  #f5ecfc;
-  --sand:        #e8d5f5;
-  --sand-dark:   #c9a0d4;
-  --night:       #2d1b4e;
-  --night2:      #4a2d7a;
-  --border:      #ddc8ee;
-  --muted:       #8a6a9a;
+  --bg:          #0a0618;
+  --card:        #100828;
+  --accent:      #c070e0;
+  --accent-dark: #9a50c0;
+  --sand-light:  #1c1230;
+  --sand:        #281848;
+  --sand-dark:   #c070e0;
+  --border:      #382050;
+  --muted:       #9a7aaa;
 }
 body.theme-dusk .hero {
-  background: linear-gradient(180deg, #0d0820 0%, #2d1b4e 30%, #5a3080 55%, #9b6ab0 75%, #e8d5f5 100%);
+  background: linear-gradient(180deg, #030108 0%, #0a0520 20%, #180a40 45%, #2a1060 65%, #4a1010 82%, #5c2818 100%);
 }
-body.theme-dusk .site-footer { background: #0d0820; }
+body.theme-dusk .site-footer { background: #050110; }
 
-/* Oasis — desert greenery */
+/* Oasis — desert night greenery (dark) */
 body.theme-oasis {
-  --accent:      #2e8b57;
-  --accent-dark: #1e6b3e;
-  --sand-light:  #eaf5ee;
-  --sand:        #d0e8d8;
-  --sand-dark:   #8cbfa0;
-  --night:       #0d2818;
-  --night2:      #1a4a2e;
-  --border:      #b8d8c4;
-  --muted:       #5a8a6a;
+  --bg:          #050c0a;
+  --card:        #0a1410;
+  --accent:      #30b860;
+  --accent-dark: #208040;
+  --sand-light:  #0c1814;
+  --sand:        #121e18;
+  --sand-dark:   #30b860;
+  --border:      #1a3020;
+  --muted:       #70a080;
 }
 body.theme-oasis .hero {
-  background: linear-gradient(180deg, #061610 0%, #0d2818 30%, #1a4a2e 55%, #2e6b42 75%, #d0e8d8 100%);
+  background: linear-gradient(180deg, #010805 0%, #040e0a 20%, #081820 45%, #0f2818 65%, #2a3010 82%, #3a4010 100%);
 }
-body.theme-oasis .site-footer { background: #061610; }
+body.theme-oasis .site-footer { background: #010805; }
 
 /* ═══════════════════════════════════════
    RESPONSIVE
