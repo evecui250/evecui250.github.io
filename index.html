@@ -154,69 +154,27 @@
   </ul>
 </div>
 
-<!-- ═══════════════════════════ SUBSCRIBE ═══════════════════════════ -->
-<section class="subscribe-section">
-  <div class="subscribe-inner">
-    <h2 class="subscribe-title">Stay with the wind</h2>
-    <p class="subscribe-sub">New essays, delivered quietly to your inbox.</p>
-
-    <!--
-      SETUP: Create a free account at buttondown.com, then replace
-      YOUR_BUTTONDOWN_USERNAME below with your username.
-    -->
-    <form class="subscribe-form" id="subscribe-form"
-          action="https://buttondown.com/api/emails/embed-subscribe/YOUR_BUTTONDOWN_USERNAME"
-          method="post">
-      <input type="email" name="email" placeholder="your@email.com" required />
-      <button type="submit">Subscribe</button>
-    </form>
-    <p class="subscribe-ok" id="subscribe-ok">You're in. Thank you.</p>
-  </div>
-</section>
-
 <!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
 <footer class="site-footer">
   Windy Desert &mdash; written by hand, hosted free on
   <a href="https://pages.github.com" target="_blank">GitHub Pages</a>.
 </footer>
 
+<script data-goatcounter="https://evecui250.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 <script>
-/* ── Load view counts from GoatCounter ──
-   SETUP: Register a free site at goatcounter.com, then replace
-   YOUR_SITE below with your site code (e.g. "windydesert"). */
-const GC_SITE = 'YOUR_SITE';
-
 async function loadViewCount(slug, elId) {
-  if (!GC_SITE || GC_SITE === 'YOUR_SITE') return;
   try {
     const path = encodeURIComponent('/posts/' + slug + '.html');
-    const r = await fetch(`https://${GC_SITE}.goatcounter.com/counter/${path}.json`);
+    const r = await fetch(`https://evecui250.goatcounter.com/counter/${path}.json`);
     if (!r.ok) return;
     const { count } = await r.json();
     const el = document.getElementById(elId);
     if (el) el.textContent = `· ${count} view${count === 1 ? '' : 's'}`;
-  } catch { /* GoatCounter not configured yet */ }
+  } catch {}
 }
 
 loadViewCount('hello-world', 'views-hello-world');
-
-/* ── Subscribe form: prevent redirect, show inline message ── */
-document.getElementById('subscribe-form').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const btn  = this.querySelector('button');
-  const ok   = document.getElementById('subscribe-ok');
-  btn.textContent = 'Subscribing…';
-  btn.disabled = true;
-  try {
-    await fetch(this.action, { method: 'POST', body: new FormData(this), mode: 'no-cors' });
-    this.style.display = 'none';
-    ok.style.display = 'block';
-  } catch {
-    btn.textContent = 'Subscribe';
-    btn.disabled = false;
-    alert('Something went wrong. Please try again.');
-  }
-});
 </script>
 
 </body>

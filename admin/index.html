@@ -158,17 +158,8 @@
     <!-- Settings panel -->
     <div class="settings-panel" id="settings-panel">
       <p class="section-label" style="margin-bottom:1rem">Service Setup</p>
-      <div class="settings-grid">
-        <div>
-          <label for="s-gc">GoatCounter site code</label>
-          <input type="text" id="s-gc" placeholder="windydesert" />
-          <p class="settings-note">Register free at <a href="https://goatcounter.com" target="_blank">goatcounter.com</a> → use your site code.</p>
-        </div>
-        <div>
-          <label for="s-bd">Buttondown username</label>
-          <input type="text" id="s-bd" placeholder="evecui250" />
-          <p class="settings-note">Register free at <a href="https://buttondown.com" target="_blank">buttondown.com</a> → use your username.</p>
-        </div>
+      <div style="margin-bottom:1rem">
+        <p class="settings-note">GoatCounter is configured as <strong>evecui250</strong> — view counts are live.</p>
       </div>
       <div style="margin-bottom:1rem">
         <label for="s-giscus">Giscus &lt;script&gt; tag</label>
@@ -317,14 +308,10 @@ async function ghDelete(path, sha, message) {
    SETTINGS (localStorage)
 ───────────────────────────────────────── */
 function loadSettings() {
-  document.getElementById('s-gc').value     = localStorage.getItem('wd_gc')     || '';
-  document.getElementById('s-bd').value     = localStorage.getItem('wd_bd')     || '';
   document.getElementById('s-giscus').value = localStorage.getItem('wd_giscus') || '';
 }
 
 function saveSettings() {
-  localStorage.setItem('wd_gc',     document.getElementById('s-gc').value.trim());
-  localStorage.setItem('wd_bd',     document.getElementById('s-bd').value.trim());
   localStorage.setItem('wd_giscus', document.getElementById('s-giscus').value.trim());
   const el = document.getElementById('settings-saved');
   el.textContent = 'Saved ✓';
@@ -658,50 +645,7 @@ async function publish() {
    HTML BUILDERS
 ───────────────────────────────────────── */
 function buildPost(title, dateLabel, bodyHtml) {
-  const gcSite  = cfg('wd_gc');
-  const bdUser  = cfg('wd_bd');
-  const giscus  = cfg('wd_giscus');
-
-  const gcScript = gcSite
-    ? `\n  <script data-goatcounter="https://${gcSite}.goatcounter.com/count" async src="//gc.zgo.at/count.js"><\/script>`
-    : '';
-
-  const gcCount = gcSite ? `
-  <script>
-  (async function() {
-    try {
-      const r = await fetch('https://${gcSite}.goatcounter.com/counter/' + encodeURIComponent(location.pathname) + '.json');
-      if (r.ok) {
-        const { count } = await r.json();
-        const el = document.getElementById('view-count');
-        if (el) el.textContent = '· ' + count + ' view' + (count===1?'':'s');
-      }
-    } catch {}
-  })();
-  <\/script>` : '';
-
-  const subscribeForm = bdUser ? `
-      <form class="subscribe-form" id="post-subscribe-form"
-            action="https://buttondown.com/api/emails/embed-subscribe/${bdUser}"
-            method="post">
-        <input type="email" name="email" placeholder="your@email.com" required />
-        <button type="submit">Subscribe</button>
-      </form>
-      <p class="subscribe-ok" id="post-subscribe-ok">You're in. Thank you.</p>
-      <script>
-      document.getElementById('post-subscribe-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const btn = this.querySelector('button');
-        btn.textContent = 'Subscribing…'; btn.disabled = true;
-        try {
-          await fetch(this.action, { method: 'POST', body: new FormData(this), mode: 'no-cors' });
-          this.style.display = 'none';
-          document.getElementById('post-subscribe-ok').style.display = 'block';
-        } catch { btn.textContent = 'Subscribe'; btn.disabled = false; }
-      });
-      <\/script>` : `<p style="font-size:.82rem;color:var(--muted);font-family:system-ui,sans-serif">
-        Subscribe via <a href="https://buttondown.com" target="_blank">Buttondown</a> — configure in Admin → Settings.
-      </p>`;
+  const giscus = cfg('wd_giscus');
 
   const commentsBlock = giscus
     ? giscus
@@ -715,7 +659,8 @@ function buildPost(title, dateLabel, bodyHtml) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${esc(title)} — Windy Desert</title>
-  <link rel="stylesheet" href="../style.css" />${gcScript}
+  <link rel="stylesheet" href="../style.css" />
+  <script data-goatcounter="https://evecui250.goatcounter.com/count" async src="//gc.zgo.at/count.js"><\/script>
 </head>
 <body>
 
@@ -747,12 +692,6 @@ function buildPost(title, dateLabel, bodyHtml) {
       </div>
     </article>
 
-    <div class="post-subscribe">
-      <h3>Enjoyed this essay?</h3>
-      <p>Subscribe to receive new essays in your inbox — no noise, just writing.</p>
-      ${subscribeForm}
-    </div>
-
     <section class="comments-section">
       <p class="comments-label">Comments</p>
       ${commentsBlock}
@@ -763,7 +702,18 @@ function buildPost(title, dateLabel, bodyHtml) {
     Windy Desert &mdash; written by hand, hosted free.
   </footer>
 
-${gcCount}
+<script>
+(async function() {
+  try {
+    const r = await fetch('https://evecui250.goatcounter.com/counter/' + encodeURIComponent(location.pathname) + '.json');
+    if (r.ok) {
+      const { count } = await r.json();
+      const el = document.getElementById('view-count');
+      if (el) el.textContent = '· ' + count + ' view' + (count===1?'':'s');
+    }
+  } catch {}
+})();
+<\/script>
 </body>
 </html>`;
 }

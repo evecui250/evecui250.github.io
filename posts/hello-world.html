@@ -6,11 +6,7 @@
   <title>Hello, Windy Desert — Windy Desert</title>
   <link rel="stylesheet" href="../style.css" />
 
-  <!--
-    SETUP: Replace YOUR_SITE with your GoatCounter site code.
-    Register free at goatcounter.com
-  -->
-  <script data-goatcounter="https://YOUR_SITE.goatcounter.com/count"
+  <script data-goatcounter="https://evecui250.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
@@ -57,23 +53,6 @@
       </div>
     </article>
 
-    <!-- ── Subscribe prompt ── -->
-    <div class="post-subscribe">
-      <h3>Enjoyed this essay?</h3>
-      <p>Subscribe to receive new essays in your inbox — no noise, just writing.</p>
-      <!--
-        SETUP: Replace YOUR_BUTTONDOWN_USERNAME with your Buttondown username.
-        Register free at buttondown.com
-      -->
-      <form class="subscribe-form" id="post-subscribe-form"
-            action="https://buttondown.com/api/emails/embed-subscribe/YOUR_BUTTONDOWN_USERNAME"
-            method="post">
-        <input type="email" name="email" placeholder="your@email.com" required />
-        <button type="submit">Subscribe</button>
-      </form>
-      <p class="subscribe-ok" id="post-subscribe-ok">You're in. Thank you.</p>
-    </div>
-
     <!-- ── Comments ── -->
     <section class="comments-section">
       <p class="comments-label">Comments</p>
@@ -98,35 +77,16 @@
   </footer>
 
 <script>
-/* ── View count ──
-   SETUP: Replace YOUR_SITE with your GoatCounter site code. */
 (async function() {
-  const GC_SITE = 'YOUR_SITE';
-  if (!GC_SITE || GC_SITE === 'YOUR_SITE') return;
   try {
     const path = encodeURIComponent(location.pathname);
-    const r = await fetch(`https://${GC_SITE}.goatcounter.com/counter/${path}.json`);
+    const r = await fetch(`https://evecui250.goatcounter.com/counter/${path}.json`);
     if (!r.ok) return;
     const { count } = await r.json();
     const el = document.getElementById('view-count');
     if (el) el.textContent = `· ${count} view${count === 1 ? '' : 's'}`;
   } catch {}
 })();
-
-/* ── Subscribe form ── */
-document.getElementById('post-subscribe-form').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const btn = this.querySelector('button');
-  btn.textContent = 'Subscribing…'; btn.disabled = true;
-  try {
-    await fetch(this.action, { method: 'POST', body: new FormData(this), mode: 'no-cors' });
-    this.style.display = 'none';
-    document.getElementById('post-subscribe-ok').style.display = 'block';
-  } catch {
-    btn.textContent = 'Subscribe'; btn.disabled = false;
-    alert('Something went wrong. Please try again.');
-  }
-});
 </script>
 
 </body>
