@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Two letters to Robin — Windy Desert</title>
+  <link rel="stylesheet" href="../style.css" />
+  <script data-goatcounter="https://evecui250.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="site-header-inner">
+      <h1 class="site-title"><a href="../index.html"><!-- blog-name -->Windy Desert<!-- /blog-name --></a></h1>
+      <p class="site-tagline"><!-- blog-tagline -->Essays on whatever the wind carries in.<!-- /blog-tagline --></p>
+    </div>
+  </header>
+
+  <main>
+    <a class="back-link" href="../index.html">← All essays</a>
+
+    <article>
+      <header>
+        <h1 class="post-title">Two letters to Robin</h1>
+        <div class="post-meta-row">
+          <span class="post-meta">May 25, 2025</span>
+          <span class="post-views" id="view-count"></span>
+          <button class="translate-btn"
+            onclick="window.open('https://translate.google.com/translate?sl=auto&tl=en&u='+encodeURIComponent(location.href),'_blank')">
+            🌐 Translate to English
+          </button>
+        </div>
+      </header>
+
+      <div class="post-body">
+        <p>The first letter on 2024.12.1</p>
+        <p>Dear Robin,</p>
+        <p>I really appreciate your care and help, as I am going through a struggling period. I deeply admire and trust you so I would like to share with you more. On Tuesday I was a bit sad because during Martin's celebration he said, "at the beginning of my PhD I was so happy working here and I was sad to go home". I found this quite the opposite for me, so I went into self-doubt. In alumni lounge you also mentioned to me that doing a PhD requires some passion that one wants to solve a problem. I questioned myself again.</p>
+        <p>The reason I suspect depression is that it has been harder for me to control my emotions. I never express it at work, but when I am alone, I cry too often and cannot stop. Also, I am more and more afraid of people (I actually was staying in my office when Martin's celebration began, but Alex persuaded me to join; similar happened for the alumni beer). Sometimes I feel uneasy, and sometimes I feel I cannot catch up with what people are saying, like my brain was not processing.</p>
+        <p>A major topic I faced was to identify what are my own problems and what are from the environment. I got a bit excluded from the older Penning team and was lack of supervision until the new postdoc came. In the past year I also didn't learn as much as before, so I felt more anxious and incapable. (I am not blaming anyone, they are good people, I'm just trying to analyze the factors.) This is also my first time being in a group with so many white guys and I don't have much common language to them. But as I followed Chi's advice – don't force yourself to integrate – I do feel more comfortable now, although still distanced from them.</p>
+        <p>Personally, I often feel worthless. I have done various small things for the lab but nothing major. Besides CAD and teaching I don't think I gained many other skills. It is also the first time I earn a salary, so when I feel that I didn't do enough to deserve this salary, I feel guilty. This also led to my decision of Blutspende in May ;D Also, I have very bad memory so when people ask me anything about the lab I usually say "I don't know" or "I can't remember". Saying this makes me question my ability as well.</p>
+        <p>I think I should avoid never asking for help and avoid asking for too much help. Since I have already talked to you, Tanja, Moritz, Chi and David, I think I have gathered enough support. Every time after talking to you guys, I immediately felt better. But the sadness often returns.  I don't want to repeatedly bother people… Everyone in TIQI is nice and kind, which makes my struggles even harder to accept. I think I need to solve the problem by myself. There is a battling voice in my mind between finding a job in another country and giving myself more time to adapt to this PhD life. A few months ago, I was even uneasy sitting in the office. Sometimes I would walk through the hallway, pass my office, and leave the building directly. Now with adaptation, I can sit in my office for longer time.</p>
+        <p>Thank you for taking the time to read this. Writing it helped me organize my thoughts. Please don’t feel obligated to respond; just knowing you’re there has been a great comfort. Again, I really appreciate you supporting me, I feel very lucky. I hope to give myself enough time to slowly recover, hopefully getting a psychologist, and maybe a dog :) I also hope you enjoy your vacation in Japan!</p>
+        <p>Best,</p>
+        <p>Yingying</p>
+        <p>------------------------------------------------------------------------------</p>
+        <p>The second letter on 2025.5.25</p>
+        <p>Dear Robin,</p>
+        <p>I hope you are doing well! Just wanted to update with you my recent situations.</p>
+        <p>About 2.5 months ago, I had the last big mood swing, but afterwards it never happens again! At first, I was afraid of the depressive symptoms coming back. But as time goes, I am more confident that I am finally back to a normal state.</p>
+        <p>About what made this magical change happened, I do not know. But two things have certainly helped at that time: we trapped the first ion with the set up I designed, and I finally found an ideal apartment. The first thing helped me with the confidence in the career, and the second thing improved my living quality. Previously I was living in a room less than 10 m^2 but paying an incredibly high rent. I struggled to find a new apartment because I wanted a pet-friendly apartment so I could have a furry friend. After a year of searching, I found my current place and will adopt a shelter dog from China next month!</p>
+        <p>I also keep visiting a psychiatrist once or twice a month since February, and that has helped too. The psychiatrist told me that I tend to focus more on things I didn’t accomplish than on things I did well. Another thing I found out is that I only have negative reactions about one specific topic (that topic is related to work, but not the entire physics or tiqi). Even now, whenever I think about it or someone bring it up, I cannot control my mood. But since this discovery, I can just avoid thinking or talking about it. And it has been working perfectly for me.</p>
+        <p>Now looking back the past, I am very grateful that I am over that dark period. And very grateful for you and others who have helped me. I just simply feel alive again. I don’t know if someday I will fall back off that cliff, but I know that I will be able to overcome it again. Hope you see you again and hear about your life too.</p>
+        <p>Best,</p>
+        <p>Yingying</p>
+      </div>
+    </article>
+
+    <section class="comments-section">
+      <p class="comments-label">Comments</p>
+      <div id="giscus-container"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    Windy Desert &mdash; written by hand, hosted free.
+  </footer>
+
+<script>
+(async function() {
+  try {
+    // View count
+    const r = await fetch('https://evecui250.goatcounter.com/counter/' + encodeURIComponent(location.pathname) + '.json');
+    if (r.ok) {
+      const { count } = await r.json();
+      const el = document.getElementById('view-count');
+      if (el) el.textContent = '· ' + count + ' view' + (count===1?'':'s');
+    }
+  } catch {}
+
+  try {
+    // Load config (theme + comments)
+    const cfg = await fetch('/config.json').then(r => r.json());
+
+    // Apply color theme
+    if (cfg.theme && cfg.theme !== 'sand') document.body.classList.add('theme-' + cfg.theme);
+
+    // Inject Giscus dynamically so it works on all existing posts too
+    if (cfg.giscusScript) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = cfg.giscusScript;
+      const orig = tmp.querySelector('script');
+      if (orig) {
+        const s = document.createElement('script');
+        for (const a of orig.attributes) s.setAttribute(a.name, a.value);
+        document.getElementById('giscus-container').appendChild(s);
+      }
+    }
+  } catch {}
+})();
+</script>
+</body>
+</html>
