@@ -2,6 +2,6 @@
   "blogName": "Sahara Nights",
   "tagline": "Welcome to Yingying's new blog :D",
   "theme": "sand",
-  "bgColor": "#211c14",
+  "bgColor": "#ddcdb0",
   "giscusScript": "<script src=\"https://giscus.app/client.js\"\n        data-repo=\"evecui250/evecui250.github.io\"\n        data-repo-id=\"R_kgDOS4wUkQ\"\n        data-category=\"General\"\n        data-category-id=\"DIC_kwDOS4wUkc4C_CE4\"\n        data-mapping=\"pathname\"\n        data-strict=\"0\"\n        data-reactions-enabled=\"1\"\n        data-emit-metadata=\"0\"\n        data-input-position=\"bottom\"\n        data-theme=\"transparent_dark\"\n        data-lang=\"en\"\n        crossorigin=\"anonymous\"\n        async>\n</script>"
 }
