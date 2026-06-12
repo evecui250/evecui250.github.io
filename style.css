@@ -1,17 +1,17 @@
-/* ── Desert palette ── */
+/* ── Sahara Nights palette ── */
 :root {
-  --bg:          #fdf8f0;
-  --card:        #fff;
-  --text:        #2c1f14;
-  --muted:       #8c6642;
-  --accent:      #c4783a;
-  --accent-dark: #9a5a25;
-  --border:      #dfd0b0;
-  --sand-light:  #f5e9c9;
-  --sand:        #e8d5a0;
-  --sand-dark:   #c9a96e;
-  --night:       #1a2340;
-  --night2:      #2d3f6b;
+  --bg:          #fdf8ee;
+  --card:        #fffdf5;
+  --text:        #1a1530;
+  --muted:       #6a5888;
+  --accent:      #c89818;
+  --accent-dark: #9a7408;
+  --border:      #d8cce0;
+  --sand-light:  #f5ecdb;
+  --sand:        #e8d878;
+  --sand-dark:   #c8a828;
+  --night:       #030210;
+  --night2:      #0a0935;
   --max:         700px;
 }
 
@@ -33,7 +33,7 @@ a:hover { color: var(--accent-dark); text-decoration: underline; }
    HERO (homepage only)
 ═══════════════════════════════════════ */
 .hero {
-  background: linear-gradient(180deg, #0d1528 0%, #1a2340 30%, #2d3f6b 55%, #7a5030 75%, #c9a96e 90%, #e8d5a0 100%);
+  background: linear-gradient(180deg, #020108 0%, #06041a 15%, #0a0830 30%, #14104a 50%, #1e1455 65%, #4a2a08 80%, #c49020 92%, #dfc050 100%);
   position: relative;
   overflow: hidden;
   min-height: 360px;
@@ -87,7 +87,7 @@ a:hover { color: var(--accent-dark); text-decoration: underline; }
 
 .hero-tagline {
   font-size: 0.9rem;
-  color: #c9a96e;
+  color: var(--sand-dark);
   font-style: italic;
   margin-top: 0.6rem;
   position: relative;
@@ -181,8 +181,8 @@ a:hover { color: var(--accent-dark); text-decoration: underline; }
    FOOTER
 ═══════════════════════════════════════ */
 .site-footer {
-  background: #0d1528;
-  color: rgba(201,169,110,0.55);
+  background: #030210;
+  color: rgba(200,168,40,0.55);
   padding: 1.5rem;
   text-align: center;
   font-size: 0.75rem;

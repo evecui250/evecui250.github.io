@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tiffany与Xiang的故事（II） — Windy Desert</title>
+  <title>Tiffany与Xiang的故事（II） — Sahara Nights</title>
   <link rel="stylesheet" href="../style.css" />
   <script data-goatcounter="https://evecui250.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -11,8 +11,8 @@
 
   <header class="site-header">
     <div class="site-header-inner">
-      <h1 class="site-title"><a href="../index.html">Windy Desert</a></h1>
-      <p class="site-tagline">Essays on whatever the wind carries in.</p>
+      <h1 class="site-title"><a href="../index.html"><!-- blog-name -->Sahara Nights<!-- /blog-name --></a></h1>
+      <p class="site-tagline"><!-- blog-tagline -->Welcome to Yingying's new blog :D<!-- /blog-tagline --></p>
     </div>
   </header>
 
@@ -51,50 +51,43 @@
       </div>
     </article>
 
-    <div class="post-subscribe">
-      <h3>Enjoyed this essay?</h3>
-      <p>Subscribe to receive new essays in your inbox — no noise, just writing.</p>
-      <p style="font-size:.82rem;color:var(--muted);font-family:system-ui,sans-serif">
-        Subscribe via <a href="https://buttondown.com" target="_blank">Buttondown</a> — configure in Admin → Settings.
-      </p>
-    </div>
-
+    <!-- ── Comments ── -->
     <section class="comments-section">
       <p class="comments-label">Comments</p>
-      <script src="https://giscus.app/client.js"
-        data-repo="evecui250/evecui250.github.io"
-        data-repo-id="R_kgDOS4wUkQ"
-        data-category="General"
-        data-category-id="DIC_kwDOS4wUkc4C_CE4"
-        data-mapping="pathname"
-        data-strict="0"
-        data-reactions-enabled="1"
-        data-emit-metadata="0"
-        data-input-position="bottom"
-        data-theme="light"
-        data-lang="en"
-        crossorigin="anonymous"
-        async>
-</script>
+      <div id="giscus-container"></div>
     </section>
   </main>
 
   <footer class="site-footer">
-    Windy Desert &mdash; written by hand, hosted free.
+    Sahara Nights &mdash; written by hand, hosted free. &nbsp;·&nbsp; <a href="/admin/">Admin</a>
   </footer>
 
-
-  <script>
-  (async function() {
-    try {
-      const r = await fetch('https://evecui250.goatcounter.com/counter/' + encodeURIComponent(location.pathname) + '.json');
-      if (r.ok) {
-        const { count } = await r.json();
-        const el = document.getElementById('view-count');
-        if (el) el.textContent = '· ' + count + ' view' + (count===1?'':'s');
+<script>
+(async function() {
+  try {
+    const r = await fetch('https://evecui250.goatcounter.com/counter/' + encodeURIComponent(location.pathname) + '.json');
+    if (r.ok) {
+      const { count } = await r.json();
+      const el = document.getElementById('view-count');
+      if (el) el.textContent = '· ' + count + ' view' + (count===1?'':'s');
+    }
+  } catch {}
+  try {
+    const cfg = await fetch('/config.json').then(r => r.json());
+    if (cfg.theme && cfg.theme !== 'sand') document.body.classList.add('theme-' + cfg.theme);
+    if (cfg.tagline) { const t = document.querySelector('.site-tagline'); if (t) t.textContent = cfg.tagline; }
+    if (cfg.giscusScript) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = cfg.giscusScript;
+      const orig = tmp.querySelector('script');
+      if (orig) {
+        const s = document.createElement('script');
+        for (const a of orig.attributes) s.setAttribute(a.name, a.value);
+        document.getElementById('giscus-container').appendChild(s);
       }
-    } catch {}
-  })();
-  </script>
+    }
+  } catch {}
+})();
+</script>
 </body>
 </html>

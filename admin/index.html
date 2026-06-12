@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin — Windy Desert</title>
+  <title>Admin — Sahara Nights</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐪</text></svg>">
   <style>
     :root {
@@ -127,7 +127,7 @@
 <div id="screen-login" class="screen active">
   <div class="login-wrap">
     <div class="login-card">
-      <h1>Windy Desert</h1>
+      <h1>Sahara Nights</h1>
       <p class="sub">Sign in with your GitHub token to write and publish.</p>
       <label for="token-input">GitHub Personal Access Token</label>
       <input type="password" id="token-input" placeholder="ghp_…" autocomplete="off"
@@ -147,7 +147,7 @@
 <!-- ════════════════════════════════ DASHBOARD ════════════════════════════════ -->
 <div id="screen-dashboard" class="screen">
   <div class="app-bar">
-    <span class="app-bar-title">Windy Desert <span>Admin</span></span>
+    <span class="app-bar-title">Sahara Nights <span>Admin</span></span>
     <div class="app-bar-actions">
       <button class="btn btn-ghost btn-sm" onclick="toggleSettings()">⚙ Settings</button>
       <button class="btn btn-primary"      onclick="openEditor()">+ New Essay</button>
@@ -164,7 +164,7 @@
       <div class="settings-grid">
         <div>
           <label for="s-name">Blog name</label>
-          <input type="text" id="s-name" placeholder="Windy Desert" />
+          <input type="text" id="s-name" placeholder="Sahara Nights" />
         </div>
         <div>
           <label for="s-tagline">Tagline</label>
@@ -201,7 +201,11 @@
       </div>
 
       <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save &amp; publish settings</button>
+      <button class="btn btn-ghost btn-sm" style="margin-left:.5rem" onclick="refreshAllPosts()" id="refresh-btn">Refresh all posts</button>
       <span style="font-size:.78rem;color:var(--muted);margin-left:.75rem" id="settings-saved"></span>
+      <p class="settings-note" style="margin-top:.6rem">
+        "Refresh all posts" updates older essays so they support comments, themes, and the current blog name — without changing their content.
+      </p>
     </div>
 
     <!-- Drafts -->
@@ -222,7 +226,7 @@
 <!-- ════════════════════════════════ EDITOR ════════════════════════════════ -->
 <div id="screen-editor" class="screen">
   <div class="app-bar">
-    <span class="app-bar-title">Windy Desert <span id="editor-mode-label">New Essay</span></span>
+    <span class="app-bar-title">Sahara Nights <span id="editor-mode-label">New Essay</span></span>
     <div class="app-bar-actions">
       <button class="btn btn-ghost"   id="toggle-preview" style="display:none" onclick="togglePreview()">Preview</button>
       <button class="btn btn-ghost"   onclick="openDashboard()">Cancel</button>
@@ -343,7 +347,7 @@ async function loadSettings() {
   try {
     const data = await ghGet('config.json');
     const cfg  = JSON.parse(decode(data.content));
-    document.getElementById('s-name').value    = cfg.blogName    || 'Windy Desert';
+    document.getElementById('s-name').value    = cfg.blogName    || 'Sahara Nights';
     document.getElementById('s-tagline').value = cfg.tagline     || '';
     document.getElementById('s-giscus').value  = cfg.giscusScript || localStorage.getItem('wd_giscus') || '';
     const theme = cfg.theme || 'sand';
@@ -351,7 +355,7 @@ async function loadSettings() {
     if (radio) radio.checked = true;
     return;
   } catch { /* config.json doesn't exist yet, fall back to localStorage */ }
-  document.getElementById('s-name').value    = localStorage.getItem('wd_name')    || 'Windy Desert';
+  document.getElementById('s-name').value    = localStorage.getItem('wd_name')    || 'Sahara Nights';
   document.getElementById('s-tagline').value = localStorage.getItem('wd_tagline') || '';
   document.getElementById('s-giscus').value  = localStorage.getItem('wd_giscus')  || '';
   const radio = document.querySelector('input[name="s-theme"][value="sand"]');
@@ -359,7 +363,7 @@ async function loadSettings() {
 }
 
 async function saveSettings() {
-  const name    = document.getElementById('s-name').value.trim()    || 'Windy Desert';
+  const name    = document.getElementById('s-name').value.trim()    || 'Sahara Nights';
   const tagline = document.getElementById('s-tagline').value.trim() || '';
   const giscus  = document.getElementById('s-giscus').value.trim();
   const theme   = document.querySelector('input[name="s-theme"]:checked')?.value || 'sand';
@@ -402,6 +406,52 @@ async function saveSettings() {
 }
 
 function cfg(key) { return localStorage.getItem(key) || ''; }
+
+async function refreshAllPosts() {
+  if (!confirm('Update all essays with the current template?\n\nThis adds comments, theme support, and the current blog name to older posts — your essay text will not change.')) return;
+  const btn = document.getElementById('refresh-btn');
+  btn.disabled = true;
+  try {
+    const idxData = await ghGet('index.html');
+    const idxHtml = decode(idxData.content);
+    const doc = new DOMParser().parseFromString(idxHtml, 'text/html');
+    const items = [...doc.querySelectorAll('.post-item')];
+    let done = 0, skipped = 0;
+    for (let i = 0; i < items.length; i++) {
+      const a    = items[i].querySelector('.post-item-title a');
+      const href = a?.getAttribute('href') || '';
+      const slug = href.replace('posts/', '').replace('.html', '');
+      if (!slug) { skipped++; continue; }
+      btn.textContent = `Refreshing ${i+1}/${items.length}…`;
+      try {
+        const data = await ghGet(`posts/${slug}.html`);
+        let html = decode(data.content);
+        let changed = false;
+        // Inject giscus-container if missing
+        if (!html.includes('giscus-container')) {
+          html = html.replace(/<\/main>/, `    <!-- ── Comments ── -->\n    <section class="comments-section">\n      <p class="comments-label">Comments</p>\n      <div id="giscus-container"></div>\n    </section>\n  </main>`);
+          changed = true;
+        }
+        // Inject config.json loader if missing
+        if (!html.includes('config.json')) {
+          const loader = `<script>\n(async function() {\n  try {\n    const r = await fetch('https://evecui250.goatcounter.com/counter/' + encodeURIComponent(location.pathname) + '.json');\n    if (r.ok) { const {count}=await r.json(); const el=document.getElementById('view-count'); if(el) el.textContent='\\u00b7 '+count+' view'+(count===1?'':'s'); }\n  } catch {}\n  try {\n    const cfg = await fetch('/config.json').then(r=>r.json());\n    if (cfg.theme && cfg.theme !== 'sand') document.body.classList.add('theme-'+cfg.theme);\n    if (cfg.tagline) { const t=document.querySelector('.site-tagline'); if(t) t.textContent=cfg.tagline; }\n    if (cfg.giscusScript) {\n      const tmp=document.createElement('div'); tmp.innerHTML=cfg.giscusScript;\n      const orig=tmp.querySelector('script');\n      if (orig) { const s=document.createElement('script'); for (const a of orig.attributes) s.setAttribute(a.name,a.value); document.getElementById('giscus-container').appendChild(s); }\n    }\n  } catch {}\n})();\n<\/script>`;
+          html = html.replace('</body>', loader + '\n</body>');
+          changed = true;
+        }
+        if (changed) {
+          await ghPut(`posts/${slug}.html`, html, `update: refresh template for ${a?.textContent?.trim() || slug}`, data.sha);
+          done++;
+        } else { skipped++; }
+      } catch { skipped++; }
+    }
+    toast(`Done! ${done} posts updated, ${skipped} already current.`, 'ok');
+  } catch (e) {
+    toast('Error: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Refresh all posts';
+  }
+}
 
 function toggleSettings() {
   document.getElementById('settings-panel').classList.toggle('open');
@@ -796,7 +846,7 @@ async function publish() {
     }
     currentEditSlug = null;
 
-    toast('Published! Live in ~30 seconds.', 'ok');
+    toast('Published! Live on your blog in ~1–2 minutes.', 'ok');
     setTimeout(() => openDashboard(), 2000);
   } catch (e) {
     toast('Error: ' + e.message, 'err');
@@ -815,7 +865,7 @@ function buildPost(title, dateLabel, bodyHtml) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${esc(title)} — Windy Desert</title>
+  <title>${esc(title)} — Sahara Nights</title>
   <link rel="stylesheet" href="../style.css" />
   <script data-goatcounter="https://evecui250.goatcounter.com/count" async src="//gc.zgo.at/count.js"><\/script>
 </head>
@@ -823,7 +873,7 @@ function buildPost(title, dateLabel, bodyHtml) {
 
   <header class="site-header">
     <div class="site-header-inner">
-      <h1 class="site-title"><a href="../index.html"><!-- blog-name -->Windy Desert<!-- /blog-name --></a></h1>
+      <h1 class="site-title"><a href="../index.html"><!-- blog-name -->Sahara Nights<!-- /blog-name --></a></h1>
       <p class="site-tagline"><!-- blog-tagline -->Essays on whatever the wind carries in.<!-- /blog-tagline --></p>
     </div>
   </header>
@@ -856,7 +906,7 @@ function buildPost(title, dateLabel, bodyHtml) {
   </main>
 
   <footer class="site-footer">
-    Windy Desert &mdash; written by hand, hosted free. &nbsp;·&nbsp; <a href="/admin/">Admin</a>
+    Sahara Nights &mdash; written by hand, hosted free. &nbsp;·&nbsp; <a href="/admin/">Admin</a>
   </footer>
 
 <script>
