@@ -101,6 +101,11 @@
   .legal h2{font-size:20px;margin:8px 0 16px}
   .legal h4{font-size:15px;margin:18px 0 6px}
   .legal p{font-size:14px;color:#4a413c;margin:0 0 8px}
+  .gate{margin-bottom:4px}
+  .code-input{display:block;width:100%;padding:14px 16px;border:1.5px solid var(--line);border-radius:14px;font-size:18px;letter-spacing:2px;text-align:center;background:var(--card);color:var(--ink);margin-bottom:12px;font-family:ui-monospace,Menlo,monospace;text-transform:uppercase}
+  .code-input:focus{outline:none;border-color:var(--accent)}
+  .gate-msg{min-height:20px;font-size:14px;color:var(--bad);text-align:center;margin:10px 0 0}
+  .gate-hint{font-size:12.5px;color:var(--muted);text-align:center;margin:4px 0 0}
 </style>
 </head>
 <body>
@@ -112,6 +117,12 @@
     <p class="lead">从七个维度，给这段关系做一次体检。</p>
     <div class="pie" id="pie"></div>
     <div class="note">按真实情况选，不是按你希望的样子。答案只留在你的手机上。</div>
+    <div id="gate" class="gate hidden">
+      <input id="codeInput" class="code-input" placeholder="输入兑换码" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      <button class="btn" id="redeemBtn">验证并开始</button>
+      <p class="gate-msg" id="gateMsg"></p>
+      <p class="gate-hint">还没有兑换码？在小红书搜索「<span id="shopName">该结婚还是分手</span>」获取</p>
+    </div>
     <button class="btn" id="startBtn">开始测试</button>
     <button class="btn ghost hidden" id="resumeBtn">继续上次的进度</button>
     <button class="btn ghost hidden" id="lastBtn">查看上次的结果</button>
@@ -286,7 +297,7 @@ const $ = id=>document.getElementById(id);
 function show(id){["intro","quiz","result"].forEach(s=>$(s).classList.toggle("hidden",s!==id));window.scrollTo(0,0);}
 
 function goHome(){
-  checkResume();
+  checkResume(); applyGate();
   show("intro");
 }
 function checkResume(){
@@ -331,6 +342,50 @@ function pick(i,btn){
 $("backBtn").onclick=()=>{if(cur>0){cur--;save();render();}};
 $("homeBtn1").onclick=goHome;
 $("startBtn").onclick=()=>start(true);
+
+// ---------- 兑换码 ----------
+const SB_URL = "https://mjsgcvuyousczqexxszs.supabase.co";
+const SB_KEY = "sb_publishable_WEmGQIZnbWUMSXm9oKSWdQ_l7tDrIIE";
+const UNLOCK_KEY = "marry-unlock-v1";
+function deviceId(){
+  try{
+    let d=localStorage.getItem("quiz-device-id");
+    if(!d){ d=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(36).slice(2)); localStorage.setItem("quiz-device-id",d); }
+    return d;
+  }catch(e){ return "nostorage-"+Math.random().toString(36).slice(2); }
+}
+function isUnlocked(){ try{ return !!localStorage.getItem(UNLOCK_KEY); }catch(e){ return false; } }
+function setUnlocked(code){ try{ localStorage.setItem(UNLOCK_KEY, code); }catch(e){} }
+function applyGate(){
+  const u=isUnlocked();
+  $("gate").classList.toggle("hidden", u);
+  $("startBtn").classList.toggle("hidden", !u);
+  if(!u){ $("resumeBtn").classList.add("hidden"); $("lastBtn").classList.add("hidden"); }
+}
+async function callRedeem(code){
+  const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),9000);
+  try{
+    const r=await fetch(SB_URL+"/rest/v1/rpc/redeem_code",{method:"POST",signal:ctrl.signal,
+      headers:{"Content-Type":"application/json","apikey":SB_KEY},
+      body:JSON.stringify({p_code:code,p_device:deviceId(),p_quiz:"marry"})});
+    if(!r.ok) throw new Error("http "+r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+$("redeemBtn").onclick=async()=>{
+  const code=$("codeInput").value.trim().toUpperCase().replace(/\s+/g,"");
+  const msg=$("gateMsg"), btn=$("redeemBtn");
+  if(!code){ msg.textContent="请先输入兑换码"; return; }
+  btn.disabled=true; btn.textContent="验证中…"; msg.textContent="";
+  let res=null;
+  for(let i=0;i<2 && res===null;i++){ try{ res=await callRedeem(code); }catch(e){ if(i===0) await new Promise(r=>setTimeout(r,800)); } }
+  btn.disabled=false; btn.textContent="验证并开始";
+  if(res==="ok"){ setUnlocked(code); applyGate(); start(true); }
+  else if(res==="used") msg.textContent="这个兑换码已经在其他手机上使用过了";
+  else if(res==="invalid") msg.textContent="兑换码不对，请检查一下（注意区分字母和数字）";
+  else msg.textContent="网络不太好，请稍后再试；一直不行的话请联系客服";
+};
+$("codeInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("redeemBtn").click(); });
 $("resumeBtn").onclick=()=>start(false);
 $("lastBtn").onclick=()=>{const l=loadLast(); if(!l) return; showResult(l.answers, l.time);};
 
@@ -465,7 +520,7 @@ function showLegal(){
     <h4>如果你正在受到伤害</h4>
     <p>如果你在关系中遭受暴力、威胁或控制，请优先保护自己的安全。紧急情况请拨打 110；也可以拨打全国妇联妇女维权公益服务热线 12338 寻求帮助。</p>
     <h4>隐私说明</h4>
-    <p>本测试不需要注册，不收集你的姓名、联系方式等个人信息，也不会把你的答案上传到任何服务器。所有计算都在你自己的设备上完成。</p>
+    <p>本测试不需要注册，不收集你的姓名、联系方式等个人信息，也不会把你的答案上传到任何服务器。所有计算都在你自己的设备上完成。验证兑换码时，只会发送兑换码本身和一串随机生成的设备编号（用来把兑换码绑定到这台设备），不包含任何个人信息。</p>
     <p>为了方便你继续答题或查看上次结果，答题进度和最近一次的结果会保存在你当前浏览器的本地存储里，只有你自己的设备能读取。清除浏览器数据即可删除。</p>
     <p>网站托管服务商可能会按照其自身政策记录常规的访问日志（如 IP 地址、访问时间）。我们使用 Cloudflare Web Analytics 统计匿名的访问量，它不使用 Cookie，不追踪个人身份。以上信息都不包含你的答案。</p>
     <h4>版权声明</h4>
@@ -503,6 +558,7 @@ function showLegal(){
     if(Array.isArray(s.order) && s.order.length===TOTAL) order=s.order;
   }
   checkResume();
+  applyGate();
 })();
 </script>
 </body>
