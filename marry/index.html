@@ -103,6 +103,7 @@
     <div class="note">按真实情况选，不是按你希望的样子选。遇到不适用的题，选“还没…”那一项就好，不会扣分。答案只保存在你自己的手机上。</div>
     <button class="btn" id="startBtn">开始测试</button>
     <button class="btn ghost hidden" id="resumeBtn">继续上次的进度</button>
+    <button class="btn ghost hidden" id="lastBtn">查看上次的结果</button>
   </section>
 
   <!-- 答题页 -->
@@ -275,6 +276,9 @@ function makeOrder(){
 function save(){try{localStorage.setItem(KEY,JSON.stringify({answers,order,cur}));}catch(e){}}
 function load(){try{return JSON.parse(localStorage.getItem(KEY));}catch(e){return null;}}
 function clearSave(){try{localStorage.removeItem(KEY);}catch(e){}}
+const LAST_KEY = "marry-quiz-last-v1";
+function saveLast(){try{localStorage.setItem(LAST_KEY,JSON.stringify({answers,time:Date.now()}));}catch(e){}}
+function loadLast(){try{const l=JSON.parse(localStorage.getItem(LAST_KEY));return (l&&Array.isArray(l.answers)&&l.answers.length===TOTAL&&l.answers.every(a=>a!==null))?l:null;}catch(e){return null;}}
 
 const $ = id=>document.getElementById(id);
 function show(id){["intro","quiz","result"].forEach(s=>$(s).classList.toggle("hidden",s!==id));window.scrollTo(0,0);}
@@ -287,6 +291,9 @@ function checkResume(){
   const has = answers.some(a=>a!==null) && answers.some(a=>a===null);
   $("resumeBtn").classList.toggle("hidden", !has);
   $("startBtn").textContent = has ? "重新开始" : "开始测试";
+  const last = loadLast();
+  if(last){const d=new Date(last.time);$("lastBtn").textContent=`查看上次的结果（${d.getMonth()+1}月${d.getDate()}日）`;}
+  $("lastBtn").classList.toggle("hidden", !last);
 }
 
 function start(fresh){
@@ -323,9 +330,10 @@ $("backBtn").onclick=()=>{if(cur>0){cur--;save();render();}};
 $("homeBtn1").onclick=goHome;
 $("startBtn").onclick=()=>start(true);
 $("resumeBtn").onclick=()=>start(false);
+$("lastBtn").onclick=()=>{const l=loadLast(); if(!l) return; showResult(l.answers, l.time);};
 
 // ---------- 计算结果 ----------
-function compute(){
+function compute(answers){
   const mods=MODULES.map(()=>({sum:0,max:0}));
   const flags=[], weak=[], unknown=[];
   QUESTIONS.forEach((q,i)=>{
@@ -346,8 +354,11 @@ function compute(){
 
 function colorFor(s){return s>=75?"var(--good)":s>=55?"var(--mid)":"var(--bad)";}
 
-function showResult(){
-  const {modScores,total,flags,weak,unknown}=compute();
+function showResult(ans, time){
+  const fromHistory = !!ans;
+  if(!fromHistory){ans=answers; saveLast(); clearSave(); answers=new Array(TOTAL).fill(null); cur=0;}
+  const {modScores,total,flags,weak,unknown}=compute(ans);
+  const d=new Date(time||Date.now()), dateStr=`${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`;
   const tier = flags.length ? RED_TIER : TIERS.find(t=>total>=t.min);
   const rows = MODULES.map((m,i)=>{
     const s=modScores[i];
@@ -371,7 +382,7 @@ function showResult(){
     <div id="card">
       <div class="r-head">
         <div class="r-title serif">该结婚还是分手？</div>
-        <div class="r-label">你们的关系总分</div>
+        <div class="r-label">你们的关系总分 · ${dateStr}</div>
         <div class="score" style="color:${tier.color}">${total}<small> / 100</small></div>
         <div class="verdict serif" style="color:${tier.color}">${tier.title}</div>
       </div>
@@ -388,10 +399,9 @@ function showResult(){
     <button class="btn ghost" id="againBtn">重新测一次</button>
     <p class="foot">本测试仅供自我觉察参考，不构成专业的心理或婚恋咨询。<br>关系里的事，最终还是你自己最清楚。</p>
   </div>`;
-  $("homeBtn2").onclick=()=>{answers=new Array(TOTAL).fill(null);cur=0;goHome();};
+  $("homeBtn2").onclick=goHome;
   $("againBtn").onclick=()=>start(true);
   $("saveBtn").onclick=saveImage;
-  clearSave();
   show("result");
 }
 
