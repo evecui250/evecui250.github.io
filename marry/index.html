@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>该结婚还是分手？</title>
-<meta name="description" content="37 道题，从三观、现实、相处、家庭、感情、人品六个维度，看清你们这段关系。">
+<meta name="description" content="42 道题，从三观、现实、相处、家庭、感情、人品、自己七个维度，看清你们这段关系。">
 <style>
   :root{
     --bg:#faf6f1; --card:#ffffff; --ink:#2b2522; --muted:#8a7f78; --line:#ece4dc;
@@ -90,7 +90,7 @@
   <!-- 开始页 -->
   <section id="intro" class="fade">
     <h1 class="serif">该结婚<br>还是<em>分手</em>？</h1>
-    <p class="lead">37 道选择题，大约 6–8 分钟。从六个维度给这段关系做一次体检。</p>
+    <p class="lead">42 道选择题，大约 8 分钟。从七个维度给这段关系做一次体检。</p>
     <div class="modules">
       <div><b>三观契合</b><span>钱、孩子、城市、分工</span></div>
       <div><b>现实基础</b><span>经济、背景、人生节奏</span></div>
@@ -98,6 +98,7 @@
       <div><b>双方家庭</b><span>态度、边界、负担</span></div>
       <div><b>感情浓度</b><span>心动、欣赏、亲密</span></div>
       <div><b>人品习惯</b><span>信任、情绪、责任心</span></div>
+      <div style="grid-column:1/-1"><b>我自己</b><span>动机、状态、准备好了吗</span></div>
     </div>
     <div class="note">按真实情况选，不是按你希望的样子选。遇到不适用的题，选“还没…”那一项就好，不会扣分。答案只保存在你自己的手机上。</div>
     <button class="btn" id="startBtn">开始测试</button>
@@ -196,6 +197,18 @@ const MODULES = [
     { tag:"重新选择", q:"如果没有年龄、父母、已经投入的时间这些压力，你还会选TA吗？", o:[
       ["会",4],["大概会",3],["不确定",1],["不会",0]]},
   ]},
+  { name:"我自己", key:"self", qs:[
+    { tag:"为什么想结婚", q:"想到结婚，你心里更多是？", o:[
+      ["想和TA一起过日子",4],["一半是想和TA在一起，一半是到了年龄",2],["主要是年龄到了、家里在催",1],["想借结婚离开现在的处境",0]]},
+    { tag:"想要的婚姻", q:"你清楚自己想要什么样的婚姻吗？", o:[
+      ["很清楚，也和TA说过",4],["大概知道，还没和TA说过",3],["没认真想过",1]]},
+    { tag:"接受现在的TA", q:"假设TA以后都不会变，你能接受现在的TA吗？", o:[
+      ["能接受",4],["大部分能，有一两处要磨合",3],["很多地方是在等TA改",1]]},
+    { tag:"我的沟通方式", q:"有矛盾时，你自己通常？", o:[
+      ["能说出真实想法，也听得进去",4],["容易憋着，过后才说",2],["容易情绪上头，说过头的话",2],["习惯先退让，委屈自己",1]]},
+    { tag:"我的状态", q:"你现在的状态（工作、经济、情绪）？", o:[
+      ["比较稳定，准备好了",4],["有些不稳定，但心里有数",3],["挺乱的，自己都还没理清",1]]},
+  ]},
   { name:"人品习惯", key:"character", qs:[
     { tag:"信任", q:"你对TA的信任？", o:[
       ["很信任，没发现过TA撒谎",4],["小事上TA会糊弄，大事上信得过",3],["发生过让我很难再信任的事，TA在弥补",1],["大事上不止一次骗过我，或多次出轨",0,"大事上多次欺骗，或多次出轨"]]},
@@ -219,6 +232,7 @@ const MOD_NOTES = {
   daily:    ["你们相处得舒服，这比什么都重要。","日常还不错，但沟通方式有改进空间，尤其是有矛盾之后。","相处让你消耗多于滋养。婚姻就是无数个这样的日常。"],
   family:   ["两边家庭都不错，TA也有边界感，很加分。","家庭关系有些需要磨合的地方，关键看TA愿不愿意站出来。","家庭问题不小。婚姻不只是两个人的事，这一块会长期影响你。"],
   love:     ["你对TA有很真实的爱和欣赏。","感情还在，但有些犹豫。值得想想犹豫的是什么。","你对这段感情的投入已经不多了。坚持下去，是因为爱，还是因为习惯？"],
+  self:     ["你清楚自己要什么，状态也准备好了，这是进入婚姻最好的样子。","你对自己和这段关系还有些没想透的地方，值得花点时间和自己对话。","现在的你可能还没准备好。先照顾好自己，再决定要不要和另一个人绑定一生。"],
   character:["TA的人品和习惯很让人放心。","TA有些小毛病，大多数人都有，看你能不能接受。","TA的性格或习惯让人很难托付。人很难被改变，尤其靠另一半去改变。"],
 };
 
@@ -242,11 +256,23 @@ const RED_TIER = { title:"有红线问题，建议认真考虑分手", color:"va
 const QUESTIONS = [];
 MODULES.forEach((m,mi)=>m.qs.forEach((q,qi)=>QUESTIONS.push({...q, mi, qi})));
 const TOTAL = QUESTIONS.length;
-let answers = new Array(TOTAL).fill(null);
-let cur = 0;
-const KEY = "marry-quiz-v2";
+let answers = new Array(TOTAL).fill(null);   // 按题目原始编号存
+let order = [...Array(TOTAL).keys()];           // 本次答题的出题顺序
+let cur = 0;                                    // 当前是第几题（按出题顺序）
+const KEY = "marry-quiz-v3";
 
-function save(){try{localStorage.setItem(KEY,JSON.stringify({answers,cur}));}catch(e){}}
+// 打乱题目顺序；前 3 题不放红线类的重题，开头轻松一点
+function makeOrder(){
+  const heavy = new Set(QUESTIONS.map((q,i)=>q.o.some(o=>o[2])?i:-1).filter(i=>i>=0));
+  let a;
+  do{
+    a=[...Array(TOTAL).keys()];
+    for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  }while(a.slice(0,3).some(i=>heavy.has(i)));
+  return a;
+}
+
+function save(){try{localStorage.setItem(KEY,JSON.stringify({answers,order,cur}));}catch(e){}}
 function load(){try{return JSON.parse(localStorage.getItem(KEY));}catch(e){return null;}}
 function clearSave(){try{localStorage.removeItem(KEY);}catch(e){}}
 
@@ -264,20 +290,19 @@ function checkResume(){
 }
 
 function start(fresh){
-  if(fresh){answers=new Array(TOTAL).fill(null);cur=0;save();}
+  if(fresh){answers=new Array(TOTAL).fill(null);order=makeOrder();cur=0;save();}
   show("quiz");render();
 }
 
 function render(){
-  const q=QUESTIONS[cur], m=MODULES[q.mi];
+  const qi=order[cur], q=QUESTIONS[qi];
   $("count").textContent=`${cur+1} / ${TOTAL}`;
   $("bar").style.width=`${cur/TOTAL*100}%`;
   $("backBtn").disabled = cur===0;
   const box=$("qbox");
   box.innerHTML=`<div class="fade">
-    <div class="mod">${q.mi+1}. ${m.name} · ${q.qi+1}/${m.qs.length}</div>
     <p class="q">${q.q}</p>
-    <div class="opts">${q.o.map((o,oi)=>`<button class="opt${o[1]===null?" na":""}${answers[cur]===oi?" sel":""}" data-i="${oi}">${o[0]}</button>`).join("")}</div>
+    <div class="opts">${q.o.map((o,oi)=>`<button class="opt${o[1]===null?" na":""}${answers[qi]===oi?" sel":""}" data-i="${oi}">${o[0]}</button>`).join("")}</div>
   </div>`;
   box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pick(+b.dataset.i,b));
 }
@@ -285,7 +310,7 @@ function render(){
 let locked=false;
 function pick(i,btn){
   if(locked) return; locked=true;
-  answers[cur]=i; save();
+  answers[order[cur]]=i; save();
   document.querySelectorAll(".opt").forEach(b=>b.classList.remove("sel")); btn.classList.add("sel");
   setTimeout(()=>{
     locked=false;
@@ -312,7 +337,10 @@ function compute(){
   });
   const valid = mods.map((m,i)=>m.max?{i,s:Math.round(m.sum/m.max*100)}:{i,s:null});
   const scored = valid.filter(v=>v.s!==null);
-  const total = Math.round(scored.reduce((a,v)=>a+v.s,0)/scored.length);
+  // 加权平均：感情和人品最重要，现实条件相对次要
+  const W = {values:1.2, reality:0.8, daily:1.2, family:1, love:1.5, self:1, character:1.5};
+  const wsum = scored.reduce((a,v)=>a+W[MODULES[v.i].key],0);
+  const total = Math.round(scored.reduce((a,v)=>a+v.s*W[MODULES[v.i].key],0)/wsum);
   return {modScores:valid.map(v=>v.s),total,flags,weak,unknown};
 }
 
@@ -349,7 +377,7 @@ function showResult(){
       </div>
       ${flags.length?`<div class="card flag"><h3>⚠️ 红线问题</h3><ul>${flags.map(f=>`<li>${f}</li>`).join("")}</ul></div>`:""}
       <div class="card">${hl}${tier.text.map(t=>`<p>${t}</p>`).join("")}</div>
-      <div class="card"><h3>六个维度</h3>${rows}</div>
+      <div class="card"><h3>七个维度</h3>${rows}</div>
       ${weak.length?`<div class="card"><h3>需要认真聊聊的地方</h3><div class="tags">${weak.map(w=>`<span>${w}</span>`).join("")}</div>
         <p class="row-note" style="margin-top:10px">这些是你打了低分的题。挑一两个最在意的，找个平静的时候和TA谈。TA的反应，本身就是答案的一部分。</p></div>`:""}
       ${unknown.length?`<div class="card"><h3>还没摸清楚的事</h3><div class="tags gray">${unknown.map(w=>`<span>${w}</span>`).join("")}</div>
@@ -399,6 +427,7 @@ async function saveImage(){
   const s=load();
   if(s && Array.isArray(s.answers) && s.answers.length===TOTAL){
     answers=s.answers; cur=Math.min(s.cur||0, TOTAL-1);
+    if(Array.isArray(s.order) && s.order.length===TOTAL) order=s.order;
   }
   checkResume();
 })();
