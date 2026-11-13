@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>该结婚还是分手？</title>
+<meta name="description" content="36 道题，从三观、现实、相处、家人、感情、人品六个维度，看清你们这段关系。">
+<style>
+  :root{
+    --bg:#faf6f1; --card:#ffffff; --ink:#2b2522; --muted:#8a7f78; --line:#ece4dc;
+    --accent:#b4535b; --accent-soft:#f6e3e2; --good:#5d8a6a; --mid:#c79a3e; --bad:#b4535b;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+    line-height:1.6;}
+  .wrap{max-width:560px;margin:0 auto;padding:24px 20px calc(40px + env(safe-area-inset-bottom));min-height:100vh;display:flex;flex-direction:column}
+  .serif{font-family:"Songti SC","STSong","Noto Serif CJK SC","Source Han Serif SC",serif}
+  h1{font-size:34px;line-height:1.25;margin:48px 0 12px;letter-spacing:1px}
+  h1 em{font-style:normal;color:var(--accent)}
+  .lead{color:var(--muted);font-size:15px;margin:0 0 28px}
+  .modules{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 28px}
+  .modules div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px}
+  .modules b{display:block;font-size:15px;margin-bottom:2px}
+  .modules span{color:var(--muted);font-size:12.5px}
+  .note{font-size:13px;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:28px}
+  button{font:inherit;cursor:pointer;border:none}
+  .btn{display:block;width:100%;padding:15px;border-radius:14px;background:var(--accent);color:#fff;font-size:17px;font-weight:600;letter-spacing:1px}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent);margin-top:12px}
+  .hidden{display:none!important}
+
+  /* quiz */
+  .top{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  .back{background:none;color:var(--muted);font-size:14px;padding:6px 0;min-width:52px;text-align:left}
+  .back:disabled{opacity:.3}
+  .count{margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .bar{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:28px}
+  .bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+  .mod{font-size:13px;color:var(--accent);font-weight:600;letter-spacing:1px;margin-bottom:8px}
+  .q{font-size:21px;font-weight:600;line-height:1.45;margin:0 0 24px}
+  .opts{display:flex;flex-direction:column;gap:10px}
+  .opt{text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:15px 16px;font-size:16px;color:var(--ink);transition:border-color .15s,background .15s}
+  .opt:active{transform:scale(.99)}
+  .opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+  @media (hover:hover){.opt:hover{border-color:#d9b8b6}}
+
+  /* result */
+  .r-head{text-align:center;margin:28px 0 8px}
+  .r-label{font-size:13px;color:var(--muted);letter-spacing:2px}
+  .score{font-size:72px;font-weight:700;line-height:1.1;margin:6px 0 0;font-variant-numeric:tabular-nums}
+  .score small{font-size:20px;color:var(--muted);font-weight:500}
+  .verdict{font-size:24px;font-weight:700;margin:10px 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:18px}
+  .card h3{margin:0 0 12px;font-size:16px}
+  .card p{margin:0 0 10px;font-size:15.5px}
+  .card p:last-child{margin-bottom:0}
+  .row{margin-bottom:14px}
+  .row:last-child{margin-bottom:0}
+  .row-top{display:flex;justify-content:space-between;font-size:15px;margin-bottom:5px}
+  .row-top b{font-variant-numeric:tabular-nums}
+  .track{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+  .track i{display:block;height:100%;border-radius:4px}
+  .row-note{font-size:13.5px;color:var(--muted);margin-top:5px}
+  .flag{border-color:#e7b9b5;background:#fdf1f0}
+  .flag h3{color:var(--bad)}
+  .flag li{margin-bottom:4px}
+  ul{margin:0;padding-left:20px}
+  .tags{display:flex;flex-wrap:wrap;gap:8px}
+  .tags span{background:var(--accent-soft);color:var(--accent);font-size:13.5px;padding:4px 10px;border-radius:20px}
+  .foot{font-size:12px;color:var(--muted);text-align:center;margin-top:28px}
+  .fade{animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 开始页 -->
+  <section id="intro" class="fade">
+    <h1 class="serif">该结婚<br>还是<em>分手</em>？</h1>
+    <p class="lead">36 道选择题，大约 6–8 分钟。从六个维度给这段关系做一次体检。</p>
+    <div class="modules">
+      <div><b>三观契合</b><span>钱、孩子、城市、分工</span></div>
+      <div><b>现实基础</b><span>经济、背景、人生阶段</span></div>
+      <div><b>日常相处</b><span>吵架、沟通、支持</span></div>
+      <div><b>双方家庭</b><span>态度、边界、负担</span></div>
+      <div><b>感情浓度</b><span>心动、欣赏、确定感</span></div>
+      <div><b>人品习惯</b><span>诚实、情绪、责任心</span></div>
+    </div>
+    <div class="note">按真实情况选，不是按你希望的样子选。没有人会看到你的答案，结果只在你自己的手机上。</div>
+    <button class="btn" id="startBtn">开始测试</button>
+    <button class="btn ghost hidden" id="resumeBtn">继续上次的进度</button>
+  </section>
+
+  <!-- 答题页 -->
+  <section id="quiz" class="hidden">
+    <div class="top">
+      <button class="back" id="backBtn">‹ 上一题</button>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+    <div id="qbox"></div>
+  </section>
+
+  <!-- 结果页 -->
+  <section id="result" class="hidden"></section>
+
+</div>
+
+<script>
+// ---------- 题库 ----------
+// 每个选项: [文字, 分数(0-4), 红线说明(可选)]
+const MODULES = [
+  { name:"三观契合", key:"values", qs:[
+    { tag:"金钱观", q:"在钱上（怎么花、怎么存、要不要一起管），你们的想法？", o:[
+      ["基本一致，很少为钱争执",4],["有差异，但能商量出办法",3],["经常因为钱闹不愉快",1],["一谈钱就吵，或者TA对钱的事不透明",0]]},
+    { tag:"要不要孩子", q:"要不要孩子、什么时候要，你们聊清楚了吗？", o:[
+      ["认真聊过，想法一致",4],["聊过，有小分歧但能接受",3],["还没认真聊过",1],["分歧很大，谁也不想让步",0]]},
+    { tag:"在哪生活", q:"以后在哪个城市生活？", o:[
+      ["已经有共识",4],["有分歧，但都愿意为对方考虑",3],["没聊过，或者一直回避",1],["明显冲突，只能有一方牺牲",0]]},
+    { tag:"事业与家庭", q:"对你的事业或学业，TA的态度是？", o:[
+      ["真心支持，愿意一起规划",4],["不太懂，但尊重我的选择",3],["希望我为家庭多让步，我不太情愿",1],["不支持，甚至打压",0]]},
+    { tag:"家务分工", q:"关于家务和照顾家，TA的实际表现？", o:[
+      ["觉得是两个人的事，也会主动做",4],["嘴上同意，实际做得少",2],["默认应该主要由一方承担",1],["理所当然让我全包",0]]},
+    { tag:"一起做决定", q:"遇到大事（买房、换工作）时，你们怎么决定？", o:[
+      ["一起商量，尊重彼此意见",4],["通常一方主导，另一方也真心认可",3],["往往一方说了算，另一方憋着",1],["TA做决定从不问我",0]]},
+  ]},
+  { name:"现实基础", key:"reality", qs:[
+    { tag:"经济状况", q:"你们的经济状况和消费水平？", o:[
+      ["差不多，或差距不影响相处",4],["有差距，偶尔有点别扭",2],["差距明显，常常有压力或心结",1],["TA有不明债务，或长期需要我养",0]]},
+    { tag:"成长背景", q:"你们的成长环境和教育背景？", o:[
+      ["相近，很多事一点就通",4],["不同，但能互相理解",3],["差别大，常常聊不到一起",1],["差别大，而且TA或TA家人看不起我的背景",0]]},
+    { tag:"人生节奏", q:"对于“定下来”，你们的节奏同步吗？", o:[
+      ["同步，都准备好了",4],["一方还没准备好，但有明确的时间",3],["一方没准备好，时间不确定",1],["一方一直拖着，不肯给承诺",0]]},
+    { tag:"异地", q:"你们现在是不是异地？", o:[
+      ["在同一个城市",4],["异地，但有明确结束的计划",3],["异地，没有结束的计划",1],["异地，而且联系越来越少",0]]},
+    { tag:"TA的工作", q:"TA的工作和收入？", o:[
+      ["稳定，或者有清晰的规划",4],["一般，但TA很努力",3],["经常换工作，没有方向",1],["长期不工作，也不着急",0]]},
+    { tag:"共同经历", q:"你们在一起多久，经历过困难吗？", o:[
+      ["一年以上，一起扛过不少事",4],["一年以上，但没经历过什么考验",3],["不到一年，还在热恋",2],["时间不长，其实还不太了解TA",1]]},
+  ]},
+  { name:"日常相处", key:"daily", qs:[
+    { tag:"吵架后", q:"吵架之后，通常怎么收场？", o:[
+      ["能把问题说开，各自反思",4],["冷一阵就过去了，问题没真正解决",2],["总是同一个人先低头",1],["冷战很久，或者越吵越凶",0]]},
+    { tag:"做自己", q:"和TA在一起，你能做真实的自己吗？", o:[
+      ["完全可以，很放松",4],["大部分时候可以",3],["经常要小心说话，怕TA不高兴",1],["很压抑，像在讨好",0]]},
+    { tag:"被支持", q:"你遇到困难时，TA的反应？", o:[
+      ["第一时间支持我，靠得住",4],["会关心，但帮不上太多",3],["不太上心，要我开口才行",1],["嫌我麻烦，甚至指责我",0]]},
+    { tag:"聊天", q:"你们平时聊天？", o:[
+      ["有聊不完的话，也能聊深的",4],["日常能聊，深的话题少",3],["越来越没话说",1],["基本只剩事务性沟通",0]]},
+    { tag:"吵架底线", q:"吵架时，TA有没有骂人、贬低、摔东西或动手？", o:[
+      ["从来没有",4],["偶尔说重话，事后会道歉",2],["经常贬低、辱骂我",0,"经常言语贬低、辱骂"],["摔东西、推搡，或动过手",0,"有暴力行为（摔东西/推搡/动手）"]]},
+    { tag:"个人空间", q:"你们的相处和各自的空间？", o:[
+      ["很舒服，在一起开心，分开也安心",4],["偶尔不平衡，能调整",3],["很少一起，像室友",1],["TA限制我见朋友、要求随时报备",0,"控制欲强（限制社交、要求随时报备）"]]},
+  ]},
+  { name:"双方家庭", key:"family", qs:[
+    { tag:"TA家人的态度", q:"TA的家人对你？", o:[
+      ["接纳，很友善",4],["客气，但有距离",3],["不太满意，有些挑剔",1],["明确反对，或不尊重我",0]]},
+    { tag:"你家人的态度", q:"你的家人对TA？", o:[
+      ["喜欢TA，支持我们",4],["没什么意见",3],["有顾虑，说过担心",1],["强烈反对",0]]},
+    { tag:"婆媳/翁婿矛盾", q:"你和TA家人有矛盾时，TA会？", o:[
+      ["讲道理，也照顾我的感受",4],["两边和稀泥",2],["总是让我忍着",1],["和家人一起指责我",0]]},
+    { tag:"原生家庭边界", q:"TA和父母之间的边界？", o:[
+      ["独立，有自己的判断",4],["比较听父母的，但大事有主见",3],["大小事都要父母拿主意",1],["父母干涉我们的生活，TA不阻止",0]]},
+    { tag:"彩礼/房子", q:"彩礼、嫁妆、买房这些事？", o:[
+      ["谈过了，基本没分歧",4],["还没谈，但估计问题不大",3],["有分歧，还在磨",1],["分歧很大，已经闹得不愉快",0]]},
+    { tag:"家庭负担", q:"TA家里有没有需要你们长期承担的负担？", o:[
+      ["没有，或者都在可控范围",4],["有一些，我们商量过怎么应对",3],["有，TA觉得我理所应当一起扛",1],["负担很重，TA还瞒着我",0]]},
+  ]},
+  { name:"感情浓度", key:"love", qs:[
+    { tag:"一辈子", q:"想到要和TA过一辈子，你的第一感觉？", o:[
+      ["踏实，期待",4],["还不错，但有点犹豫",2],["有点慌，说不清",1],["抗拒，甚至想逃",0]]},
+    { tag:"想过分手", q:"过去半年，你认真想过分手吗？", o:[
+      ["没有",4],["吵架时闪过念头",3],["想过好几次",1],["经常想，只是没下决心",0]]},
+    { tag:"心动", q:"你还会被TA吸引吗？", o:[
+      ["会，常常心动",4],["偶尔",3],["很少了",1],["没有，甚至有点排斥亲密",0]]},
+    { tag:"被爱的感觉", q:"你能感觉到TA爱你吗？", o:[
+      ["很确定",4],["大体能感觉到",3],["不太确定",1],["感觉不到",0]]},
+    { tag:"欣赏", q:"你欣赏TA这个人吗（为人、能力、做事方式）？", o:[
+      ["很欣赏",4],["有欣赏，也有不满",3],["不满比欣赏多",1],["打心底看不上",0]]},
+    { tag:"重新选择", q:"如果没有年龄、父母、沉没成本的压力，你还会选TA吗？", o:[
+      ["会",4],["大概会",3],["不确定",1],["不会",0]]},
+  ]},
+  { name:"人品习惯", key:"character", qs:[
+    { tag:"诚实", q:"TA对你诚实吗？", o:[
+      ["很坦诚，没发现过撒谎",4],["小事上偶尔不说实话",2],["出轨/暧昧过一次，但真心悔改了",1],["在重要的事上骗过我，或出轨不止一次",0,"在重要的事上欺骗，或多次出轨"]]},
+    { tag:"情绪稳定", q:"TA的情绪稳定吗？", o:[
+      ["很稳定",4],["偶尔急躁，能自己调整",3],["经常发脾气，要我哄",1],["情绪一上来就不管不顾",0]]},
+    { tag:"不良嗜好", q:"TA有没有赌博、酗酒、网贷这类问题？", o:[
+      ["都没有",4],["爱玩，但有节制",3],["有一项比较严重，TA在改",1],["问题严重，而且不承认",0,"赌博/酗酒/网贷等问题且不承认"]]},
+    { tag:"靠谱", q:"TA的责任心？", o:[
+      ["说到做到，很靠谱",4],["大事靠谱，小事马虎",3],["经常答应了做不到",1],["遇事就逃避、甩锅",0]]},
+    { tag:"认错", q:"TA做错事时？", o:[
+      ["能认错，也真的改",4],["会认错，但改得慢",3],["很难认错，总有理由",1],["从不认错，反过来怪我",0]]},
+    { tag:"生活习惯", q:"你们的生活习惯（作息、卫生、娱乐）合得来吗？", o:[
+      ["很合拍",4],["有差异，能互相迁就",3],["差异大，经常摩擦",1],["完全合不来，互相看不惯",0]]},
+  ]},
+];
+
+// 每个模块按分数段的点评
+const MOD_NOTES = {
+  values:   ["你们对未来的想象很接近，这是婚姻最难得的底子。","大方向一致，但有几件事需要摊开谈清楚，最好在结婚前。","你们想要的生活不太一样。三观差异不会因为结婚消失，只会在柴米油盐里放大。"],
+  reality:  ["现实条件稳当，结婚后少很多后顾之忧。","现实层面有些需要一起解决的课题，不致命，但别忽视。","现实条件压力不小。爱可以克服很多事，但最好先看清要克服的是什么。"],
+  daily:    ["你们相处得舒服，这比什么都重要。","日常还不错，但沟通方式有改进空间，尤其是吵架之后。","相处让你消耗多于滋养。婚姻就是无数个这样的日常。"],
+  family:   ["两边家庭都不错，TA也有边界感，很加分。","家庭关系有些需要磨合的地方，关键看TA愿不愿意站出来。","家庭问题不小。婚姻不只是两个人的事，这一块会长期影响你。"],
+  love:     ["你对TA有很真实的爱和欣赏。","感情还在，但有些犹豫。值得想想犹豫的是什么。","你对这段感情的投入已经不多了。坚持下去，是因为爱，还是因为习惯？"],
+  character:["TA的人品和习惯很让人放心。","TA有些小毛病，大多数人都有，看你能不能接受。","TA的性格或习惯让人很难托付。人很难被改变，尤其靠另一半去改变。"],
+};
+
+const TIERS = [
+  { min:85, title:"可以认真考虑结婚了", color:"var(--good)",
+    text:["你们在大部分维度都很合拍：三观相近，相处舒服，彼此欣赏。这样的关系不多见。","没有完美的关系，下面列出的“需要聊聊的地方”，在婚前花点时间谈清楚，会让以后的路更顺。"] },
+  { min:70, title:"底子不错，先把几件事谈清楚", color:"var(--good)",
+    text:["你们的感情基础是好的，只是有几处还没对齐。这些问题本身不致命，危险的是一直不谈。","建议找个安静的时间，把下面几个话题逐个聊开。如果能谈出共识，你们会是很好的伴侣。"] },
+  { min:55, title:"站在十字路口，先别急着结婚", color:"var(--mid)",
+    text:["这段关系有真实的好，也有真实的问题。现在结婚，问题会被带进婚姻里，而婚姻通常不会让问题变小。","这不是坏结果，它只是在提醒你：先一起解决问题，再决定要不要往前走。给彼此半年时间，看看对方愿不愿意为这段关系改变。你值得一段让你安心的感情。"] },
+  { min:40, title:"问题比甜蜜多，认真想一想", color:"var(--bad)",
+    text:["你们之间的问题已经不是小摩擦了。也许你还爱TA，也许是放不下投入的时间，这两种都很正常。","可以给自己定一个期限，把最核心的问题明确提出来，看TA的反应。如果期限到了什么都没变，就要诚实地面对答案。离开一段不合适的关系，不是失败，是对自己负责。"] },
+  { min:0, title:"建议分手", color:"var(--bad)",
+    text:["从你的回答来看，这段关系在多个方面都让你受累：三观、相处、感情或者TA本人，很难找到支撑你们走下去的东西。","说出来可能很难，但婚姻不会让一段不合适的关系变好。你不需要等到彻底心死才离开。把时间和心力留给更爱你、也更适合你的人，包括你自己。"] },
+];
+
+const RED_TIER = { title:"有红线问题，建议认真考虑分手", color:"var(--bad)",
+  text:["你的回答里出现了下面这些情况。不管其他方面多好，这些都是婚姻里很难修复、而且往往会越来越严重的问题。","它们不是你不够好或者不够包容，也不是结了婚就会改。请先把自己的安全和感受放在第一位，和信任的朋友或家人聊聊。如果涉及暴力，请记得寻求专业帮助。"] };
+
+// ---------- 状态 ----------
+const QUESTIONS = [];
+MODULES.forEach((m,mi)=>m.qs.forEach((q,qi)=>QUESTIONS.push({...q, mi, qi})));
+const TOTAL = QUESTIONS.length;
+let answers = new Array(TOTAL).fill(null);   // 存选中的原始选项序号
+let order = [];                               // 每题选项的展示顺序
+let cur = 0;
+const KEY = "marry-quiz-v1";
+
+function shuffle(n){const a=[...Array(n).keys()];for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({answers,order,cur}));}catch(e){}}
+function load(){try{return JSON.parse(localStorage.getItem(KEY));}catch(e){return null;}}
+function clearSave(){try{localStorage.removeItem(KEY);}catch(e){}}
+
+const $ = id=>document.getElementById(id);
+function show(id){["intro","quiz","result"].forEach(s=>$(s).classList.toggle("hidden",s!==id));window.scrollTo(0,0);}
+
+function start(fresh){
+  if(fresh){answers=new Array(TOTAL).fill(null);order=QUESTIONS.map(q=>shuffle(q.o.length));cur=0;save();}
+  show("quiz");render();
+}
+
+function render(){
+  const q=QUESTIONS[cur], m=MODULES[q.mi];
+  const inMod = q.qi+1;
+  $("count").textContent=`${cur+1} / ${TOTAL}`;
+  $("bar").style.width=`${(cur)/TOTAL*100}%`;
+  $("backBtn").disabled = cur===0;
+  const box=$("qbox");
+  box.innerHTML=`<div class="fade">
+    <div class="mod">${q.mi+1}. ${m.name} · ${inMod}/${m.qs.length}</div>
+    <p class="q">${q.q}</p>
+    <div class="opts">${order[cur].map(oi=>`<button class="opt${answers[cur]===oi?" sel":""}" data-i="${oi}">${q.o[oi][0]}</button>`).join("")}</div>
+  </div>`;
+  box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pick(+b.dataset.i,b));
+}
+
+let locked=false;
+function pick(i,btn){
+  if(locked) return; locked=true;
+  answers[cur]=i; save();
+  document.querySelectorAll(".opt").forEach(b=>b.classList.remove("sel")); btn.classList.add("sel");
+  setTimeout(()=>{
+    locked=false;
+    if(cur<TOTAL-1){cur++;save();render();}
+    else {$("bar").style.width="100%";showResult();}
+  },260);
+}
+
+$("backBtn").onclick=()=>{if(cur>0){cur--;save();render();}};
+$("startBtn").onclick=()=>start(true);
+$("resumeBtn").onclick=()=>start(false);
+
+// ---------- 计算结果 ----------
+function compute(){
+  const mods=MODULES.map(()=>({sum:0,max:0}));
+  const flags=[], weak=[];
+  QUESTIONS.forEach((q,i)=>{
+    const o=q.o[answers[i]];
+    mods[q.mi].sum+=o[1]; mods[q.mi].max+=4;
+    if(o[2]) flags.push(o[2]);
+    else if(o[1]<=1) weak.push(q.tag);
+  });
+  const modScores=mods.map(m=>Math.round(m.sum/m.max*100));
+  const total=Math.round(modScores.reduce((a,b)=>a+b,0)/modScores.length);
+  return {modScores,total,flags,weak};
+}
+
+function colorFor(s){return s>=75?"var(--good)":s>=55?"var(--mid)":"var(--bad)";}
+
+function showResult(){
+  const {modScores,total,flags,weak}=compute();
+  const tier = flags.length ? RED_TIER : TIERS.find(t=>total>=t.min);
+  const rows = MODULES.map((m,i)=>{
+    const s=modScores[i], band = s>=75?0:s>=55?1:2;
+    return `<div class="row">
+      <div class="row-top"><span>${m.name}</span><b style="color:${colorFor(s)}">${s}</b></div>
+      <div class="track"><i style="width:${s}%;background:${colorFor(s)}"></i></div>
+      <div class="row-note">${MOD_NOTES[m.key][band]}</div>
+    </div>`;}).join("");
+
+  // 最强 / 最弱维度
+  const hi = modScores.indexOf(Math.max(...modScores)), lo = modScores.indexOf(Math.min(...modScores));
+  const hl = (modScores[hi]-modScores[lo] >= 15)
+    ? `<p>你们最稳的是<b>「${MODULES[hi].name}」</b>，最需要用心的是<b>「${MODULES[lo].name}」</b>。</p>` : "";
+
+  $("result").innerHTML = `<div class="fade">
+    <div class="r-head">
+      <div class="r-label">你们的关系总分</div>
+      <div class="score" style="color:${tier.color}">${total}<small> / 100</small></div>
+      <div class="verdict serif" style="color:${tier.color}">${tier.title}</div>
+    </div>
+    ${flags.length?`<div class="card flag"><h3>⚠️ 红线问题</h3><ul>${flags.map(f=>`<li>${f}</li>`).join("")}</ul></div>`:""}
+    <div class="card">${hl}${tier.text.map(t=>`<p>${t}</p>`).join("")}</div>
+    <div class="card"><h3>六个维度</h3>${rows}</div>
+    ${weak.length?`<div class="card"><h3>需要认真聊聊的地方</h3><div class="tags">${weak.map(w=>`<span>${w}</span>`).join("")}</div>
+      <p class="row-note" style="margin-top:10px">这些是你打了低分的题。挑一两个最在意的，找个平静的时候和TA谈。TA的反应，本身就是答案的一部分。</p></div>`:""}
+    <button class="btn" id="againBtn" style="margin-top:24px">重新测一次</button>
+    <p class="foot">本测试仅供自我觉察参考，不构成专业的心理或婚恋咨询。<br>关系里的事，最终还是你自己最清楚。</p>
+  </div>`;
+  $("againBtn").onclick=()=>{clearSave();show("intro");$("resumeBtn").classList.add("hidden");};
+  clearSave();
+  show("result");
+}
+
+// 有未完成进度时显示“继续”
+(function(){
+  const s=load();
+  if(s && Array.isArray(s.answers) && s.answers.length===TOTAL && s.answers.some(a=>a!==null) && s.answers.some(a=>a===null)){
+    answers=s.answers; order=s.order; cur=Math.min(s.cur, TOTAL-1);
+    $("resumeBtn").classList.remove("hidden");
+  }
+})();
+</script>
+</body>
+</html>
