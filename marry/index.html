@@ -19,6 +19,13 @@
   h1{font-size:34px;line-height:1.25;margin:48px 0 12px;letter-spacing:1px}
   h1 em{font-style:normal;color:var(--accent)}
   .lead{color:var(--muted);font-size:15px;margin:0 0 28px}
+  .pie{width:100%;max-width:340px;margin:4px auto 28px;aspect-ratio:1}
+  .pie svg{width:100%;height:100%;display:block;overflow:visible}
+  .pie .seg{transform-origin:170px 170px;animation:pop .6s cubic-bezier(.2,.8,.3,1.2) both}
+  .pie .lbl{font-size:14px;font-weight:600;fill:#fff;letter-spacing:1px;pointer-events:none}
+  .pie .ctr1{font-size:30px;font-weight:700;fill:var(--ink)}
+  .pie .ctr2{font-size:13px;fill:var(--muted);letter-spacing:2px}
+  @keyframes pop{from{opacity:0;transform:scale(.6) rotate(-20deg)}to{opacity:1;transform:none}}
   .modules{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 28px}
   .modules div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px}
   .modules b{display:block;font-size:15px;margin-bottom:2px}
@@ -90,16 +97,8 @@
   <!-- 开始页 -->
   <section id="intro" class="fade">
     <h1 class="serif">该结婚<br>还是<em>分手</em>？</h1>
-    <p class="lead">42 道选择题，大约 8 分钟。从七个维度给这段关系做一次体检。</p>
-    <div class="modules">
-      <div><b>三观契合</b><span>钱、孩子、城市、分工</span></div>
-      <div><b>现实基础</b><span>经济、背景、人生节奏</span></div>
-      <div><b>日常相处</b><span>吵架、沟通、支持</span></div>
-      <div><b>双方家庭</b><span>态度、边界、负担</span></div>
-      <div><b>感情浓度</b><span>心动、欣赏、亲密</span></div>
-      <div><b>人品习惯</b><span>信任、情绪、责任心</span></div>
-      <div style="grid-column:1/-1"><b>我自己</b><span>动机、状态、准备好了吗</span></div>
-    </div>
+    <p class="lead">从七个维度，给这段关系做一次体检。</p>
+    <div class="pie" id="pie"></div>
     <div class="note">按真实情况选，不是按你希望的样子选。遇到不适用的题，选“还没…”那一项就好，不会扣分。答案只保存在你自己的手机上。</div>
     <button class="btn" id="startBtn">开始测试</button>
     <button class="btn ghost hidden" id="resumeBtn">继续上次的进度</button>
@@ -431,6 +430,25 @@ async function saveImage(){
     alert("生成图片失败，可以直接截图保存哦");
   }finally{btn.textContent=old;btn.disabled=false;}
 }
+
+// ---------- 首页大圆 ----------
+(function drawPie(){
+  const C=170, R=150, r=74, gap=0.025, n=MODULES.length;
+  const colors=["#c96b6f","#d99a6c","#c9a85a","#8fae7e","#6f9a9a","#8b86b8","#b07aa0"];
+  const pt=(rad,a)=>[C+rad*Math.sin(a), C-rad*Math.cos(a)];
+  let svg=`<svg viewBox="0 0 340 340" xmlns="http://www.w3.org/2000/svg">`;
+  MODULES.forEach((m,i)=>{
+    const a0=i/n*2*Math.PI+gap, a1=(i+1)/n*2*Math.PI-gap, big=(a1-a0)>Math.PI?1:0;
+    const [x0,y0]=pt(R,a0),[x1,y1]=pt(R,a1),[x2,y2]=pt(r,a1),[x3,y3]=pt(r,a0);
+    const d=`M${x0},${y0} A${R},${R} 0 ${big} 1 ${x1},${y1} L${x2},${y2} A${r},${r} 0 ${big} 0 ${x3},${y3}Z`;
+    const am=(a0+a1)/2, [lx,ly]=pt((R+r)/2,am);
+    svg+=`<g class="seg" style="animation-delay:${i*70}ms"><path d="${d}" fill="${colors[i]}"/>
+      <text class="lbl" x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central">${m.name}</text></g>`;
+  });
+  svg+=`<text class="ctr1 serif" x="${C}" y="${C-8}" text-anchor="middle" dominant-baseline="central">${TOTAL}</text>
+        <text class="ctr2" x="${C}" y="${C+22}" text-anchor="middle" dominant-baseline="central">道题 · 约8分钟</text></svg>`;
+  $("pie").innerHTML=svg;
+})();
 
 // 有未完成进度时显示“继续”
 (function(){
