@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>该结婚还是分手？</title>
-<meta name="description" content="42 道题，从三观、现实、相处、家庭、感情、人品、自己七个维度，看清你们这段关系。">
+<meta name="description" content="从三观、现实、相处、家庭、感情、人品、自己七个维度，看清你们这段关系。">
 <style>
   :root{
     --bg:#faf6f1; --card:#ffffff; --ink:#2b2522; --muted:#8a7f78; --line:#ece4dc;
@@ -85,10 +85,22 @@
   @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
   /* 保存图片弹层 */
-  .overlay{position:fixed;inset:0;background:rgba(30,24,22,.82);z-index:10;display:flex;flex-direction:column;align-items:center;padding:20px 16px calc(20px + env(safe-area-inset-bottom));overflow:auto}
-  .overlay p{color:#fff;font-size:15px;margin:4px 0 12px;text-align:center}
-  .overlay img{width:100%;max-width:420px;border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,.35)}
-  .overlay button{margin-top:16px;background:#fff;color:var(--ink);padding:10px 28px;border-radius:22px;font-size:15px}
+  .overlay{position:fixed;inset:0;background:rgba(30,24,22,.95);z-index:10;display:flex;flex-direction:column}
+  .ov-top{flex:none;padding:calc(14px + env(safe-area-inset-top)) 16px 12px;text-align:center;color:#fff}
+  .ov-top b{display:block;font-size:18px;margin-bottom:2px}
+  .ov-top span{font-size:13.5px;opacity:.8}
+  .ov-img{flex:1;overflow:auto;padding:0 16px;display:flex;justify-content:center}
+  .ov-img img{width:100%;max-width:420px;height:auto;align-self:flex-start;border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,.35);-webkit-touch-callout:default}
+  .ov-bar{flex:none;display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));max-width:452px;width:100%;margin:0 auto}
+  .ov-bar button{flex:1;padding:13px;border-radius:12px;font-size:16px;font-weight:600}
+  .ov-save{background:var(--accent);color:#fff}
+  .ov-close{background:rgba(255,255,255,.15);color:#fff}
+  .legal-link{display:block;margin:22px auto 0;background:none;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:3px}
+  .legal{position:fixed;inset:0;background:var(--bg);z-index:20;overflow:auto;padding:calc(20px + env(safe-area-inset-top)) 22px calc(30px + env(safe-area-inset-bottom))}
+  .legal-in{max-width:560px;margin:0 auto}
+  .legal h2{font-size:20px;margin:8px 0 16px}
+  .legal h4{font-size:15px;margin:18px 0 6px}
+  .legal p{font-size:14px;color:#4a413c;margin:0 0 8px}
 </style>
 </head>
 <body>
@@ -103,6 +115,7 @@
     <button class="btn" id="startBtn">开始测试</button>
     <button class="btn ghost hidden" id="resumeBtn">继续上次的进度</button>
     <button class="btn ghost hidden" id="lastBtn">查看上次的结果</button>
+    <button class="legal-link" onclick="showLegal()">使用说明 · 隐私 · 免责声明</button>
   </section>
 
   <!-- 答题页 -->
@@ -136,22 +149,16 @@ const MODULES = [
       ["支持，会帮我一起想",4],["不太过问，但尊重我的选择",3],["希望我把重心多放在家庭上",1],["不太支持，常常唱反调",0]]},
     { tag:"家务分工", q:"家务和生活琐事，你们怎么分？", o:[
       ["两个人都会主动做",4],["一方做得多一些，双方都能接受",3],["主要是一方在做，TA/我心里有怨气",1],["还没一起生活过",null]]},
-    { tag:"一起做决定", q:"遇到大事（买房、换工作），一般怎么决定？", o:[
-      ["一起商量",4],["一方拿主意，另一方也乐意",3],["一方拿主意，另一方有意见但不说",1]]},
   ]},
   { name:"现实基础", key:"reality", qs:[
     { tag:"经济状况", q:"你们的经济条件和消费习惯？", o:[
       ["差不多，或差距不影响相处",4],["有差距，偶尔会别扭",2],["差距让我们常有压力或心结",1],["TA有债务等经济问题，我不太清楚详情",0]]},
-    { tag:"成长背景", q:"你们的成长环境和教育背景？", o:[
-      ["相近，很多事一点就通",4],["不太一样，但能互相理解",3],["差别大，很多事说不到一起",1]]},
     { tag:"结婚意愿", q:"对结婚这件事，你们俩的意愿？", o:[
-      ["都想结，时间也合得上",4],["都想结，但一方想晚一些",3],["我自己其实还没想好",2],["一方想结，另一方一直回避",0]]},
+      ["都想结，时间也合得上",4],["都想结，但一方想晚一些",3],["两个人都还没想好，或都不急",2],["一方想结，另一方一直回避",0]]},
     { tag:"异地", q:"你们现在住在一个城市吗？", o:[
       ["在同一个城市",4],["异地，有明确的结束时间",3],["异地，什么时候结束还不确定",1]]},
     { tag:"TA的工作", q:"TA的工作状态？", o:[
       ["稳定，或有清晰的方向",4],["不算稳定，但在努力",3],["一直没什么方向",1]]},
-    { tag:"共同经历", q:"你们在一起多久了？", o:[
-      ["一年以上，一起经历过难事",4],["一年以上，还没遇到大的考验",3],["不到一年",2]]},
   ]},
   { name:"日常相处", key:"daily", qs:[
     { tag:"吵架后", q:"有矛盾之后，通常怎么收场？", o:[
@@ -160,10 +167,10 @@ const MODULES = [
       ["很放松，想说什么就说",4],["大多时候放松，偶尔会顾虑",3],["常常要掂量着说",1]]},
     { tag:"被支持", q:"你遇到难事时，TA？", o:[
       ["是我第一个想找的人，也帮得上",4],["会关心，但不太帮得上",3],["我不太会找TA",1],["找了TA，反而会被说",0]]},
-    { tag:"聊天", q:"你们平时聊天？", o:[
-      ["什么都能聊，也聊得深",4],["日常能聊，深的话题少",3],["话越来越少，多是琐事",1]]},
+    { tag:"生日和纪念日", q:"你的生日、纪念日，TA会记得吗？", o:[
+      ["记得，也会用心准备",4],["记得，但不太讲究形式",3],["经常要我提醒",1],["基本不记得",0],["我们俩都不在意这些",null,null,"skip"]]},
     { tag:"吵架底线", q:"吵架时，TA最激烈会到什么程度？", o:[
-      ["声音大一点，但不伤人",4],["偶尔说重话，过后会道歉",2],["常说难听的话、贬低我",0,"经常言语贬低、辱骂"],["摔过东西、推搡或动过手",0,"有暴力行为（摔东西/推搡/动手）"]]},
+      ["几乎不吵，或者吵也不伤人",4],["偶尔说重话，过后会道歉",2],["常说难听的话、贬低我",0,"经常言语贬低、辱骂"],["摔过东西、推搡或动过手",0,"有暴力行为（摔东西/推搡/动手）"]]},
     { tag:"个人空间", q:"在一起的时间和各自的空间？", o:[
       ["各有空间，在一起的时间也够",4],["有一方偶尔觉得不够，或太黏",3],["在一起的时间很少，各过各的",1],["TA会管我和谁见面、要我随时报备",0,"控制欲强（干涉社交、要求随时报备）"]]},
   ]},
@@ -175,15 +182,13 @@ const MODULES = [
     { tag:"家庭矛盾", q:"你和TA家人有矛盾时，TA？", o:[
       ["讲道理，也会护着我",4],["两边劝，谁也不得罪",2],["多半让我先忍一忍",1],["还没遇到过",null]]},
     { tag:"原生家庭边界", q:"TA和父母之间？", o:[
-      ["自己拿主意，会参考父母意见",4],["比较听父母的，大事上有主见",3],["很多事要父母点头",1]]},
+      ["自己拿主意，会参考父母意见",4],["比较听父母的，大事上有主见",3],["很多事要父母点头",1],["和父母几乎不来往",null,null,"skip"]]},
     { tag:"彩礼/房子", q:"彩礼、嫁妆、买房这些事？", o:[
       ["谈过或不涉及，双方都没意见",4],["有分歧，还在商量",2],["分歧大，已经闹得不愉快",0],["还没谈",null]]},
     { tag:"家庭负担", q:"TA家里有需要你们长期承担的负担吗？", o:[
       ["没有明显负担",4],["有一些，我们一起商量过",3],["有，但TA没怎么跟我说清楚",1]]},
   ]},
   { name:"感情浓度", key:"love", qs:[
-    { tag:"一辈子", q:"想到要和TA过一辈子，你的第一感觉？", o:[
-      ["踏实，有期待",4],["挺好，但有点犹豫",2],["心里有点抗拒",0]]},
     { tag:"想过分手", q:"过去半年，你想过分手吗？", o:[
       ["没有",4],["吵架时闪过念头",3],["认真想过几次",1],["经常想",0]]},
     { tag:"心动", q:"你还会被TA吸引吗？", o:[
@@ -200,8 +205,6 @@ const MODULES = [
   { name:"我自己", key:"self", qs:[
     { tag:"为什么想结婚", q:"想到结婚，你心里更多是？", o:[
       ["想和TA一起过日子",4],["一半是想和TA在一起，一半是到了年龄",2],["主要是年龄到了、家里在催",1],["想借结婚离开现在的处境",0]]},
-    { tag:"想要的婚姻", q:"你清楚自己想要什么样的婚姻吗？", o:[
-      ["很清楚，也和TA说过",4],["大概知道，还没和TA说过",3],["没认真想过",1]]},
     { tag:"接受现在的TA", q:"假设TA以后都不会变，你能接受现在的TA吗？", o:[
       ["能接受",4],["大部分能，有一两处要磨合",3],["很多地方是在等TA改",1]]},
     { tag:"我的沟通方式", q:"有矛盾时，你自己通常？", o:[
@@ -218,8 +221,6 @@ const MODULES = [
       ["基本没有",4],["有爱好，但有分寸",3],["有点过度，TA在改",1],["比较严重，TA不觉得是问题",0,"赌博/酗酒/网贷等问题，且不认为有问题"]]},
     { tag:"靠谱", q:"TA答应的事？", o:[
       ["基本都能做到",4],["大事做到，小事常忘",3],["经常做不到",1]]},
-    { tag:"认错", q:"TA做错事之后？", o:[
-      ["会认，也会改",4],["会认，但改得慢",3],["不太认，多半有理由",1]]},
     { tag:"生活习惯", q:"你们的作息、卫生、娱乐习惯？", o:[
       ["很合拍",4],["有差异，能互相迁就",3],["差异大，常有摩擦",1],["还没一起生活过",null]]},
   ]},
@@ -337,7 +338,7 @@ function compute(answers){
   const flags=[], weak=[], unknown=[];
   QUESTIONS.forEach((q,i)=>{
     const o=q.o[answers[i]];
-    if(o[1]===null){unknown.push(q.tag);return;}
+    if(o[1]===null){ if(o[3]!=="skip") unknown.push(q.tag); return; }
     mods[q.mi].sum+=o[1]; mods[q.mi].max+=4;
     if(o[2]) flags.push(o[2]);
     else if(o[1]<=1) weak.push(q.tag);
@@ -396,7 +397,8 @@ function showResult(ans, time){
     </div>
     <button class="btn" id="saveBtn" style="margin-top:24px">保存结果图片</button>
     <button class="btn ghost" id="againBtn">重新测一次</button>
-    <p class="foot">本测试仅供自我觉察参考，不构成专业的心理或婚恋咨询。<br>关系里的事，最终还是你自己最清楚。</p>
+    <p class="foot">本测试仅供娱乐和自我觉察参考，不构成专业的心理或婚恋咨询。<br>关系里的事，最终还是你自己最清楚。</p>
+    <button class="legal-link" onclick="showLegal()">使用说明 · 隐私 · 免责声明</button>
   </div>`;
   $("homeBtn2").onclick=goHome;
   $("againBtn").onclick=()=>start(true);
@@ -418,17 +420,58 @@ async function saveImage(){
     await loadH2C();
     const canvas = await html2canvas($("card"),{backgroundColor:"#faf6f1",scale:Math.min(3,(window.devicePixelRatio||2)),useCORS:true});
     const url = canvas.toDataURL("image/png");
+    const blob = await new Promise(r=>canvas.toBlob(r,"image/png"));
+    const file = blob && new File([blob],"该结婚还是分手-结果.png",{type:"image/png"});
+    const desktop = window.matchMedia("(hover:hover)").matches;
+    const canShare = !desktop && file && navigator.canShare && navigator.canShare({files:[file]});
+
     const ov=document.createElement("div"); ov.className="overlay";
-    ov.innerHTML=`<p>长按图片保存到相册</p><img src="${url}" alt="测试结果"><button>关闭</button>`;
-    ov.querySelector("button").onclick=()=>ov.remove();
+    ov.innerHTML=`
+      <div class="ov-top">
+        <b>${desktop?"图片已下载":canShare?"点下方按钮保存到相册":"长按图片 → 保存图片"}</b>
+        <span>${desktop?"在下载文件夹里可以找到":canShare?"在弹出的菜单里选「存储图像」或「保存图片」":"图片还没有保存，记得长按哦"}</span>
+      </div>
+      <div class="ov-img"><img src="${url}" alt="测试结果"></div>
+      <div class="ov-bar">
+        ${canShare?`<button class="ov-save">保存到相册</button>`:""}
+        <button class="ov-close">${canShare?"关闭":"我保存好了"}</button>
+      </div>`;
+    ov.querySelector(".ov-close").onclick=()=>ov.remove();
+    const sv=ov.querySelector(".ov-save");
+    if(sv) sv.onclick=async()=>{
+      try{ await navigator.share({files:[file]}); sv.textContent="已保存 ✓"; }
+      catch(e){ if(e && e.name!=="AbortError") ov.querySelector(".ov-top span").textContent="没成功的话，长按图片也可以保存"; }
+    };
     document.body.appendChild(ov);
-    // 电脑上直接下载
-    if(window.matchMedia("(hover:hover)").matches){
-      const a=document.createElement("a"); a.href=url; a.download="该结婚还是分手-结果.png"; a.click();
-    }
+    if(desktop){ const a=document.createElement("a"); a.href=url; a.download="该结婚还是分手-结果.png"; a.click(); }
   }catch(e){
     alert("生成图片失败，可以直接截图保存哦");
   }finally{btn.textContent=old;btn.disabled=false;}
+}
+
+// ---------- 使用说明 / 隐私 / 免责 ----------
+function showLegal(){
+  const d=document.createElement("div"); d.className="legal";
+  d.innerHTML=`<div class="legal-in">
+    <button class="link" id="legalBack">‹ 返回</button>
+    <h2 class="serif">使用说明与免责声明</h2>
+    <h4>关于本测试</h4>
+    <p>本测试是一份趣味性质的自我觉察问卷，题目和计分规则由作者原创设计，未经科学量表验证。测试结果仅供娱乐和自我反思参考，不构成心理咨询、心理诊断、婚恋咨询、法律或任何其他专业建议。</p>
+    <p>本测试面向 18 岁及以上的用户。</p>
+    <h4>免责声明</h4>
+    <p>结婚、分手等人生决定请结合你自己的实际情况慎重考虑，必要时寻求专业人士（如心理咨询师、婚姻家庭咨询师、律师）的帮助。使用者根据测试结果做出的任何决定及其后果，由使用者自行承担，作者不承担任何责任。</p>
+    <h4>如果你正在受到伤害</h4>
+    <p>如果你在关系中遭受暴力、威胁或控制，请优先保护自己的安全。紧急情况请拨打 110；也可以拨打全国妇联妇女维权公益服务热线 12338 寻求帮助。</p>
+    <h4>隐私说明</h4>
+    <p>本测试不需要注册，不收集你的姓名、联系方式等个人信息，也不会把你的答案上传到任何服务器。所有计算都在你自己的设备上完成。</p>
+    <p>为了方便你继续答题或查看上次结果，答题进度和最近一次的结果会保存在你当前浏览器的本地存储里，只有你自己的设备能读取。清除浏览器数据即可删除。</p>
+    <p>网站托管服务商可能会按照其自身政策记录常规的访问日志（如 IP 地址、访问时间），这些信息不包含你的答案。</p>
+    <h4>版权声明</h4>
+    <p>本测试的题目、选项、计分规则、结果文案和页面设计均为原创作品，版权归作者所有。未经书面许可，禁止复制、转载、改编或用于任何商业用途。</p>
+    <p style="margin-top:18px;color:var(--muted)">© ${new Date().getFullYear()} 该结婚还是分手？ 保留所有权利。</p>
+  </div>`;
+  d.querySelector("#legalBack").onclick=()=>d.remove();
+  document.body.appendChild(d);
 }
 
 // ---------- 首页大圆 ----------
@@ -446,7 +489,7 @@ async function saveImage(){
       <text class="lbl" x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central">${m.name}</text></g>`;
   });
   svg+=`<text class="ctr1 serif" x="${C}" y="${C-10}" text-anchor="middle" dominant-baseline="central">关系体检</text>
-        <text class="ctr2" x="${C}" y="${C+16}" text-anchor="middle" dominant-baseline="central">约 8 分钟</text></svg>`;
+        <text class="ctr2" x="${C}" y="${C+16}" text-anchor="middle" dominant-baseline="central">约 7 分钟</text></svg>`;
   $("pie").innerHTML=svg;
 })();
 
