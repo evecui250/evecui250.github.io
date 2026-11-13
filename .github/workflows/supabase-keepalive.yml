@@ -1,0 +1,14 @@
+# 每天访问一次 Supabase，防止免费项目 7 天无活动被自动暂停（兑换码依赖它）
+name: supabase-keepalive
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl -fsS -X POST "https://mjsgcvuyousczqexxszs.supabase.co/rest/v1/rpc/quiz_ping" \
+            -H "apikey: sb_publishable_WEmGQIZnbWUMSXm9oKSWdQ_l7tDrIIE" \
+            -H "Content-Type: application/json" -d '{}'
