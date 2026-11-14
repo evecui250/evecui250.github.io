@@ -140,6 +140,17 @@
   .lk.sel span{color:var(--ink);font-weight:600}
   .lk:active i{transform:scale(.92)}
   @media (hover:hover){.lk:hover i{transform:scale(1.06)}}
+  /* 分享图专用排版：固定宽度、两侧留白、大标题 */
+  .share-img{position:fixed;left:-9999px;top:0;width:420px;padding:36px 30px 30px;background:var(--bg)}
+  .share-img .r-head{margin:0 0 6px}
+  .share-img .r-title{font-size:26px;font-weight:700;color:var(--ink);letter-spacing:2px;margin-bottom:10px;line-height:1.35}
+  .share-img .r-label{font-size:13px}
+  .share-img .verdict{font-size:30px}
+  .share-img .verdict.big{font-size:36px}
+  .share-img .score{font-size:80px}
+  .share-img .card{padding:18px 18px;margin-top:16px}
+  .share-img .card p{font-size:15px}
+  .share-img .brand{font-size:14px;margin-top:22px;color:var(--ink);letter-spacing:1px}
 </style>
 </head>
 <body>
@@ -488,7 +499,13 @@ async function saveImage(){
   btn.textContent="生成中…"; btn.disabled=true;
   try{
     await loadH2C();
-    const canvas = await html2canvas($("card"),{backgroundColor:"#faf6f1",scale:Math.min(3,(window.devicePixelRatio||2)),useCORS:true});
+    const holder=document.createElement("div"); holder.className="share-img";
+    holder.appendChild($("card").cloneNode(true)); holder.firstChild.removeAttribute("id");
+    document.body.appendChild(holder);
+    const bg=getComputedStyle(document.body).backgroundColor;
+    let canvas;
+    try{ canvas = await html2canvas(holder,{backgroundColor:bg,scale:3,useCORS:true,windowWidth:420,x:0,y:0}); }
+    finally{ holder.remove(); }
     const url = canvas.toDataURL("image/png");
     const blob = await new Promise(r=>canvas.toBlob(r,"image/png"));
     const file = blob && new File([blob],"适合结婚还是一个人-结果.png",{type:"image/png"});
