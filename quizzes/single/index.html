@@ -549,7 +549,7 @@ function showLegal(){
     svg+=`<g class="seg" style="animation-delay:${i*70}ms"><path d="${d}" fill="${colors[i]}"/>
       <text class="lbl" x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central">${m.name}</text></g>`;
   });
-  svg+=`<text class="ctr1 serif" x="${C}" y="${C-10}" text-anchor="middle" dominant-baseline="central">关系体检</text>
+  svg+=`<text class="ctr1 serif" x="${C}" y="${C-10}" text-anchor="middle" dominant-baseline="central">认识自己</text>
         <text class="ctr2" x="${C}" y="${C+16}" text-anchor="middle" dominant-baseline="central">约 7 分钟</text></svg>`;
   $("pie").innerHTML=svg;
 })();
