@@ -114,6 +114,32 @@
   .spec-labels{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:8px}
   .spec-num{text-align:center;font-size:13px;color:var(--muted);margin-top:2px}
   .card.soft{background:#f6f1e8}
+  :root{--bg:#f2f4f0;--accent:#4f8584;--accent-soft:#e1ecea;--rose:#b4535b;--line:#e2e6df}
+  .hero{max-width:320px;margin:30px auto 0}
+  .hero svg{width:100%;display:block}
+  .hero .hl{font-size:13px;fill:#8a7f78;letter-spacing:2px}
+  .hero .dot{animation:swing 3.2s ease-in-out infinite}
+  @keyframes swing{0%,100%{transform:translateX(-30px)}50%{transform:translateX(30px)}}
+  .center{text-align:center}
+  h1.center{margin-top:22px}
+  h1 em{color:var(--accent)}
+  .chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:4px 0 26px}
+  .chips span{padding:7px 14px;border-radius:20px;background:#fff;border:1px solid var(--line);font-size:14px;color:#4a413c;animation:fade .4s ease both}
+  .note{text-align:center}
+  .q.stmt{font-size:20px;margin:18px 0 34px;min-height:90px}
+  .likert{display:flex;justify-content:space-between;align-items:flex-start;gap:4px}
+  .lk{flex:1;background:none;display:flex;flex-direction:column;align-items:center;gap:8px;padding:4px 0}
+  .lk i{display:block;border-radius:50%;border:2.5px solid;transition:background .15s,transform .15s}
+  .lk span{font-size:12px;color:var(--muted);white-space:nowrap}
+  .lk0 i{width:50px;height:50px;border-color:var(--rose)}
+  .lk1 i{width:40px;height:40px;border-color:#c98a8f}
+  .lk2 i{width:32px;height:32px;border-color:#b5ada6}
+  .lk3 i{width:40px;height:40px;border-color:#86aaa9}
+  .lk4 i{width:50px;height:50px;border-color:#4f8584}
+  .lk0.sel i{background:var(--rose)} .lk1.sel i{background:#c98a8f} .lk2.sel i{background:#b5ada6} .lk3.sel i{background:#86aaa9} .lk4.sel i{background:#4f8584}
+  .lk.sel span{color:var(--ink);font-weight:600}
+  .lk:active i{transform:scale(.92)}
+  @media (hover:hover){.lk:hover i{transform:scale(1.06)}}
 </style>
 </head>
 <body>
@@ -121,10 +147,21 @@
 
   <!-- 开始页 -->
   <section id="intro" class="fade">
-    <h1 class="serif">适合结婚，<br>还是<em>一个人</em>？</h1>
-    <p class="lead">从七个维度，看清你更适合哪种人生。</p>
-    <div class="pie" id="pie"></div>
-    <div class="note">没有对错，按你最真实的感受选。答案只留在你的手机上。</div>
+    <div class="hero">
+      <svg viewBox="0 0 320 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="62" cy="75" r="40" fill="#5f8f8f" opacity=".9"/>
+        <circle cx="238" cy="75" r="40" fill="#b4535b" opacity=".75"/>
+        <circle cx="268" cy="75" r="40" fill="#d99a6c" opacity=".7"/>
+        <line x1="110" y1="75" x2="190" y2="75" stroke="#9b918a" stroke-width="2" stroke-dasharray="3 6" stroke-linecap="round"/>
+        <circle class="dot" cx="150" cy="75" r="8" fill="#2b2522"/>
+        <text x="62" y="138" text-anchor="middle" class="hl">一个人</text>
+        <text x="253" y="138" text-anchor="middle" class="hl">两个人</text>
+      </svg>
+    </div>
+    <h1 class="serif center">适合结婚，<br>还是<em>一个人</em>？</h1>
+    <p class="lead center">没有标准答案。<br>只是看清，哪一种生活更像你。</p>
+    <div class="chips" id="pie"></div>
+    <div class="note">36 道题，约 6 分钟。没有对错，凭第一感觉选就好。</div>
     <div id="gate" class="gate hidden">
       <input id="codeInput" class="code-input" placeholder="输入兑换码" autocomplete="off" autocapitalize="characters" spellcheck="false">
       <button class="btn" id="redeemBtn">验证并开始</button>
@@ -155,93 +192,65 @@
 
 <script>
 // ---------- 题库 ----------
-// 选项从“偏向婚姻”排到“偏向一个人”；[文字, 分数 0-4（4=更适合婚姻，0=更适合一个人）或 null(不计分), 提醒(可选), "skip"]
-const MODULES = [
+// 每题是一句陈述，5 级作答（很符合 → 很不符合）。
+// k=1：越符合越偏向婚姻；k=-1：越符合越偏向一个人；k=0：不计分，只用于提醒
+const LIKERT = ["很符合","比较符合","一般","不太符合","很不符合"];
+const RAW = [
   { name:"亲密需求", key:"intimacy", qs:[
-    { q:"忙完一天回到家，你更希望？", o:[
-      ["有人在家等我，聊聊今天",4],["有人在就好，各做各的",3],["先自己安静待一会儿",1],["家里只有我，最放松",0]]},
-    { q:"遇到开心的事，你的第一反应是？", o:[
-      ["马上想和最亲近的人分享",4],["找朋友聊聊",2],["自己开心就够了",0]]},
-    { q:"生病一个人在家时，你？", o:[
-      ["很希望身边有人照顾",4],["有点孤单，但能自己扛",2],["更想自己待着，不想麻烦别人",0]]},
-    { q:"“被一个人完全了解”，对你来说？", o:[
-      ["很向往",4],["有点向往，也有点害怕",2],["不太需要，保留一些自己更舒服",0]]},
-    { q:"很长一段时间身边没有伴侣，你会？", o:[
-      ["明显觉得空",4],["偶尔会想",2],["完全没问题，甚至很享受",0]]},
+    ["忙完一天回到家，我希望有人在等我",1],
+    ["遇到开心的事，我第一个想分享的是最亲近的那个人",1],
+    ["生病的时候，我更想一个人安静待着，不想麻烦别人",-1],
+    ["我很向往被一个人完全了解",1],
+    ["很长一段时间身边没有伴侣，我也不觉得缺了什么",-1],
   ]},
   { name:"独立空间", key:"space", qs:[
-    { q:"理想的周末，你更想？", o:[
-      ["和伴侣一起过",4],["一半一起，一半自己",3],["大部分时间自己安排",1]]},
-    { q:"有人对你的生活习惯提意见（作息、花钱），你？", o:[
-      ["愿意听，能调整就调整",4],["看情况，有道理才改",2],["很反感，我的生活我做主",0]]},
-    { q:"去哪旅行、买什么、怎么花时间，你习惯？", o:[
-      ["和对方商量着来",4],["大事商量，小事自己定",3],["基本自己决定",1]]},
-    { q:"你的私人空间（独处时间、手机、个人爱好）？", o:[
-      ["可以和伴侣共享",4],["需要一些，但不多",3],["很重要，不想被打扰",1],["是底线，谁都不能碰",0]]},
-    { q:"想到以后每天都和同一个人生活在一起，你的感觉？", o:[
-      ["踏实",4],["还好，需要适应",2],["有点喘不过气",0]]},
+    ["理想的周末，我更想和伴侣一起度过",1],
+    ["有人对我的生活习惯指手画脚，我会很反感",-1],
+    ["去哪旅行、买什么，我习惯和对方商量着来",1],
+    ["我的私人空间（独处时间、手机、爱好）不能被打扰",-1],
+    ["想到以后每天都和同一个人生活，我会觉得踏实",1],
   ]},
   { name:"包容妥协", key:"flex", qs:[
-    { q:"伴侣有个你不喜欢的小习惯（比如乱放东西），你？", o:[
-      ["能接受，人都有小毛病",4],["提醒几次，改不了也就算了",3],["一直介意，很难忍",1]]},
-    { q:"两个人想法不一样时，你通常？", o:[
-      ["愿意各退一步",4],["看谁更有道理",2],["很难让步",0]]},
-    { q:"为了另一半换一个城市生活，你？", o:[
-      ["愿意，只要两个人在一起",4],["可以考虑，要看条件",2],["不太可能",0]]},
-    { q:"对方的家人和你合不来，你会？", o:[
-      ["为了伴侣，尽量维持关系",4],["保持礼貌和距离",2],["能不见就不见",0]]},
-    { q:"自己的生活节奏被别人打乱，你？", o:[
-      ["能慢慢适应",4],["会烦，但能调整",2],["很难受，会影响状态",0]]},
+    ["伴侣有些我不喜欢的小习惯，我也能接受",1],
+    ["两个人意见不同时，我很难让步",-1],
+    ["为了另一半，我愿意换一个城市生活",1],
+    ["就算和对方的家人合不来，我也会为了伴侣维持关系",1],
+    ["生活节奏被别人打乱，会让我很难受",-1],
   ]},
   { name:"责任承诺", key:"commit", qs:[
-    { q:"想到“一辈子只和一个人在一起”，你？", o:[
-      ["向往",4],["可以，但也有点怕",2],["不太相信有这种事",0]]},
-    { q:"照顾另一个人（生病、低落、家里出事），你？", o:[
-      ["愿意，也做得来",4],["愿意，但会觉得累",2],["不太擅长，也不太想",0]]},
-    { q:"关于要不要孩子？", o:[
-      ["想要",4],["都可以",2],["不想要",1],["还没想过",null,null,"skip"]]},
-    { q:"感情进入平淡期，你会？", o:[
-      ["平淡也是一种幸福",4],["想办法找点新鲜感",3],["会开始想离开",0]]},
-    { q:"两个人的钱一起规划、一起还房贷，你？", o:[
-      ["可以接受",4],["一部分共同，一部分各管各",2],["更喜欢经济完全独立",0]]},
+    ["我向往和一个人相守一辈子",1],
+    ["照顾另一个人（生病、低落、家里出事），对我来说是负担",-1],
+    ["我想拥有自己的孩子",1],
+    ["感情进入平淡期，我会开始想离开",-1],
+    ["我愿意和伴侣一起规划钱、一起承担房贷",1],
   ]},
   { name:"情绪相处", key:"emotion", qs:[
-    { q:"和亲近的人吵架之后，你通常？", o:[
-      ["主动沟通，把话说开",4],["等冷静下来再谈",3],["自己消化，不太说",1],["想一个人待着，甚至想离开",0]]},
-    { q:"有人对你特别好，你会？", o:[
-      ["很自然地接受，也对他好",4],["有点不习惯，但会回应",2],["会不安，想保持距离",0]]},
-    { q:"情绪低落的时候，你更希望？", o:[
-      ["有人陪着",4],["有人问一句就够",2],["别管我，我自己能好",0]]},
-    { q:"在感情里，你更容易？", o:[
-      ["有安全感，比较放松",4],["担心对方不够爱我",3],["怕被控制，怕失去自我",0]]},
-    { q:"一段感情结束后，你通常？", o:[
-      ["还是会期待下一段",4],["需要很久才能恢复",2],["觉得一个人也挺好",0]]},
+    ["和亲近的人有矛盾，我会主动沟通，把话说开",1],
+    ["别人对我特别好时，我反而会不安，想保持距离",-1],
+    ["情绪低落时，我希望有人陪在身边",1],
+    ["在亲密关系里，我常担心失去自我",-1],
+    ["一段感情结束后，我还是会期待下一段",1],
   ]},
   { name:"独处能力", key:"solo", qs:[
-    { q:"一个人吃饭、看电影、旅行，你？", o:[
-      ["不太习惯，喜欢有人一起",4],["偶尔可以",2],["很享受",0]]},
-    { q:"你的兴趣爱好和朋友圈子？", o:[
-      ["不多，生活重心更多在亲密关系上",4],["有一些，够用",2],["很丰富，生活很满",0]]},
-    { q:"想到老了以后一个人生活，你？", o:[
-      ["很害怕",4],["有点担心，会提前准备",2],["可以接受，会安排好自己",0]]},
-    { q:"一个人处理生活琐事（修东西、看病、搬家），你？", o:[
-      ["很希望有人分担",4],["能做，但有人帮更好",2],["完全可以自己搞定",0]]},
-    { q:"如果一直一个人过下去，你觉得自己的生活？", o:[
-      ["会缺很重要的一块",4],["会有遗憾，但也能过好",2],["一样完整",0]]},
+    ["一个人吃饭、看电影、旅行，我很享受",-1],
+    ["我的兴趣爱好和朋友圈子很丰富，生活很满",-1],
+    ["想到老了以后一个人生活，我会害怕",1],
+    ["生活琐事（修东西、看病、搬家），我一个人完全搞得定",-1],
+    ["就算一直一个人过下去，我的生活依然完整",-1],
   ]},
   { name:"婚姻动机", key:"motive", qs:[
-    { q:"想到结婚，你心里更多是？", o:[
-      ["想和喜欢的人一起建一个家",4],["一半是想，一半是年龄和家里的压力",2,"pressure"],["主要是年龄到了、家里在催",1,"pressure"],["目前并不想结婚",0]]},
-    { q:"你心目中的婚姻是？", o:[
-      ["彼此依靠的港湾",4],["两个独立的人搭伙过日子",2],["一种束缚",0]]},
-    { q:"看到身边朋友的婚姻，你更多是？", o:[
-      ["羡慕",4],["有羡慕，也有庆幸",2],["庆幸自己还是一个人",0]]},
-    { q:"如果没有年龄、父母、别人眼光的压力，你？", o:[
-      ["依然想结婚",4],["可能会结，也可能不会",2],["大概率不结",0]]},
-    { q:"你父母的婚姻，给你的感觉是？", o:[
-      ["让我对婚姻有信心",4],["普通，有好有坏",2],["让我对婚姻有些害怕",1],["不方便说",null,null,"skip"]]},
+    ["我想和喜欢的人一起，建立一个属于我们的家",1],
+    ["在我眼里，婚姻更像是一种束缚",-1],
+    ["看到身边朋友的婚姻，我更多是羡慕",1],
+    ["就算没有年龄、父母和别人眼光的压力，我也想结婚",1],
+    ["父母的婚姻让我对婚姻有些害怕",-1],
+    ["我想结婚，很大程度上是因为年龄到了、家里在催",0],
   ]},
 ];
+// 转成通用格式：每个选项 [文字, 分数(0-4，4=偏婚姻) 或 null, 提醒标记]
+const MODULES = RAW.map(m=>({name:m.name, key:m.key, qs:m.qs.map(([q,k])=>({
+  q, k, o: LIKERT.map((l,a)=> k===0 ? [l,null,(a<=1?"pressure":null),"skip"] : [l, k===1 ? 4-a : a])
+}))}));
 
 // 每个维度三档点评：高(≥60，偏婚姻) / 中(40–59) / 低(<40，偏一个人)
 const MOD_NOTES = {
@@ -255,9 +264,9 @@ const MOD_NOTES = {
 };
 
 const TIERS = [
-  { min:80, title:"天生的伴侣型", color:"var(--accent)",
+  { min:80, title:"天生的伴侣型", color:"var(--rose)",
     text:["你渴望亲密，愿意包容，也向往长久的承诺。一段好的婚姻会放大你的幸福。","提醒一句：越想要陪伴的人，越要小心别因为怕孤单而将就。等一个真正合适的人，比早点结婚更重要。"] },
-  { min:62, title:"温暖的同行者", color:"var(--accent)",
+  { min:62, title:"温暖的同行者", color:"var(--rose)",
     text:["你适合婚姻，但不是那种把自己全部交出去的类型。你需要一个伴侣，也需要保留一部分自己。","最适合你的，是一段“亲密但不黏腻”的关系：两个人一起走，各自也有自己的生活。"] },
   { min:42, title:"自由切换型", color:"var(--mid)",
     text:["结婚或者一个人，你都能过得很好。你既享受陪伴，也享受独处。","对你来说，关键不是“要不要结婚”，而是“遇没遇到对的人”。遇到了就好好在一起，没遇到也不必将就。"] },
@@ -276,7 +285,7 @@ const TOTAL = QUESTIONS.length;
 let answers = new Array(TOTAL).fill(null);   // 按题目原始编号存
 let order = [...Array(TOTAL).keys()];           // 本次答题的出题顺序
 let cur = 0;                                    // 当前是第几题（按出题顺序）
-const KEY = "single-quiz-v1";
+const KEY = "single-quiz-v2";
 
 // 打乱题目顺序；前 3 题不放红线类的重题，开头轻松一点
 function makeOrder(){
@@ -292,7 +301,7 @@ function makeOrder(){
 function save(){try{localStorage.setItem(KEY,JSON.stringify({answers,order,cur}));}catch(e){}}
 function load(){try{return JSON.parse(localStorage.getItem(KEY));}catch(e){return null;}}
 function clearSave(){try{localStorage.removeItem(KEY);}catch(e){}}
-const LAST_KEY = "single-quiz-last-v1";
+const LAST_KEY = "single-quiz-last-v2";
 function saveLast(){try{localStorage.setItem(LAST_KEY,JSON.stringify({answers,time:Date.now()}));}catch(e){}}
 function loadLast(){try{const l=JSON.parse(localStorage.getItem(LAST_KEY));return (l&&Array.isArray(l.answers)&&l.answers.length===TOTAL&&l.answers.every(a=>a!==null))?l:null;}catch(e){return null;}}
 
@@ -324,17 +333,17 @@ function render(){
   $("backBtn").disabled = cur===0;
   const box=$("qbox");
   box.innerHTML=`<div class="fade">
-    <p class="q">${q.q}</p>
-    <div class="opts">${q.o.map((o,oi)=>`<button class="opt${o[1]===null?" na":""}${answers[qi]===oi?" sel":""}" data-i="${oi}">${o[0]}</button>`).join("")}</div>
+    <p class="q stmt">${q.q}</p>
+    <div class="likert">${q.o.map((o,oi)=>`<button class="lk lk${oi}${answers[qi]===oi?" sel":""}" data-i="${oi}" aria-label="${o[0]}"><i></i><span>${o[0]}</span></button>`).join("")}</div>
   </div>`;
-  box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pick(+b.dataset.i,b));
+  box.querySelectorAll(".lk").forEach(b=>b.onclick=()=>pick(+b.dataset.i,b));
 }
 
 let locked=false;
 function pick(i,btn){
   if(locked) return; locked=true;
   answers[order[cur]]=i; save();
-  document.querySelectorAll(".opt").forEach(b=>b.classList.remove("sel")); btn.classList.add("sel");
+  document.querySelectorAll(".opt,.lk").forEach(b=>b.classList.remove("sel")); btn.classList.add("sel");
   setTimeout(()=>{
     locked=false;
     if(cur<TOTAL-1){cur++;save();render();}
@@ -412,7 +421,7 @@ function compute(answers){
   return {modScores:valid.map(v=>v.s),total,pressure};
 }
 
-function colorFor(s){return s>=60?"var(--accent)":s>=40?"var(--mid)":"var(--teal)";}
+function colorFor(s){return s>=60?"var(--rose)":s>=40?"var(--mid)":"var(--teal)";}
 function leanText(s){return s>=60?"偏婚姻":s>=40?"居中":"偏一个人";}
 
 function showResult(ans, time){
@@ -536,22 +545,8 @@ function showLegal(){
 }
 
 // ---------- 首页大圆 ----------
-(function drawPie(){
-  const C=170, R=150, r=74, gap=0.025, n=MODULES.length;
-  const colors=["#c96b6f","#d99a6c","#c9a85a","#8fae7e","#6f9a9a","#8b86b8","#b07aa0"];
-  const pt=(rad,a)=>[C+rad*Math.sin(a), C-rad*Math.cos(a)];
-  let svg=`<svg viewBox="0 0 340 340" xmlns="http://www.w3.org/2000/svg">`;
-  MODULES.forEach((m,i)=>{
-    const a0=i/n*2*Math.PI+gap, a1=(i+1)/n*2*Math.PI-gap, big=(a1-a0)>Math.PI?1:0;
-    const [x0,y0]=pt(R,a0),[x1,y1]=pt(R,a1),[x2,y2]=pt(r,a1),[x3,y3]=pt(r,a0);
-    const d=`M${x0},${y0} A${R},${R} 0 ${big} 1 ${x1},${y1} L${x2},${y2} A${r},${r} 0 ${big} 0 ${x3},${y3}Z`;
-    const am=(a0+a1)/2, [lx,ly]=pt((R+r)/2,am);
-    svg+=`<g class="seg" style="animation-delay:${i*70}ms"><path d="${d}" fill="${colors[i]}"/>
-      <text class="lbl" x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central">${m.name}</text></g>`;
-  });
-  svg+=`<text class="ctr1 serif" x="${C}" y="${C-10}" text-anchor="middle" dominant-baseline="central">认识自己</text>
-        <text class="ctr2" x="${C}" y="${C+16}" text-anchor="middle" dominant-baseline="central">约 7 分钟</text></svg>`;
-  $("pie").innerHTML=svg;
+(function drawChips(){
+  $("pie").innerHTML = MODULES.map((m,i)=>`<span style="animation-delay:${i*60}ms">${m.name}</span>`).join("");
 })();
 
 // 有未完成进度时显示“继续”
