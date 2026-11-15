@@ -51,7 +51,7 @@
   .opt.na{color:var(--muted);border-style:dashed}
   .opt:active{transform:scale(.99)}
   .opt.sel{border-color:var(--accent);background:var(--accent-soft)}
-  @media (hover:hover){.opt:hover{border-color:#d9b8b6}}
+  @media (hover:hover){.opt:hover{border-color:#c9c2e3}}
 
   /* result */
   #card{background:var(--bg);padding:4px 2px 2px}
@@ -190,7 +190,7 @@
     <h1 class="serif center">你的人格，<br>修炼到<em>第几阶</em>了？</h1>
     <p class="lead center">同一个类型，也有不同的成长状态。<br>看看你现在走到了哪里。</p>
     <div class="chips" id="pie"></div>
-    <div class="note">先选你的类型，再答 28 道题，约 5 分钟。</div>
+    <div class="note">先选你的类型，再答 25 道题，约 5 分钟。<br>凭真实情况选，“完美答案”反而会被识破哦。</div>
     <div id="gate" class="gate hidden">
       <input id="codeInput" class="code-input" placeholder="输入兑换码" autocomplete="off" autocapitalize="characters" spellcheck="false">
       <button class="btn" id="redeemBtn">验证并开始</button>
@@ -230,65 +230,95 @@
 
 <script>
 // ---------- 题库 ----------
-// 每题一句陈述，5 级作答（很符合 → 很不符合）。k=1：越符合越成熟；k=-1：越符合越不成熟
+// 三种题型：
+//  choice：情境题，选项顺序随机，分数隐藏（0-4）
+//  likert：陈述句 5 级作答；k=1 越符合越成熟，k=-1 越符合越不成熟，k="L" 是测谎题（不计分）
+//  freq：过去一个月的具体行为，选项按频率排列（0-4）
 const LIKERT = ["很符合","比较符合","一般","不太符合","很不符合"];
+const C = (q,opts)=>({kind:"choice",q,o:opts});
+const L = (q,k)=>({kind:"likert",q,k});
+const F = (q,opts)=>({kind:"freq",q,o:opts});
+const FREQ = [["有，好几次",4],["有，一两次",3],["想过，但没做",1],["没有",0]];
 
 const SHARED = [
   { name:"自我觉察", key:"aware", qs:[
-    ["我能说出自己在关系里反复出现的模式",1],
-    ["别人批评我时，我会先想想他说得有没有道理",1],
-    ["我很清楚自己的优点和短板",1],
-    ["我常常不明白自己为什么会有某种情绪",-1],
-    ["我会用“我就是这种人格”来解释自己的问题",-1],
+    C("朋友突然对你说：“你最近有点变了。”你的第一反应是？",[
+      ["好奇地问：哪里变了？",4],["没说什么，但之后自己琢磨了一下",3],["“没有吧，我一直都这样”",1],["有点受伤，不太想继续聊",0]]),
+    C("回看三年前的自己，你觉得？",[
+      ["能说清楚自己哪里变了、为什么变",4],["好像成熟了一些，但说不太清",2],["没什么变化",1],["不太愿意回想",1]]),
+    L("我知道自己在某些事情上很固执",1),
+    L("我的一些“优点”，用过头了也会变成问题",1),
+    L("我很少需要反省，因为我做事一般都没什么问题",-1),
   ]},
   { name:"情绪成熟", key:"emotion", qs:[
-    ["生气的时候，我能先停一下，再决定怎么回应",1],
-    ["我的情绪很容易被别人的一句话左右",-1],
-    ["我能接受自己有负面情绪，而不是责怪自己",1],
-    ["我常常把情绪憋着，直到某天突然爆发",-1],
-    ["我能在不伤害别人的前提下表达不满",1],
+    C("和很亲近的人吵架后的第二天，你通常？",[
+      ["主动找对方，说说自己当时为什么那么激动",4],["等对方先来找自己",1],["假装什么都没发生",1],["嘴上不说，但默默记下这件事",0]]),
+    C("有人当众开了一个让你不舒服的玩笑，你会？",[
+      ["当场轻松地说一句“这个我不太喜欢”",4],["当时笑笑，事后私下跟他说",3],["当时笑笑，之后慢慢疏远他",1],["当场冷下脸",0]]),
+    L("我曾经因为自己的情绪，误会过别人",1),
+    F("过去一个月，你有没有真心地对别人说过“是我不对”？",[
+      ["有，而且是真心的",4],["这个月确实没什么需要道歉的",2],["有，但说得有点勉强",2],["没有，这句话很难说出口",0]]),
   ]},
   { name:"压力应对", key:"stress", qs:[
-    ["压力大的时候，我会做出事后很后悔的反应",-1],
-    ["压力大时，我会变得完全不像平时的自己",-1],
-    ["遇到挫折，我能比较快地恢复过来",1],
-    ["事情很多的时候，我能分清轻重，一件件处理",1],
+    C("你认真准备的方案被否定了，当天晚上你最可能？",[
+      ["难受一会儿，然后想想哪些意见有道理",4],["跟朋友吐槽一通，第二天再改",2],["反复想，很久睡不着",1],["认定是对方不懂",0]]),
+    C("一件重要的事快到截止日期，你却完全不想动，你通常？",[
+      ["先做最小的一步，让自己动起来",4],["拖到最后一刻，靠压力完成",2],["一边焦虑一边刷手机",1],["干脆放弃",0]]),
+    C("压力最大的那段时间，身边的人会怎么形容你？",[
+      ["比平时安静一些，但还是你自己",4],["容易烦躁，但会提前跟大家打招呼",3],["变得很不像你，事后自己才发现",1],["没注意过，也没人跟我说过",1]]),
   ]},
   { name:"包容理解", key:"open", qs:[
-    ["和我性格很不一样的人，我也能看到他的长处",1],
-    ["别人和我想法不同时，我常觉得是他“不懂”",-1],
-    ["我会根据对方的特点，调整自己的沟通方式",1],
+    C("一个和你性格很不一样的同事，做事方式让你很不习惯，你会？",[
+      ["试着弄明白他为什么这样做",4],["只在必要的时候和他合作",2],["跟别人吐槽他",1],["尽量绕开他",1]]),
+    C("朋友向你倾诉烦恼时，你通常会？",[
+      ["先弄清楚对方想要建议，还是只想被听",4],["认真听完，然后给建议",3],["很快讲起自己类似的经历",1],["直接告诉他该怎么做",1]]),
+    L("有些我不喜欢的人，其实身上有我自己的影子",1),
   ]},
   { name:"行动成长", key:"growth", qs:[
-    ["我在主动改变自己不喜欢的习惯",1],
-    ["我常常想得很多，但很少真正行动",-1],
-    ["比起一年前，我觉得自己成长了",1],
+    C("你发现自己又在重复一个说过要改的坏习惯，你会？",[
+      ["想想是什么情况触发了它",4],["下决心下次一定改",2],["骂自己没出息",1],["算了，人就是这样",0]]),
+    F("过去一个月，你有没有为自己的成长做过一件具体的事（读书、练习、改一个习惯）？",[
+      ["有，而且一直在坚持",4],["做过一两次",3],["想过，但没做",1],["没有",0]]),
   ]},
 ];
 
-// “另一面”：根据所选类型的字母，换成练习相反倾向的题目
+// “另一面”：按所选类型的字母，问过去一个月有没有用过相反的那一面
 const BALANCE = {
-  I:["需要的时候，我能主动和陌生人打开话题","在热闹的场合待久了，我也能自在地参与，而不是只想逃走"],
-  E:["我能享受一个人安静待着，不觉得无聊或焦虑","做重要决定前，我会先自己想清楚，而不是边说边想"],
-  S:["我能看到事情背后的可能性，而不只是眼前的细节","面对没做过的新方法，我愿意尝试"],
-  N:["我能把想法落实到具体的步骤和细节上","我会关注现实条件，而不只是想象中的样子"],
-  T:["我能察觉到别人没说出口的情绪","做决定时，我会考虑这件事对别人感受的影响"],
-  F:["做重要决定时，我能把感受放一边，理性分析利弊","我能直接指出别人的问题，而不会因为怕伤感情而回避"],
-  J:["计划被打乱时，我能很快调整，而不是一直焦虑","我能接受有些事情暂时没有答案"],
-  P:["我能为重要的事定计划，并且坚持完成","面对截止日期，我会提前安排，而不是拖到最后"],
-  X:[["我能根据场合，在热闹和安静之间自在切换","独处和社交，我都能从中得到能量"],
-     ["我既能关注细节，也能看到大方向","我能把想法落到实处"],
-     ["我能兼顾道理和别人的感受","需要时，我能理性地做出艰难的决定"],
-     ["我既能做计划，也能接受计划的变化","面对不确定，我不会特别焦虑"]],
+  I:"过去一个月，你有没有主动发起过社交（约人、在聚会上主动和人聊天）？",
+  E:"过去一个月，你有没有一个人安静待上大半天，而且挺享受的？",
+  S:"过去一个月，你有没有尝试过一种从没用过的新方法或新事物？",
+  N:"过去一个月，你有没有把一个想法真正落实成具体的行动？",
+  T:"过去一个月，你有没有察觉并回应过别人没说出口的情绪？",
+  F:"过去一个月，你有没有在重要的事上，先放下感受、理性分析过利弊？",
+  J:"过去一个月，计划被打乱时，你有没有很快调整过来，没有一直焦虑？",
+  P:"过去一个月，你有没有按计划提前完成过一件重要的事？",
+  X:["过去一个月，你有没有做过一件“不太像你”、但事后觉得挺好的事？",
+     "过去一个月，你有没有因为听了不同的意见，改变过自己的想法？",
+     "过去一个月，你有没有在情绪上头时，先停下来再回应？",
+     "过去一个月，你有没有把一件拖了很久的事真正做完？"],
 };
 
+// 测谎题：只有“完美的人”才会全选很符合
+const LIE = [
+  L("我从来没有对别人发过脾气","L"),
+  L("我从来不会在背后议论别人","L"),
+  L("不管发生什么，我都能保持情绪稳定","L"),
+  L("我对每个人都一样友善","L"),
+];
+
+function toOptions(item){
+  if(item.kind==="likert"){
+    if(item.k==="L") return LIKERT.map((l,a)=>[l,null,(a<=1?"lie":null),"skip"]);
+    return LIKERT.map((l,a)=>[l, item.k===1?4-a:a]);
+  }
+  return item.o;
+}
 function buildModules(type){
   const mods = SHARED.map(m=>({name:m.name,key:m.key,qs:m.qs.slice()}));
-  let bal=[];
-  if(type && type.length===4){ for(const ch of type) bal.push(...BALANCE[ch].map(q=>[q,1])); }
-  else { BALANCE.X.forEach(p=>bal.push(...p.map(q=>[q,1]))); }
+  const bal = (type && type.length===4) ? [...type].map(ch=>F(BALANCE[ch],FREQ)) : BALANCE.X.map(q=>F(q,FREQ));
   mods.push({name:"平衡另一面", key:"balance", qs:bal});
-  return mods.map(m=>({name:m.name,key:m.key,qs:m.qs.map(([q,k])=>({q,k,o:LIKERT.map((l,a)=>[l, k===1?4-a:a])}))}));
+  mods.push({name:"测谎", key:"lie", hidden:true, qs:LIE});
+  return mods.map(m=>({name:m.name,key:m.key,hidden:!!m.hidden,qs:m.qs.map(it=>({...it,o:toOptions(it)}))}));
 }
 
 const TYPES = {
@@ -313,11 +343,13 @@ const TYPES = {
 const STAGES = [
   { name:"初阶", min:0, color:"#9a8fc4",
     text:"你现在主要靠天性在生活：强项用得很顺，但另一面还比较生疏，压力大时容易被情绪或惯性带着走。这不是缺点，几乎每个人都是从这里开始的。" },
-  { name:"中阶", min:48, color:"#6b5fa8",
+  { name:"中阶", min:50, color:"#6b5fa8",
     text:"你已经认识自己的模式，也开始有意识地练习不擅长的那一面。大部分时候你都能好好应对，只是压力大的时候，偶尔还会回到旧模式。" },
-  { name:"高阶", min:73, color:"#3f3577",
+  { name:"高阶", min:76, color:"#3f3577",
     text:"你既能发挥自己的天性，也能在需要时自如地用好另一面。你不再被人格标签限制，而是把它当成了解自己的工具。" },
 ];
+
+const LIE_NOTE = "你的回答里有几处“完美答案”，比如从不发脾气、对每个人都一样友善。这很难做到，所以结果最高显示到中阶。真正的成长，往往是从承认自己不完美开始的。";
 
 const DIM_TIPS = {
   aware:"每周花十分钟复盘：这周哪件事让你情绪波动最大？它背后是你的什么需要？",
@@ -355,7 +387,7 @@ function makeOrder(){
   return a;
 }
 
-function save(){try{localStorage.setItem(KEY,JSON.stringify({answers,order,cur,type:TYPE}));}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({answers,order,cur,type:TYPE,optOrder}));}catch(e){}}
 function load(){try{return JSON.parse(localStorage.getItem(KEY));}catch(e){return null;}}
 function clearSave(){try{localStorage.removeItem(KEY);}catch(e){}}
 const LAST_KEY = "stage-quiz-last-v1";
@@ -383,7 +415,7 @@ function start(fresh){
   show("quiz");render();
 }
 function beginWith(t){
-  setType(t); answers=new Array(TOTAL).fill(null); order=makeOrder(); cur=0; save();
+  setType(t); answers=new Array(TOTAL).fill(null); order=makeOrder(); optOrder={}; cur=0; save();
   show("quiz"); render();
 }
 function renderPick(){
@@ -392,17 +424,25 @@ function renderPick(){
   $("typeGrid").querySelectorAll(".tp").forEach(b=>b.onclick=()=>beginWith(b.dataset.t));
 }
 
+let optOrder = {};   // 情境题的选项顺序（每次测试随机）
+function shuffled(n){const a=[...Array(n).keys()];for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function render(){
   const qi=order[cur], q=QUESTIONS[qi];
   $("count").textContent=`${cur+1} / ${TOTAL}`;
   $("bar").style.width=`${cur/TOTAL*100}%`;
   $("backBtn").disabled = cur===0;
   const box=$("qbox");
-  box.innerHTML=`<div class="fade">
-    <p class="q stmt">${q.q}</p>
-    <div class="likert">${q.o.map((o,oi)=>`<button class="lk lk${oi}${answers[qi]===oi?" sel":""}" data-i="${oi}" aria-label="${o[0]}"><i></i><span>${o[0]}</span></button>`).join("")}</div>
-  </div>`;
-  box.querySelectorAll(".lk").forEach(b=>b.onclick=()=>pick(+b.dataset.i,b));
+  let body;
+  if(q.kind==="likert"){
+    body=`<p class="q stmt">${q.q}</p>
+    <div class="likert">${q.o.map((o,oi)=>`<button class="lk lk${oi}${answers[qi]===oi?" sel":""}" data-i="${oi}" aria-label="${o[0]}"><i></i><span>${o[0]}</span></button>`).join("")}</div>`;
+  } else {
+    const ord = q.kind==="choice" ? (optOrder[qi] || (optOrder[qi]=shuffled(q.o.length))) : q.o.map((_,i)=>i);
+    body=`<p class="q">${q.q}</p>
+    <div class="opts">${ord.map(oi=>`<button class="opt${answers[qi]===oi?" sel":""}" data-i="${oi}">${q.o[oi][0]}</button>`).join("")}</div>`;
+  }
+  box.innerHTML=`<div class="fade">${body}</div>`;
+  box.querySelectorAll(".lk,.opt").forEach(b=>b.onclick=()=>pick(+b.dataset.i,b));
 }
 
 let locked=false;
@@ -471,30 +511,34 @@ $("lastBtn").onclick=()=>{const l=loadLast(); if(!l) return; setType(l.type); sh
 // ---------- 计算结果 ----------
 function compute(answers){
   const mods=MODULES.map(()=>({sum:0,max:0}));
-  QUESTIONS.forEach((q,i)=>{ const o=q.o[answers[i]]; mods[q.mi].sum+=o[1]; mods[q.mi].max+=4; });
-  const modScores=mods.map(m=>Math.round(m.sum/m.max*100));
+  let lie=0;
+  QUESTIONS.forEach((q,i)=>{ const o=q.o[answers[i]]; if(o[2]==="lie") lie++; if(o[1]===null) return; mods[q.mi].sum+=o[1]; mods[q.mi].max+=4; });
+  const modScores=mods.map(m=>m.max?Math.round(m.sum/m.max*100):null);
   const tot=mods.reduce((a,m)=>a+m.sum,0), max=mods.reduce((a,m)=>a+m.max,0);
-  return {modScores,total:Math.round(tot/max*100)};
+  return {modScores,total:Math.round(tot/max*100),lie};
 }
 
 function showResult(ans, time){
   const fromHistory = !!ans;
   if(!fromHistory){ans=answers; saveLast(); clearSave(); answers=new Array(TOTAL).fill(null); cur=0;}
-  const {modScores,total}=compute(ans);
+  const {modScores,total,lie}=compute(ans);
+  const faked = lie>=2;
   const d=new Date(time||Date.now()), dateStr=`${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`;
-  const si = total>=STAGES[2].min?2: total>=STAGES[1].min?1:0;
+  let si = total>=STAGES[2].min?2: total>=STAGES[1].min?1:0;
+  if(faked && si===2) si=1;
   const st=STAGES[si], T=TYPE&&TYPES[TYPE];
   // 阶段内的位置（用于进度点）
   const lo=st.min, hi= si<2?STAGES[si+1].min:100;
-  const pos = Math.round(((si) + Math.min(1,(total-lo)/Math.max(1,hi-lo)))/3*100);
+  const pos = Math.round(((si) + Math.max(0,Math.min(1,(total-lo)/Math.max(1,hi-lo))))/3*100);
 
   const rows = MODULES.map((m,i)=>{
     const s=modScores[i];
+    if(m.hidden||s===null) return "";
     return `<div class="row">
       <div class="row-top"><span>${m.name}</span><b style="color:${s>=73?"#3f3577":s>=48?"#6b5fa8":"#9a8fc4"}">${s}</b></div>
       <div class="track"><i style="width:${Math.max(s,3)}%;background:${s>=73?"#3f3577":s>=48?"#6b5fa8":"#b3aad6"}"></i></div>
     </div>`;}).join("");
-  const sorted = modScores.map((s,i)=>({s,i})).sort((a,b)=>a.s-b.s);
+  const sorted = modScores.map((s,i)=>({s,i})).filter(x=>x.s!==null&&!MODULES[x.i].hidden).sort((a,b)=>a.s-b.s);
   const weak = sorted.slice(0,2).filter(x=>x.s<80);
   const strong = sorted[sorted.length-1];
 
@@ -517,6 +561,7 @@ function showResult(ans, time){
         ${T?`<p><b>${TYPE} 的${st.name}：</b>${T.s[si]}</p>`:""}
         ${si<2&&T?`<p class="muted-p">走向${STAGES[si+1].name}的样子：${T.s[si+1]}</p>`:""}
       </div>
+      ${faked?`<div class="card soft"><h3>一个小发现</h3><p>${LIE_NOTE}</p></div>`:""}
       <div class="card"><h3>六个方面</h3>${rows}
         <p class="row-note" style="margin-top:12px">你最成熟的一面是「${MODULES[strong.i].name}」。</p>
       </div>
@@ -611,14 +656,14 @@ function showLegal(){
 
 // ---------- 首页大圆 ----------
 (function drawChips(){
-  $("pie").innerHTML = MODULES.map((m,i)=>`<span style="animation-delay:${i*60}ms">${m.name}</span>`).join("");
+  $("pie").innerHTML = MODULES.filter(m=>!m.hidden).map((m,i)=>`<span style="animation-delay:${i*60}ms">${m.name}</span>`).join("");
 })();
 
 // 有未完成进度时显示“继续”
 (function(){
   const s=load();
   if(s && Array.isArray(s.answers) && s.answers.length===TOTAL){
-    setType(s.type); answers=s.answers; cur=Math.min(s.cur||0, TOTAL-1);
+    setType(s.type); answers=s.answers; cur=Math.min(s.cur||0, TOTAL-1); optOrder=s.optOrder||{};
     if(Array.isArray(s.order) && s.order.length===TOTAL) order=s.order;
   }
   checkResume();
