@@ -139,7 +139,8 @@ async function copy(t){
   toast("已复制");
 }
 async function rpc(fn,args){
-  const r=await fetch(`${SB_URL}/rest/v1/rpc/${fn}`,{method:"POST",headers:{"Content-Type":"application/json","apikey":SB_KEY},body:JSON.stringify({p_secret:PW,...args})});
+  const opts={method:"POST",headers:{"Content-Type":"application/json","apikey":SB_KEY},body:JSON.stringify({p_secret:PW,...args})};
+  let r; try{ r=await fetch(`/api/rpc/${fn}`,opts); if(r.status===404||r.status===405) throw 0; }catch(e){ r=await fetch(`${SB_URL}/rest/v1/rpc/${fn}`,opts); }
   const txt=await r.text();
   if(!r.ok){ if(txt.includes("unauthorized")) throw new Error("unauthorized"); throw new Error(txt||("HTTP "+r.status)); }
   return txt?JSON.parse(txt):null;

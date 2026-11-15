@@ -649,10 +649,11 @@ function applyGate(){
   $("startBtn").classList.toggle("hidden", !u);
   if(!u){ $("resumeBtn").classList.add("hidden"); $("lastBtn").classList.add("hidden"); }
 }
-async function callRedeem(code){
+async function callRedeem(code, direct){
   const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),9000);
   try{
-    const r=await fetch(SB_URL+"/rest/v1/rpc/redeem_code",{method:"POST",signal:ctrl.signal,
+    const url = direct ? SB_URL+"/rest/v1/rpc/redeem_code" : "/api/rpc/redeem_code";
+    const r=await fetch(url,{method:"POST",signal:ctrl.signal,
       headers:{"Content-Type":"application/json","apikey":SB_KEY},
       body:JSON.stringify({p_code:code,p_device:deviceId(),p_quiz:"stage"})});
     if(!r.ok) throw new Error("http "+r.status);
@@ -665,7 +666,7 @@ $("redeemBtn").onclick=async()=>{
   if(!code){ msg.textContent="请先输入兑换码"; return; }
   btn.disabled=true; btn.textContent="验证中…"; msg.textContent="";
   let res=null;
-  for(let i=0;i<2 && res===null;i++){ try{ res=await callRedeem(code); }catch(e){ if(i===0) await new Promise(r=>setTimeout(r,800)); } }
+  for(let i=0;i<3 && res===null;i++){ try{ res=await callRedeem(code, i===1); }catch(e){ await new Promise(r=>setTimeout(r,600)); } }
   btn.disabled=false; btn.textContent="验证并开始";
   if(res==="ok"){ setUnlocked(code); applyGate(); start(true); }
   else if(res==="used") msg.textContent="这个兑换码已经在其他手机上使用过了";
