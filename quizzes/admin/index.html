@@ -66,16 +66,18 @@
   <div id="main" class="hidden">
     <div class="card">
       <h3 style="margin:0 0 10px;font-size:16px">通用兑换码（所有买家用同一个，不限次数）</h3>
+      <p class="muted" style="margin-top:0">家人码 JIAREN-HH8D 不受换码影响。</p>
       <select id="shQuiz" class="in" style="margin-bottom:10px">
-        <option value="stage">16型人格 · 成长阶段（test.spelloapp.com/jieduan/）</option>
-        <option value="single">适合结婚，还是一个人？</option>
-        <option value="marry">该结婚还是分手？</option>
+        <option value="stage">16型人格 · 成长阶段（/jieduan/）</option>
+        <option value="single">适合结婚，还是一个人？（/single/）</option>
+        <option value="marry">该结婚还是分手？（/marry/）</option>
       </select>
       <div id="shNow" class="muted" style="margin-bottom:10px">加载中…</div>
       <input id="shNew" class="in" placeholder="新码（可留空，自动生成）" autocapitalize="characters">
       <button class="btn ghost" id="shRotate">换一个新的通用码</button>
       <p class="muted" style="margin-bottom:0">换码后旧码立刻失效，已经用旧码解锁过的手机不受影响。记得同时更新自动发货里的话术。</p>
     </div>
+    <div class="hidden" id="oneTimeSec">
     <h3 style="margin:18px 0 10px;font-size:16px">一次性兑换码 · 该结婚还是分手？</h3>
     <div class="stats">
       <div class="stat"><b id="sLeft">–</b><span>还没发出</span></div>
@@ -113,6 +115,7 @@
       </div>
     </div>
     <p class="muted">“已使用”表示客户已经用这个码在手机上解锁了测试。点备注可以修改；发错了的码，只要还没被使用，就可以“撤回”放回去。</p>
+    </div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
