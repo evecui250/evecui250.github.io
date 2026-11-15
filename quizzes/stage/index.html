@@ -151,7 +151,8 @@
   .share-img .card{padding:18px 18px;margin-top:16px}
   .share-img .card p{font-size:15px}
   .share-img .brand{font-size:14px;margin-top:22px;color:var(--ink);letter-spacing:1px}
-  :root{--bg:#f5f3f9;--accent:#6b5fa8;--accent-soft:#e8e4f4;--line:#e4e0ee}
+  :root{--bg:#f5f3f9;--accent:#6b5fa8;--accent-soft:#e8e4f4;--line:#e4e0ee;--t-light:#c9c2e3;--t-mid:#9a8fc4;--t-dark:#3f3577}
+  body{transition:background .3s}
   .hero .sl{font-size:13px;fill:#4a413c;letter-spacing:2px;font-weight:600}
   .hero .sl.w{fill:#fff}
   .hero .climb{animation:climb 4.5s ease-in-out infinite}
@@ -164,8 +165,8 @@
   .tp.g0 b{color:#6b5fa8} .tp.g1 b{color:#4f8a6e} .tp.g2 b{color:#4a6fa5} .tp.g3 b{color:#b07a3a}
   .tp:active{transform:scale(.96)}
   .stairs{margin:18px 4px 4px}
-  .st-track{height:10px;border-radius:5px;background:#e4e0ee;overflow:hidden}
-  .st-track i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#c9c2e3,#6b5fa8,#3f3577)}
+  .st-track{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+  .st-track i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--t-light),var(--accent),var(--t-dark))}
   .st-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:12.5px;color:var(--muted)}
   .st-labels span.on{color:var(--accent);font-weight:700}
   .muted-p{color:var(--muted);font-size:14.5px!important}
@@ -525,7 +526,21 @@ function loadLast(){try{const l=JSON.parse(localStorage.getItem(LAST_KEY));retur
 const $ = id=>document.getElementById(id);
 function show(id){["intro","pick","quiz","result"].forEach(s=>$(s).classList.toggle("hidden",s!==id));window.scrollTo(0,0);}
 
+// 结果页主题色：按类型的四大类换颜色
+const THEMES = {
+  NT:{bg:"#f5f3f9",accent:"#6b5fa8",soft:"#e8e4f4",line:"#e4e0ee",light:"#c9c2e3",mid:"#9a8fc4",dark:"#3f3577"},
+  NF:{bg:"#f1f6f2",accent:"#4b8a69",soft:"#dcebe2",line:"#dde8e0",light:"#bcd8c7",mid:"#86b49b",dark:"#2c5c44"},
+  SJ:{bg:"#f2f5f9",accent:"#4a6fa5",soft:"#dfe7f3",line:"#dfe5ee",light:"#c2d1e8",mid:"#8ea7cc",dark:"#2c4a78"},
+  SP:{bg:"#faf5ee",accent:"#b07a3a",soft:"#f3e6d4",line:"#eee3d4",light:"#ecd5b5",mid:"#d1a874",dark:"#7a5122"},
+};
+function groupOf(t){ if(!t||t.length!==4) return "NT"; return t[1]==="N" ? (t[2]==="T"?"NT":"NF") : (t[3]==="J"?"SJ":"SP"); }
+function applyTheme(t){
+  const th=THEMES[groupOf(t)], r=document.documentElement.style;
+  r.setProperty("--bg",th.bg); r.setProperty("--accent",th.accent); r.setProperty("--accent-soft",th.soft);
+  r.setProperty("--line",th.line); r.setProperty("--t-light",th.light); r.setProperty("--t-mid",th.mid); r.setProperty("--t-dark",th.dark);
+}
 function goHome(){
+  applyTheme(null);
   checkResume(); applyGate();
   show("intro");
 }
@@ -543,6 +558,7 @@ function start(fresh){
   show("quiz");render();
 }
 function beginWith(t){
+  applyTheme(null);
   setType(t); answers=new Array(TOTAL).fill(null); order=makeOrder(); optOrder={}; cur=0; save();
   show("quiz"); render();
 }
@@ -673,6 +689,7 @@ function showResult(ans, time){
     SHOW=cands[0]||null;
   }
   const st=STAGES[si], T=SHOW&&TYPES[SHOW];
+  applyTheme(SHOW);
   // 阶段内的位置（用于进度点）
   const lo=st.min, hi= si<4?STAGES[si+1].min:100;
   const pos = Math.round(((si) + Math.max(0,Math.min(1,(total-lo)/Math.max(1,hi-lo))))/5*100);
@@ -681,8 +698,8 @@ function showResult(ans, time){
     const s=modScores[i];
     if(m.hidden||s===null) return "";
     return `<div class="row">
-      <div class="row-top"><span>${m.name}</span><b style="color:${s>=76?"#3f3577":s>=50?"#6b5fa8":"#9a8fc4"}">${s}</b></div>
-      <div class="track"><i style="width:${Math.max(s,3)}%;background:${s>=76?"#3f3577":s>=50?"#6b5fa8":"#b3aad6"}"></i></div>
+      <div class="row-top"><span>${m.name}</span><b style="color:${s>=76?"var(--t-dark)":s>=50?"var(--accent)":"var(--t-mid)"}">${s}</b></div>
+      <div class="track"><i style="width:${Math.max(s,3)}%;background:${s>=76?"var(--t-dark)":s>=50?"var(--accent)":"var(--t-light)"}"></i></div>
     </div>`;}).join("");
   const sorted = modScores.map((s,i)=>({s,i})).filter(x=>x.s!==null&&!MODULES[x.i].hidden).sort((a,b)=>a.s-b.s);
   const weak = sorted.slice(0,2).filter(x=>x.s<80);
@@ -697,7 +714,7 @@ function showResult(ans, time){
         <div class="r-title serif">16型人格 · 成长阶段</div>
         <div class="r-label">${T?`${SHOW} · ${T.nick}`:"你的成长阶段"} · ${dateStr}</div>
         ${cands&&cands.length?`<div class="r-label" style="margin-top:4px">根据你的回答，你最可能是 ${cands.join(" / ")}</div>`:""}
-        <div class="verdict serif big" style="color:${st.color}">${T?SHOW+" · ":""}${st.name}</div>
+        <div class="verdict serif big" style="color:${si>=3?"var(--t-dark)":"var(--accent)"}">${T?SHOW+" · ":""}${st.name}</div>
         ${T?`<div class="persona serif">「${T.st[st.t].t}」</div>`:""}
       </div>
       <div class="stairs">
