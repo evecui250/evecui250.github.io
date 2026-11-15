@@ -15,3 +15,14 @@ export async function onRequestPost({ request, params }) {
     headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
   });
 }
+// 浏览器直接打开时用来自检：会显示转发是否生效、Supabase 是否连得上
+export async function onRequestGet({ params }) {
+  let sb = "连不上";
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/quiz_ping`, {
+      method: "POST", headers: { "Content-Type": "application/json", "apikey": SB_KEY }, body: "{}" });
+    sb = r.ok ? "正常" : "出错 " + r.status;
+  } catch (e) {}
+  return new Response(`转发已生效 ✓\nSupabase：${sb}\n(${params.fn})`, {
+    headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
+}
