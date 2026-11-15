@@ -246,13 +246,13 @@ const L = (q,m,extra={})=>({kind:"likert",q,m,...extra});
 const C = (q,opts)=>({kind:"choice",q,o:opts});
 
 const SHARED = [
-  { name:"自我觉察", key:"aware", qs:[
+  { name:"了解自己", key:"aware", qs:[
     L("我能说出自己在关系里反复出现的模式","H"),
     L("我知道自己在某些事情上很固执","H"),
     L("我很少需要反省，因为我做事一般没什么问题","L"),
     L("我常常分析自己，却越分析越乱","M"),
   ]},
-  { name:"情绪与内心", key:"emotion", qs:[
+  { name:"管理情绪", key:"emotion", qs:[
     L("生气的时候，我能先停一下，再决定怎么回应","H"),
     L("我常常把情绪憋着，直到某天突然爆发","L"),
     L("我会焦虑，但大多知道它从哪来，也有自己的办法","H"),
@@ -260,7 +260,7 @@ const SHARED = [
     C("心情低落了一段时间，你通常会？",[
       ["刷手机、吃东西，等它过去",1],["一个人反复想，越想越沉",2],["找信任的人聊，必要时找咨询师",3]]),
   ]},
-  { name:"看世界的方式", key:"view", qs:[
+  { name:"看待生活", key:"view", qs:[
     L("我相信事情总会好起来，不太去想太深","L"),
     L("我常常觉得很多事情没什么意义","M",{care:true}),
     L("我见过生活的难，但依然愿意热爱它","H"),
@@ -268,7 +268,7 @@ const SHARED = [
     C("下雪天，看到维修工人在寒风里修路灯，你心里想的是？",[
       ["好冷，赶紧回家",1],["心疼他，觉得世界有点不公平",2],["有点感动，有人在默默守护这座城市",3]]),
   ]},
-  { name:"共情与关系", key:"open", qs:[
+  { name:"对待他人", key:"open", qs:[
     L("身边的人过得比我好，我能真心为他高兴","H"),
     L("在亲密关系里，我常常需要对方证明他爱我","L"),
     C("朋友向你倾诉烦恼时，你通常会？",[
@@ -278,7 +278,7 @@ const SHARED = [
     L("（如果有）想起曾经深深伤害过我的事，我会一遍遍回想细节，让自己再难受一次","L"),
     L("（如果有）现在想起那件事，我已经不太难受了，也从中明白了一些东西","H"),
   ]},
-  { name:"来处与安定", key:"inner", qs:[
+  { name:"内心安稳", key:"inner", qs:[
     C("对于过去一些不好的经历，你现在的感觉是？",[
       ["尽量不去想，当它没发生过",1],["还常常被它影响，走不出来",2],["它让我成为了现在的我，我在慢慢和它和解",3],["没有特别不好的经历",null]]),
     L("我搞砸一件事时，会像安慰朋友一样安慰自己","H"),
@@ -286,7 +286,7 @@ const SHARED = [
     L("我常常需要别人的肯定，才觉得自己做得还行","L"),
     L("比起别人怎么看，我更在意自己有没有活成想要的样子","H"),
   ]},
-  { name:"行动与成长", key:"growth", qs:[
+  { name:"说到做到", key:"growth", qs:[
     L("我想得很多，但很少真正去做","M"),
     L("说好要做的事，我一般都能按时完成","H"),
   ]},
@@ -338,7 +338,7 @@ function toOptions(item){
 function buildModules(type){
   const mods = SHARED.map(m=>({name:m.name,key:m.key,qs:m.qs.slice()}));
   const bal = (type && type.length===4) ? [...type].flatMap(ch=>BALANCE[ch].map(q=>L(q,"H"))) : BALANCE.X.map(q=>L(q,"H"));
-  mods.push({name:"平衡另一面", key:"balance", qs:bal});
+  mods.push({name:"补足短板", key:"balance", qs:bal});
   mods.push({name:"测谎", key:"lie", hidden:true, qs:LIE});
   if(!(type && type.length===4)) mods.push({name:"类型", key:"type", hidden:true, qs:TYPE_QS});
   return mods.map(m=>({name:m.name,key:m.key,hidden:!!m.hidden,qs:m.qs.map(it=>({...it,o: it.axis? it.o : toOptions(it)}))}));
