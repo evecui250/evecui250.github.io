@@ -198,7 +198,7 @@
     <h1 class="serif center">你的人格，<br>修炼到<em>第几阶</em>了？</h1>
     <p class="lead center">同一个类型，也有不同的成长状态。<br>看看你现在走到了哪里。</p>
     <div class="chips" id="pie"></div>
-    <div class="note">先选你的类型，再答 36 道题，约 7 分钟。<br>凭真实情况选，“完美答案”反而会被识破哦。</div>
+    <div class="note">先选你的类型，再答 39 道题，约 7 分钟。<br>凭真实情况选，“完美答案”反而会被识破哦。</div>
     <div id="gate" class="gate hidden">
       <input id="codeInput" class="code-input" placeholder="输入兑换码" autocomplete="off" autocapitalize="characters" spellcheck="false">
       <button class="btn" id="redeemBtn">验证并开始</button>
@@ -289,21 +289,23 @@ const SHARED = [
   { name:"行动与成长", key:"growth", qs:[
     L("我想得很多，但很少真正去做","M"),
     L("说好要做的事，我一般都能按时完成","H"),
-    L("我在慢慢改掉自己不喜欢的习惯","H"),
   ]},
 ];
 
 // “另一面”：按所选类型的字母，问能不能用好相反的倾向（问习惯和能力，不问“最近”）
 const BALANCE = {
-  I:"需要的时候，我能自在地和陌生人聊起来",
-  E:"我能享受一个人安静待着，不觉得无聊",
-  S:"我愿意尝试从没用过的新方法",
-  N:"我能把想法落实成具体的步骤",
-  T:"我能察觉到别人没说出口的情绪",
-  F:"重要的事上，我能先放下感受，理性分析利弊",
-  J:"计划被打乱时，我能很快调整过来",
-  P:"重要的事，我会提前安排，而不是拖到最后",
-  X:["热闹和安静，我都能自在地切换","我既能关注细节，也能看到大方向","我能兼顾道理和别人的感受","我既能做计划，也能接受计划的变化"],
+  I:["需要的时候，我能自在地和陌生人聊起来","必要时，我能在一群人面前站出来表达自己"],
+  E:["我能享受一个人安静待着，不觉得无聊","做重要决定前，我会先自己安静地想清楚"],
+  S:["我愿意尝试从没用过的新方法","我能看到事情背后的意义和可能性，不只是眼前的事实"],
+  N:["我能把想法落实成具体的步骤","我会留意具体的细节和现实条件"],
+  T:["我能察觉到别人没说出口的情绪","安慰别人时，我能先共情，而不是急着讲道理"],
+  F:["重要的事上，我能先放下感受，理性分析利弊","需要的时候，我能直接指出问题，不怕伤和气"],
+  J:["计划被打乱时，我能很快调整过来","我能接受有些事暂时没有答案，不急着下结论"],
+  P:["重要的事，我会提前安排，而不是拖到最后","我能为一件事定下计划，并坚持做完"],
+  X:["热闹和安静，我都能自在地切换","必要时，我能在一群人面前表达自己",
+     "我既能关注细节，也能看到大方向","我能从具体的事实里看到更大的意义",
+     "我能兼顾道理和别人的感受","需要的时候，我能直接指出问题，不怕伤和气",
+     "我既能做计划，也能接受计划的变化","我能为一件事定下计划，并坚持做完"],
 };
 
 // 不确定类型时：每个维度两道二选一，用来估计最可能的类型（不计入阶段）
@@ -335,7 +337,7 @@ function toOptions(item){
 }
 function buildModules(type){
   const mods = SHARED.map(m=>({name:m.name,key:m.key,qs:m.qs.slice()}));
-  const bal = (type && type.length===4) ? [...type].map(ch=>L(BALANCE[ch],"H")) : BALANCE.X.map(q=>L(q,"H"));
+  const bal = (type && type.length===4) ? [...type].flatMap(ch=>BALANCE[ch].map(q=>L(q,"H"))) : BALANCE.X.map(q=>L(q,"H"));
   mods.push({name:"平衡另一面", key:"balance", qs:bal});
   mods.push({name:"测谎", key:"lie", hidden:true, qs:LIE});
   if(!(type && type.length===4)) mods.push({name:"类型", key:"type", hidden:true, qs:TYPE_QS});
