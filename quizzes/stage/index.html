@@ -198,7 +198,7 @@
     <h1 class="serif center">你的人格，<br>修炼到<em>第几阶</em>了？</h1>
     <p class="lead center">同一个类型，也有不同的成长状态。<br>看看你现在走到了哪里。</p>
     <div class="chips" id="pie"></div>
-    <div class="note">先选你的类型，再答 31 道题，约 6 分钟。<br>凭真实情况选，“完美答案”反而会被识破哦。</div>
+    <div class="note">先选你的类型，再答 35 道题，约 7 分钟。<br>凭真实情况选，“完美答案”反而会被识破哦。</div>
     <div id="gate" class="gate hidden">
       <input id="codeInput" class="code-input" placeholder="输入兑换码" autocomplete="off" autocapitalize="characters" spellcheck="false">
       <button class="btn" id="redeemBtn">验证并开始</button>
@@ -217,7 +217,7 @@
     <h2 class="serif pick-h">先选你的类型</h2>
     <p class="lead" style="margin-bottom:16px">之前测过的结果就好，四个字母。</p>
     <div class="type-grid" id="typeGrid"></div>
-    <button class="btn ghost" style="margin-top:16px" onclick="beginWith(null)">我不确定自己的类型</button>
+    <button class="btn ghost" style="margin-top:16px" onclick="beginWith(null)">我不确定自己的类型（会多 8 道题帮你估计）</button>
   </section>
 
   <!-- 答题页 -->
@@ -257,7 +257,6 @@ const SHARED = [
     C("回看三年前的自己，你觉得？",[
       ["能说清楚自己哪里变了、为什么变",4],["好像成熟了一些，但说不太清",2.5],["没什么变化",1],["不太愿意回想",1]]),
     L("我知道自己在某些事情上很固执",1),
-    L("我的一些“优点”，用过头了也会变成问题",1),
     L("我很少需要反省，因为我做事一般都没什么问题",-1),
   ]},
   { name:"情绪成熟", key:"emotion", qs:[
@@ -277,12 +276,17 @@ const SHARED = [
     C("压力最大的那段时间，身边的人会怎么形容你？",[
       ["比平时安静一些，但还是你自己",4],["容易烦躁，但会提前跟大家打招呼",3.5],["变得很不像你，事后自己才发现",1],["没注意过，也没人跟我说过",1]]),
   ]},
-  { name:"包容理解", key:"open", qs:[
-    C("一个和你性格很不一样的同事，做事方式让你很不习惯，你会？",[
-      ["试着弄明白他为什么这样做",4],["只在必要的时候和他合作",2.5],["跟别人吐槽他",1],["尽量绕开他",1]]),
+  { name:"共情与善意", key:"open", qs:[
     C("朋友向你倾诉烦恼时，你通常会？",[
       ["先弄清楚对方想要建议，还是只想被听",4],["认真听完，然后给建议",3],["很快讲起自己类似的经历",1],["直接告诉他该怎么做",1]]),
     L("有些我不喜欢的人，其实身上有我自己的影子",1),
+    C("看到新闻里有人遭遇不幸，你通常的反应是？",[
+      ["难过一阵，也会想想自己能做点什么",4],["会难过，但很快就过去了",2.5],["觉得世界本来就是这样",1],["会想“是不是他自己也有问题”",0]]),
+    C("路边一只瘦弱的流浪猫一直跟着你，你会？",[
+      ["停下来看看它，能帮就帮一点",4],["心里不忍，但还是走开了",2.5],["没什么感觉，继续走",1],["觉得有点烦，赶紧走开",0]]),
+    L("我相信大多数人本质上是善意的",1),
+    L("身边的人过得比我好，我能真心为他高兴",1),
+    L("在亲密关系里，我常常需要对方证明他爱我",-1),
   ]},
   { name:"内在安定", key:"inner", qs:[
     L("我搞砸一件事时，会像安慰朋友一样安慰自己",1),
@@ -290,6 +294,7 @@ const SHARED = [
     L("我能拒绝别人，而且不会内疚很久",1),
     L("别人不认可我时，我依然知道自己是谁",1),
     L("我常常需要别人的肯定，才觉得自己做得还行",-1),
+    L("比起别人怎么看我，我更在意自己有没有活成想要的样子",1),
     C("一个人安静下来的时候，你最常有的感觉是？",[
       ["踏实，挺好的",4],["有点空，但能接受",3],["忍不住想找点事做，或者刷手机",1.5],["容易焦虑，想起很多烦心事",1]]),
   ]},
@@ -317,6 +322,18 @@ const BALANCE = {
      "过去一个月，你有没有把一件拖了很久的事真正做完？"],
 };
 
+// 不确定类型时：每个维度两道二选一，用来估计最可能的类型（不计入成熟度）
+const TYPE_QS = [
+  ["EI","周末的理想安排是？",["和朋友出去热闹一下","E"],["一个人在家安静充电","I"]],
+  ["EI","认识新朋友时，你通常？",["很快就能聊起来","E"],["要过一阵才放得开","I"]],
+  ["SN","看一幅画，你先注意到的是？",["具体的颜色和细节","S"],["它让你联想到的意思","N"]],
+  ["SN","你更相信？",["亲眼看到、亲身经历过的东西","S"],["直觉，以及对未来的想象","N"]],
+  ["TF","朋友做了一个你觉得不太对的决定，你会？",["直接指出问题在哪","T"],["先照顾他的感受，再慢慢说","F"]],
+  ["TF","做决定时，你更看重？",["是不是合理、公平","T"],["会不会伤害到谁","F"]],
+  ["JP","出去旅行，你更喜欢？",["提前做好攻略","J"],["到了再说，随走随看","P"]],
+  ["JP","面对截止日期，你通常？",["提前完成才安心","J"],["最后几天效率最高","P"]],
+].map(([axis,q,a,b])=>({kind:"choice",q,axis,o:[[a[0],null,null,"skip",a[1]],[b[0],null,null,"skip",b[1]]]}));
+
 // 测谎题：只有“完美的人”才会全选很符合
 const LIE = [
   L("我从来没有对别人发过脾气","L"),
@@ -337,7 +354,8 @@ function buildModules(type){
   const bal = (type && type.length===4) ? [...type].map(ch=>F(BALANCE[ch],FREQ)) : BALANCE.X.map(q=>F(q,FREQ));
   mods.push({name:"平衡另一面", key:"balance", qs:bal});
   mods.push({name:"测谎", key:"lie", hidden:true, qs:LIE});
-  return mods.map(m=>({name:m.name,key:m.key,hidden:!!m.hidden,qs:m.qs.map(it=>({...it,o:toOptions(it)}))}));
+  if(!(type && type.length===4)) mods.push({name:"类型", key:"type", hidden:true, qs:TYPE_QS});
+  return mods.map(m=>({name:m.name,key:m.key,hidden:!!m.hidden,qs:m.qs.map(it=>({...it,o: it.axis? it.o : toOptions(it)}))}));
 }
 
 const TYPES = {
@@ -459,9 +477,8 @@ const DIM_TIPS = {
   aware:"每周花十分钟复盘：这周哪件事让你情绪波动最大？它背后是你的什么需要？",
   emotion:"下次情绪上来时，先给自己 10 秒钟，再决定怎么回应。",
   stress:"留意自己的“压力信号”（失眠、暴躁、想逃），一出现就先停下来休息，而不是硬扛。",
-  open:"找一个和你很不一样的朋友，认真问问他是怎么看一件事的，只听，不反驳。",
+  open:"每天留意一个身边人的情绪或需要，哪怕只是一句“你今天看起来有点累”。",
   balance:"每周刻意做一件“不像你”的小事，练习你不擅长的那一面。",
-  inner:"搞砸一件事的时候，试着用对好朋友说话的语气，对自己说一遍。",
   growth:"选一个最小的改变，坚持 21 天，比列十个计划更有用。",
 };
 
@@ -473,9 +490,10 @@ function setType(t){
   MODULES = buildModules(TYPE);
   QUESTIONS.length = 0;
   MODULES.forEach((m,mi)=>m.qs.forEach((q,qi)=>QUESTIONS.push({...q, mi, qi})));
+  TOTAL = QUESTIONS.length;
 }
+let TOTAL = 0;
 setType(null);
-const TOTAL = QUESTIONS.length;
 let answers = new Array(TOTAL).fill(null);   // 按题目原始编号存
 let order = [...Array(TOTAL).keys()];           // 本次答题的出题顺序
 let cur = 0;                                    // 当前是第几题（按出题顺序）
@@ -497,7 +515,7 @@ function load(){try{return JSON.parse(localStorage.getItem(KEY));}catch(e){retur
 function clearSave(){try{localStorage.removeItem(KEY);}catch(e){}}
 const LAST_KEY = "stage-quiz-last-v1";
 function saveLast(){try{localStorage.setItem(LAST_KEY,JSON.stringify({answers,time:Date.now(),type:TYPE}));}catch(e){}}
-function loadLast(){try{const l=JSON.parse(localStorage.getItem(LAST_KEY));return (l&&Array.isArray(l.answers)&&l.answers.length===TOTAL&&l.answers.every(a=>a!==null))?l:null;}catch(e){return null;}}
+function loadLast(){try{const l=JSON.parse(localStorage.getItem(LAST_KEY));return (l&&Array.isArray(l.answers)&&l.answers.every(a=>a!==null))?l:null;}catch(e){return null;}}
 
 const $ = id=>document.getElementById(id);
 function show(id){["intro","pick","quiz","result"].forEach(s=>$(s).classList.toggle("hidden",s!==id));window.scrollTo(0,0);}
@@ -611,7 +629,7 @@ $("redeemBtn").onclick=async()=>{
 };
 $("codeInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("redeemBtn").click(); });
 $("resumeBtn").onclick=()=>start(false);
-$("lastBtn").onclick=()=>{const l=loadLast(); if(!l) return; setType(l.type); showResult(l.answers, l.time);};
+$("lastBtn").onclick=()=>{const l=loadLast(); if(!l) return; setType(l.type); if(l.answers.length!==TOTAL) return; showResult(l.answers, l.time);};
 
 // ---------- 计算结果 ----------
 function compute(answers){
@@ -631,7 +649,19 @@ function showResult(ans, time){
   const d=new Date(time||Date.now()), dateStr=`${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`;
   let si = 0; STAGES.forEach((x,i)=>{ if(total>=x.min) si=i; });
   if(faked && si===4) si=3;
-  const st=STAGES[si], T=TYPE&&TYPES[TYPE];
+  // 不确定类型时，根据类型题估计最可能的类型
+  let SHOW=TYPE, cands=null;
+  if(!TYPE){
+    const pick={};
+    QUESTIONS.forEach((q,i)=>{ if(q.axis){ (pick[q.axis]=pick[q.axis]||[]).push(q.o[ans[i]][4]); } });
+    const axes=["EI","SN","TF","JP"];
+    let list=[""];
+    axes.forEach(ax=>{ const v=pick[ax]||[]; const opts = v.length&&v.every(x=>x===v[0]) ? [v[0]] : [...new Set(v)];
+      list = list.flatMap(p=>opts.map(o=>p+o)); });
+    cands=list.filter(t=>TYPES[t]).slice(0,3);
+    SHOW=cands[0]||null;
+  }
+  const st=STAGES[si], T=SHOW&&TYPES[SHOW];
   // 阶段内的位置（用于进度点）
   const lo=st.min, hi= si<4?STAGES[si+1].min:100;
   const pos = Math.round(((si) + Math.max(0,Math.min(1,(total-lo)/Math.max(1,hi-lo))))/5*100);
@@ -654,8 +684,9 @@ function showResult(ans, time){
     <div id="card">
       <div class="r-head">
         <div class="r-title serif">16型人格 · 成长阶段</div>
-        <div class="r-label">${T?`${TYPE} · ${T.nick}`:"你的成长阶段"} · ${dateStr}</div>
-        <div class="verdict serif big" style="color:${st.color}">${T?TYPE+" · ":""}${st.name}</div>
+        <div class="r-label">${T?`${SHOW} · ${T.nick}`:"你的成长阶段"} · ${dateStr}</div>
+        ${cands&&cands.length?`<div class="r-label" style="margin-top:4px">根据你的回答，你最可能是 ${cands.join(" / ")}</div>`:""}
+        <div class="verdict serif big" style="color:${st.color}">${T?SHOW+" · ":""}${st.name}</div>
         ${T?`<div class="persona serif">「${T.st[st.t].t}」</div>`:""}
       </div>
       <div class="stairs">
@@ -675,7 +706,7 @@ function showResult(ans, time){
         <p class="row-note" style="margin-top:12px">你最成熟的一面是「${MODULES[strong.i].name}」。</p>
       </div>
       ${weak.length?`<div class="card soft"><h3>下一步可以练习</h3>${weak.map(w=>`<p><b>${MODULES[w.i].name}：</b>${DIM_TIPS[MODULES[w.i].key]}</p>`).join("")}</div>`:""}
-      <div class="brand">test.spelloapp.com/stage</div>
+      <div class="brand">test.spelloapp.com/jieduan</div>
     </div>
     <button class="btn" id="saveBtn" style="margin-top:24px">保存结果图片</button>
     <button class="btn ghost" id="againBtn">重新测一次</button>
@@ -771,8 +802,9 @@ function showLegal(){
 // 有未完成进度时显示“继续”
 (function(){
   const s=load();
+  if(s && Array.isArray(s.answers)) setType(s.type);
   if(s && Array.isArray(s.answers) && s.answers.length===TOTAL){
-    setType(s.type); answers=s.answers; cur=Math.min(s.cur||0, TOTAL-1); optOrder=s.optOrder||{};
+    answers=s.answers; cur=Math.min(s.cur||0, TOTAL-1); optOrder=s.optOrder||{};
     if(Array.isArray(s.order) && s.order.length===TOTAL) order=s.order;
   }
   checkResume();

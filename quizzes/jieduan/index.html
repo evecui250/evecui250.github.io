@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>16型人格 · 成长阶段测试</title>
+<meta name="description" content="从三观、现实、相处、家庭、感情、人品、自己七个维度，看清你们这段关系。">
+<style>
+  :root{
+    --bg:#faf6f1; --card:#ffffff; --ink:#2b2522; --muted:#8a7f78; --line:#ece4dc;
+    --accent:#b4535b; --accent-soft:#f6e3e2; --good:#5d8a6a; --mid:#c79a3e; --bad:#b4535b;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+    line-height:1.6;}
+  .wrap{max-width:560px;margin:0 auto;padding:24px 20px calc(40px + env(safe-area-inset-bottom));min-height:100vh;display:flex;flex-direction:column}
+  .serif{font-family:"Songti SC","STSong","Noto Serif CJK SC","Source Han Serif SC",serif}
+  h1{font-size:34px;line-height:1.25;margin:48px 0 12px;letter-spacing:1px}
+  h1 em{font-style:normal;color:var(--accent)}
+  .lead{color:var(--muted);font-size:15px;margin:0 0 28px}
+  .pie{width:100%;max-width:340px;margin:4px auto 28px;aspect-ratio:1}
+  .pie svg{width:100%;height:100%;display:block;overflow:visible}
+  .pie .seg{transform-origin:170px 170px;animation:pop .6s cubic-bezier(.2,.8,.3,1.2) both}
+  .pie .lbl{font-size:14px;font-weight:600;fill:#fff;letter-spacing:1px;pointer-events:none}
+  .pie .ctr1{font-size:19px;font-weight:600;fill:#6b605a;letter-spacing:3px}
+  .pie .ctr2{font-size:12px;fill:var(--muted);letter-spacing:1px}
+  @keyframes pop{from{opacity:0;transform:scale(.6) rotate(-20deg)}to{opacity:1;transform:none}}
+  .modules{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 28px}
+  .modules div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px}
+  .modules b{display:block;font-size:15px;margin-bottom:2px}
+  .modules span{color:var(--muted);font-size:12.5px}
+  .note{font-size:13px;color:var(--muted);text-align:center;margin:0 0 20px}
+  button{font:inherit;cursor:pointer;border:none}
+  .btn{display:block;width:100%;padding:15px;border-radius:14px;background:var(--accent);color:#fff;font-size:17px;font-weight:600;letter-spacing:1px}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent);margin-top:12px}
+  .hidden{display:none!important}
+
+  /* quiz */
+  .top{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  .link{background:none;color:var(--muted);font-size:14px;padding:6px 0}
+  .link:disabled{opacity:.3}
+  .count{margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .bar{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:28px}
+  .bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+  .mod{font-size:13px;color:var(--accent);font-weight:600;letter-spacing:1px;margin-bottom:8px}
+  .q{font-size:21px;font-weight:600;line-height:1.45;margin:0 0 24px}
+  .opts{display:flex;flex-direction:column;gap:10px}
+  .opt{text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:15px 16px;font-size:16px;color:var(--ink);transition:border-color .15s,background .15s}
+  .opt.na{color:var(--muted);border-style:dashed}
+  .opt:active{transform:scale(.99)}
+  .opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+  @media (hover:hover){.opt:hover{border-color:#c9c2e3}}
+
+  /* result */
+  #card{background:var(--bg);padding:4px 2px 2px}
+  .r-head{text-align:center;margin:20px 0 8px}
+  .r-title{font-size:15px;color:var(--accent);letter-spacing:2px;margin-bottom:14px}
+  .r-label{font-size:13px;color:var(--muted);letter-spacing:2px}
+  .score{font-size:72px;font-weight:700;line-height:1.1;margin:6px 0 0;font-variant-numeric:tabular-nums}
+  .score small{font-size:20px;color:var(--muted);font-weight:500}
+  .verdict{font-size:24px;font-weight:700;margin:10px 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:18px}
+  .card h3{margin:0 0 12px;font-size:16px}
+  .card p{margin:0 0 10px;font-size:15.5px}
+  .card p:last-child{margin-bottom:0}
+  .row{margin-bottom:14px}
+  .row:last-child{margin-bottom:0}
+  .row-top{display:flex;justify-content:space-between;font-size:15px;margin-bottom:5px}
+  .row-top b{font-variant-numeric:tabular-nums}
+  .track{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+  .track i{display:block;height:100%;border-radius:4px}
+  .row-note{font-size:13.5px;color:var(--muted);margin-top:5px}
+  .flag{border-color:#e7b9b5;background:#fdf1f0}
+  .flag h3{color:var(--bad)}
+  .flag li{margin-bottom:4px}
+  ul{margin:0;padding-left:20px}
+  .tags{display:flex;flex-wrap:wrap;gap:8px}
+  .tags span{background:var(--accent-soft);color:var(--accent);font-size:13.5px;padding:4px 10px;border-radius:20px}
+  .tags.gray span{background:#efeae4;color:var(--muted)}
+  .brand{text-align:center;font-size:12px;color:var(--muted);margin-top:18px;letter-spacing:1px}
+  .foot{font-size:12px;color:var(--muted);text-align:center;margin-top:24px}
+  .fade{animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* 保存图片弹层 */
+  .overlay{position:fixed;inset:0;background:rgba(30,24,22,.95);z-index:10;display:flex;flex-direction:column}
+  .ov-top{flex:none;padding:calc(14px + env(safe-area-inset-top)) 16px 12px;text-align:center;color:#fff}
+  .ov-top b{display:block;font-size:18px;margin-bottom:2px}
+  .ov-top span{font-size:13.5px;opacity:.8}
+  .ov-img{flex:1;overflow:auto;padding:0 16px;display:flex;justify-content:center}
+  .ov-img img{width:100%;max-width:420px;height:auto;align-self:flex-start;border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,.35);-webkit-touch-callout:default}
+  .ov-bar{flex:none;display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));max-width:452px;width:100%;margin:0 auto}
+  .ov-bar button{flex:1;padding:13px;border-radius:12px;font-size:16px;font-weight:600}
+  .ov-save{background:var(--accent);color:#fff}
+  .ov-close{background:rgba(255,255,255,.15);color:#fff}
+  .legal-link{display:block;margin:22px auto 0;background:none;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:3px}
+  .legal{position:fixed;inset:0;background:var(--bg);z-index:20;overflow:auto;padding:calc(20px + env(safe-area-inset-top)) 22px calc(30px + env(safe-area-inset-bottom))}
+  .legal-in{max-width:560px;margin:0 auto}
+  .legal h2{font-size:20px;margin:8px 0 16px}
+  .legal h4{font-size:15px;margin:18px 0 6px}
+  .legal p{font-size:14px;color:#4a413c;margin:0 0 8px}
+  .gate{margin-bottom:4px}
+  .code-input{display:block;width:100%;padding:14px 16px;border:1.5px solid var(--line);border-radius:14px;font-size:18px;letter-spacing:2px;text-align:center;background:var(--card);color:var(--ink);margin-bottom:12px;font-family:ui-monospace,Menlo,monospace;text-transform:uppercase}
+  .code-input:focus{outline:none;border-color:var(--accent)}
+  .gate-msg{min-height:20px;font-size:14px;color:var(--bad);text-align:center;margin:10px 0 0}
+  .gate-hint{font-size:12.5px;color:var(--muted);text-align:center;margin:4px 0 0}
+  :root{--teal:#5f8f8f}
+  .verdict.big{font-size:32px;margin-top:6px}
+  .spectrum{margin:18px 4px 4px}
+  .spec-bar{position:relative;height:12px;border-radius:6px;background:linear-gradient(90deg,#5f8f8f,#c9a85a 50%,#b4535b)}
+  .spec-bar i{position:absolute;top:50%;width:22px;height:22px;margin-left:-11px;margin-top:-11px;border-radius:50%;background:#fff;border:3px solid var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.15)}
+  .spec-labels{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:8px}
+  .spec-num{text-align:center;font-size:13px;color:var(--muted);margin-top:2px}
+  .card.soft{background:#f6f1e8}
+  :root{--bg:#f2f4f0;--accent:#4f8584;--accent-soft:#e1ecea;--rose:#b4535b;--line:#e2e6df}
+  .hero{max-width:320px;margin:30px auto 0}
+  .hero svg{width:100%;display:block}
+  .hero .hl{font-size:13px;fill:#8a7f78;letter-spacing:2px}
+  .hero .dot{animation:swing 3.2s ease-in-out infinite}
+  @keyframes swing{0%,100%{transform:translateX(-30px)}50%{transform:translateX(30px)}}
+  .center{text-align:center}
+  h1.center{margin-top:22px}
+  h1 em{color:var(--accent)}
+  .chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:4px 0 26px}
+  .chips span{padding:7px 14px;border-radius:20px;background:#fff;border:1px solid var(--line);font-size:14px;color:#4a413c;animation:fade .4s ease both}
+  .note{text-align:center}
+  .q.stmt{font-size:20px;margin:18px 0 34px;min-height:90px}
+  .likert{display:flex;flex-direction:row-reverse;justify-content:space-between;align-items:stretch;gap:4px}
+  .lk{flex:1;background:none;display:grid;grid-template-rows:56px auto;justify-items:center;align-items:center;row-gap:6px;padding:4px 0}
+  .lk i{display:block;border-radius:50%;border:2.5px solid;transition:background .15s,transform .15s}
+  .lk span{font-size:12px;color:var(--muted);white-space:nowrap}
+  .lk0 i{width:50px;height:50px;border-color:#5a4e9c}
+  .lk1 i{width:40px;height:40px;border-color:#8a80c0}
+  .lk2 i{width:32px;height:32px;border-color:#b5ada6}
+  .lk3 i{width:40px;height:40px;border-color:#a9a3b8}
+  .lk4 i{width:50px;height:50px;border-color:#8c8698}
+  .lk0.sel i{background:#5a4e9c} .lk1.sel i{background:#8a80c0} .lk2.sel i{background:#b5ada6} .lk3.sel i{background:#a9a3b8} .lk4.sel i{background:#8c8698}
+  .lk.sel span{color:var(--ink);font-weight:600}
+  .lk:active i{transform:scale(.92)}
+  @media (hover:hover){.lk:hover i{transform:scale(1.06)}}
+  /* 分享图专用排版：固定宽度、两侧留白、大标题 */
+  .share-img{position:fixed;left:-9999px;top:0;width:420px;padding:36px 30px 30px;background:var(--bg)}
+  .share-img .r-head{margin:0 0 6px}
+  .share-img .r-title{font-size:26px;font-weight:700;color:var(--ink);letter-spacing:2px;margin-bottom:10px;line-height:1.35}
+  .share-img .r-label{font-size:13px}
+  .share-img .verdict{font-size:30px}
+  .share-img .verdict.big{font-size:36px}
+  .share-img .score{font-size:80px}
+  .share-img .card{padding:18px 18px;margin-top:16px}
+  .share-img .card p{font-size:15px}
+  .share-img .brand{font-size:14px;margin-top:22px;color:var(--ink);letter-spacing:1px}
+  :root{--bg:#f5f3f9;--accent:#6b5fa8;--accent-soft:#e8e4f4;--line:#e4e0ee}
+  .hero .sl{font-size:13px;fill:#4a413c;letter-spacing:2px;font-weight:600}
+  .hero .sl.w{fill:#fff}
+  .hero .climb{animation:climb 4.5s ease-in-out infinite}
+  @keyframes climb{0%,15%{transform:translate(0,0)}35%,50%{transform:translate(90px,-32px)}70%,85%{transform:translate(180px,-66px)}100%{transform:translate(0,0)}}
+  .pick-h{font-size:24px;margin:16px 0 6px}
+  .type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .tp{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 2px;display:flex;flex-direction:column;align-items:center;gap:2px}
+  .tp b{font-size:15px;letter-spacing:.5px}
+  .tp span{font-size:11px;color:var(--muted)}
+  .tp.g0 b{color:#6b5fa8} .tp.g1 b{color:#4f8a6e} .tp.g2 b{color:#4a6fa5} .tp.g3 b{color:#b07a3a}
+  .tp:active{transform:scale(.96)}
+  .stairs{margin:18px 4px 4px}
+  .st-track{height:10px;border-radius:5px;background:#e4e0ee;overflow:hidden}
+  .st-track i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#c9c2e3,#6b5fa8,#3f3577)}
+  .st-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:12.5px;color:var(--muted)}
+  .st-labels span.on{color:var(--accent);font-weight:700}
+  .muted-p{color:var(--muted);font-size:14.5px!important}
+  .persona{font-size:20px;color:var(--ink);margin-top:8px;letter-spacing:1px}
+  .pts{margin:0;padding-left:18px}
+  .pts li{font-size:15.5px;margin-bottom:10px;line-height:1.6}
+  .pts li:last-child{margin-bottom:0}
+  .duo h4{margin:0 0 4px;font-size:14px;color:var(--accent)}
+  .duo p{font-size:15px}
+  .duo div+div{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+  .share-img .persona{font-size:22px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 开始页 -->
+  <section id="intro" class="fade">
+    <div class="hero">
+      <svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="30" y="110" width="80" height="34" rx="6" fill="#c9c2e3"/>
+        <rect x="120" y="78" width="80" height="66" rx="6" fill="#9a8fc4"/>
+        <rect x="210" y="44" width="80" height="100" rx="6" fill="#6b5fa8"/>
+        <text x="70" y="132" text-anchor="middle" class="sl">初阶</text>
+        <text x="160" y="116" text-anchor="middle" class="sl w">中阶</text>
+        <text x="250" y="98" text-anchor="middle" class="sl w">高阶</text>
+        <circle class="climb" cx="70" cy="98" r="9" fill="#2b2522"/>
+      </svg>
+    </div>
+    <h1 class="serif center">你的人格，<br>修炼到<em>第几阶</em>了？</h1>
+    <p class="lead center">同一个类型，也有不同的成长状态。<br>看看你现在走到了哪里。</p>
+    <div class="chips" id="pie"></div>
+    <div class="note">先选你的类型，再答 35 道题，约 7 分钟。<br>凭真实情况选，“完美答案”反而会被识破哦。</div>
+    <div id="gate" class="gate hidden">
+      <input id="codeInput" class="code-input" placeholder="输入兑换码" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      <button class="btn" id="redeemBtn">验证并开始</button>
+      <p class="gate-msg" id="gateMsg"></p>
+      <p class="gate-hint">兑换码随商品一起发送，没收到的话请联系卖家</p>
+    </div>
+    <button class="btn" id="startBtn">开始测试</button>
+    <button class="btn ghost hidden" id="resumeBtn">继续上次的进度</button>
+    <button class="btn ghost hidden" id="lastBtn">查看上次的结果</button>
+    <button class="legal-link" onclick="showLegal()">使用说明 · 隐私 · 免责声明</button>
+  </section>
+
+  <!-- 选类型 -->
+  <section id="pick" class="hidden">
+    <div class="top"><button class="link" onclick="goHome()">‹ 首页</button></div>
+    <h2 class="serif pick-h">先选你的类型</h2>
+    <p class="lead" style="margin-bottom:16px">之前测过的结果就好，四个字母。</p>
+    <div class="type-grid" id="typeGrid"></div>
+    <button class="btn ghost" style="margin-top:16px" onclick="beginWith(null)">我不确定自己的类型（会多 8 道题帮你估计）</button>
+  </section>
+
+  <!-- 答题页 -->
+  <section id="quiz" class="hidden">
+    <div class="top">
+      <button class="link" id="backBtn">‹ 上一题</button>
+      <button class="link" id="homeBtn1">首页</button>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+    <div id="qbox"></div>
+  </section>
+
+  <!-- 结果页 -->
+  <section id="result" class="hidden"></section>
+
+</div>
+
+<script>
+// ---------- 题库 ----------
+// 三种题型：
+//  choice：情境题，选项顺序随机，分数隐藏（0-4）
+//  likert：陈述句 5 级作答；k=1 越符合越成熟，k=-1 越符合越不成熟，k="L" 是测谎题（不计分）
+//  freq：过去一个月的具体行为，选项按频率排列（0-4）
+const LIKERT = ["很符合","比较符合","一般","不太符合","很不符合"];
+const C = (q,opts)=>({kind:"choice",q,o:opts});
+const L = (q,k)=>({kind:"likert",q,k});
+const F = (q,opts)=>({kind:"freq",q,o:opts});
+const FREQ = [["有，好几次",4],["有，一两次",3.5],["想过，但没做",1],["没有",0],["这个月没遇到这种情况",null,null,"skip"]];
+// 5 级量表的分数：“比较符合”几乎不扣分，照顾习惯谦虚作答的人
+const LK_POS = [4,3.5,2,0.5,0];
+
+const SHARED = [
+  { name:"自我觉察", key:"aware", qs:[
+    C("朋友突然对你说：“你最近有点变了。”你的第一反应是？",[
+      ["好奇地问：哪里变了？",4],["没说什么，但之后自己琢磨了一下",3.5],["“没有吧，我一直都这样”",1],["有点受伤，不太想继续聊",0]]),
+    C("回看三年前的自己，你觉得？",[
+      ["能说清楚自己哪里变了、为什么变",4],["好像成熟了一些，但说不太清",2.5],["没什么变化",1],["不太愿意回想",1]]),
+    L("我知道自己在某些事情上很固执",1),
+    L("我很少需要反省，因为我做事一般都没什么问题",-1),
+  ]},
+  { name:"情绪成熟", key:"emotion", qs:[
+    C("和很亲近的人吵架后的第二天，你通常？",[
+      ["主动找对方，说说自己当时为什么那么激动",4],["先冷静一两天，再找机会好好聊",3.5],["等对方先来找自己",1],["嘴上不说，但默默记下这件事",0]]),
+    C("有人当众开了一个让你不舒服的玩笑，你会？",[
+      ["当场轻松地说一句“这个我不太喜欢”",4],["当时笑笑，事后私下跟他说",3.5],["当时笑笑，之后慢慢疏远他",1],["当场冷下脸",0]]),
+    L("我曾经因为自己的情绪，误会过别人",1),
+    F("过去一个月，你有没有真心地对别人说过“是我不对”？",[
+      ["有，而且是真心的",4],["有，但说得有点勉强",2.5],["没有，这句话很难说出口",0],["这个月没遇到需要道歉的事",null,null,"skip"]]),
+  ]},
+  { name:"压力应对", key:"stress", qs:[
+    C("你认真准备的方案被否定了，当天晚上你最可能？",[
+      ["难受一会儿，然后想想哪些意见有道理",4],["跟朋友吐槽一通，第二天再改",3],["反复想，很久睡不着",1],["认定是对方不懂",0]]),
+    C("一件重要的事快到截止日期，你却完全不想动，你通常？",[
+      ["先做最小的一步，让自己动起来",4],["拖到最后一刻，靠压力完成",2],["一边焦虑一边刷手机",1],["干脆放弃",0]]),
+    C("压力最大的那段时间，身边的人会怎么形容你？",[
+      ["比平时安静一些，但还是你自己",4],["容易烦躁，但会提前跟大家打招呼",3.5],["变得很不像你，事后自己才发现",1],["没注意过，也没人跟我说过",1]]),
+  ]},
+  { name:"共情与善意", key:"open", qs:[
+    C("朋友向你倾诉烦恼时，你通常会？",[
+      ["先弄清楚对方想要建议，还是只想被听",4],["认真听完，然后给建议",3],["很快讲起自己类似的经历",1],["直接告诉他该怎么做",1]]),
+    L("有些我不喜欢的人，其实身上有我自己的影子",1),
+    C("看到新闻里有人遭遇不幸，你通常的反应是？",[
+      ["难过一阵，也会想想自己能做点什么",4],["会难过，但很快就过去了",2.5],["觉得世界本来就是这样",1],["会想“是不是他自己也有问题”",0]]),
+    C("路边一只瘦弱的流浪猫一直跟着你，你会？",[
+      ["停下来看看它，能帮就帮一点",4],["心里不忍，但还是走开了",2.5],["没什么感觉，继续走",1],["觉得有点烦，赶紧走开",0]]),
+    L("我相信大多数人本质上是善意的",1),
+    L("身边的人过得比我好，我能真心为他高兴",1),
+    L("在亲密关系里，我常常需要对方证明他爱我",-1),
+  ]},
+  { name:"内在安定", key:"inner", qs:[
+    L("我搞砸一件事时，会像安慰朋友一样安慰自己",1),
+    L("做重要选择时，我清楚什么对我最重要",1),
+    L("我能拒绝别人，而且不会内疚很久",1),
+    L("别人不认可我时，我依然知道自己是谁",1),
+    L("我常常需要别人的肯定，才觉得自己做得还行",-1),
+    L("比起别人怎么看我，我更在意自己有没有活成想要的样子",1),
+    C("一个人安静下来的时候，你最常有的感觉是？",[
+      ["踏实，挺好的",4],["有点空，但能接受",3],["忍不住想找点事做，或者刷手机",1.5],["容易焦虑，想起很多烦心事",1]]),
+  ]},
+  { name:"行动成长", key:"growth", qs:[
+    C("你发现自己又在重复一个说过要改的坏习惯，你会？",[
+      ["想想是什么情况触发了它",4],["下决心下次一定改",2],["骂自己没出息",1],["算了，人就是这样",0]]),
+    F("过去一个月，你有没有为自己的成长做过一件具体的事（读书、练习、改一个习惯）？",[
+      ["有，而且一直在坚持",4],["做过一两次",3.5],["想过，但没做",1],["没有",0]]),
+  ]},
+];
+
+// “另一面”：按所选类型的字母，问过去一个月有没有用过相反的那一面
+const BALANCE = {
+  I:"过去一个月，你有没有主动发起过社交（约人、在聚会上主动和人聊天）？",
+  E:"过去一个月，你有没有一个人安静待上大半天，而且挺享受的？",
+  S:"过去一个月，你有没有尝试过一种从没用过的新方法或新事物？",
+  N:"过去一个月，你有没有把一个想法真正落实成具体的行动？",
+  T:"过去一个月，你有没有察觉并回应过别人没说出口的情绪？",
+  F:"过去一个月，你有没有在重要的事上，先放下感受、理性分析过利弊？",
+  J:"过去一个月，计划被打乱时，你有没有很快调整过来，没有一直焦虑？",
+  P:"过去一个月，你有没有按计划提前完成过一件重要的事？",
+  X:["过去一个月，你有没有做过一件“不太像你”、但事后觉得挺好的事？",
+     "过去一个月，你有没有因为听了不同的意见，改变过自己的想法？",
+     "过去一个月，你有没有在情绪上头时，先停下来再回应？",
+     "过去一个月，你有没有把一件拖了很久的事真正做完？"],
+};
+
+// 不确定类型时：每个维度两道二选一，用来估计最可能的类型（不计入成熟度）
+const TYPE_QS = [
+  ["EI","周末的理想安排是？",["和朋友出去热闹一下","E"],["一个人在家安静充电","I"]],
+  ["EI","认识新朋友时，你通常？",["很快就能聊起来","E"],["要过一阵才放得开","I"]],
+  ["SN","看一幅画，你先注意到的是？",["具体的颜色和细节","S"],["它让你联想到的意思","N"]],
+  ["SN","你更相信？",["亲眼看到、亲身经历过的东西","S"],["直觉，以及对未来的想象","N"]],
+  ["TF","朋友做了一个你觉得不太对的决定，你会？",["直接指出问题在哪","T"],["先照顾他的感受，再慢慢说","F"]],
+  ["TF","做决定时，你更看重？",["是不是合理、公平","T"],["会不会伤害到谁","F"]],
+  ["JP","出去旅行，你更喜欢？",["提前做好攻略","J"],["到了再说，随走随看","P"]],
+  ["JP","面对截止日期，你通常？",["提前完成才安心","J"],["最后几天效率最高","P"]],
+].map(([axis,q,a,b])=>({kind:"choice",q,axis,o:[[a[0],null,null,"skip",a[1]],[b[0],null,null,"skip",b[1]]]}));
+
+// 测谎题：只有“完美的人”才会全选很符合
+const LIE = [
+  L("我从来没有对别人发过脾气","L"),
+  L("我从来不会在背后议论别人","L"),
+  L("不管发生什么，我都能保持情绪稳定","L"),
+  L("我对每个人都一样友善","L"),
+];
+
+function toOptions(item){
+  if(item.kind==="likert"){
+    if(item.k==="L") return LIKERT.map((l,a)=>[l,null,(a<=1?"lie":null),"skip"]);
+    return LIKERT.map((l,a)=>[l, item.k===1?LK_POS[a]:LK_POS[4-a]]);
+  }
+  return item.o;
+}
+function buildModules(type){
+  const mods = SHARED.map(m=>({name:m.name,key:m.key,qs:m.qs.slice()}));
+  const bal = (type && type.length===4) ? [...type].map(ch=>F(BALANCE[ch],FREQ)) : BALANCE.X.map(q=>F(q,FREQ));
+  mods.push({name:"平衡另一面", key:"balance", qs:bal});
+  mods.push({name:"测谎", key:"lie", hidden:true, qs:LIE});
+  if(!(type && type.length===4)) mods.push({name:"类型", key:"type", hidden:true, qs:TYPE_QS});
+  return mods.map(m=>({name:m.name,key:m.key,hidden:!!m.hidden,qs:m.qs.map(it=>({...it,o: it.axis? it.o : toOptions(it)}))}));
+}
+
+const TYPES = {
+  INTJ:{nick:"远见谋略家",
+    gift:"你能一眼看到一件事五年后的样子，这是很少有人有的能力。",
+    stress:"压力爆表时，平时最理性的你会突然报复性地吃喝、购物、刷剧，或者对一点小事格外敏感。",
+    st:[{t:"孤独的棋手",i:["你常常在心里叹气：“这么简单的事，他们怎么就看不明白？”","你宁可自己熬夜做完，也不想花时间解释给别人听。","被人说“冷漠”“难相处”时，你嘴上说不在乎，心里其实有点委屈。"]},
+        {t:"开始下团体棋的人",i:["你学会了在说“这个方案不行”之前，先说一句“我理解你的想法”。","你发现有些人不是笨，只是在乎的东西和你不一样。","你偶尔会主动约朋友吃饭，虽然心里还在算这顿饭的时间值不值。"]},
+        {t:"温柔的战略家",i:["你的计划里开始有了“人”，不只是目标和步骤。","你能坦然地说“这件事我错了”，而不觉得丢脸。","别人愿意跟着你，不是因为你最聪明，而是因为在你身边很安心。"]}]},
+  INTP:{nick:"逻辑探索者",
+    gift:"你能把复杂的问题拆到最本质，所以常常一针见血。",
+    stress:"压力大时，一向冷静的你会突然情绪失控，觉得全世界都不理解你，因为一句话难过很久。",
+    st:[{t:"住在脑子里的人",i:["你的浏览器开着 30 个标签页，脑子里有 10 个计划，但一个都还没开始。","别人跟你倾诉，你的第一反应是找出逻辑漏洞，而不是安慰。","你很享受一个人的世界，有时候连回消息都觉得是负担。"]},
+        {t:"开始把想法搬进现实的人",i:["你学会了先做一个“不完美的版本”，而不是等全想清楚再动手。","朋友难过时，你会先说一句“听起来真的很难受”，再讲道理。","你开始发现，被人理解的感觉其实也挺好的。"]},
+        {t:"会落地的思想家",i:["你的想法不再只停留在脑子里，而是变成了作品、方案或者真实的改变。","你能用别人听得懂的话，讲清楚很复杂的事。","你依然需要独处，但不再用它来逃避人。"]}]},
+  ENTJ:{nick:"果断领航者",
+    gift:"你能把一盘散沙组织成一支能打胜仗的队伍。",
+    stress:"压力过大时，一向强势的你会突然陷入低谷，怀疑“我到底在为什么拼命”。",
+    st:[{t:"停不下来的指挥官",i:["你最受不了效率低的人，常常忍不住说“算了，我来吧”。","你把休息当成浪费时间，连旅行都安排得像一个项目。","别人说你太强势，你觉得是他们太玻璃心。"]},
+        {t:"开始倾听的领导者",i:["开会时，你学着先让别人把话说完，再给结论。","你发现有时候放慢一点，团队反而走得更远。","你开始允许自己偶尔什么都不做，虽然还会有点愧疚。"]},
+        {t:"让人心甘情愿追随的人",i:["你依然目标明确，但会照顾到每个人的感受和成长。","你能在关键时刻示弱，说“这件事我需要你的帮助”。","你的强大，开始让身边的人也变得强大。"]}]},
+  ENTP:{nick:"灵感辩论家",
+    gift:"你总能从别人想不到的角度看问题，脑子转得比谁都快。",
+    stress:"压力大时，满脑子点子的你会突然纠结细节、反复检查，变得焦虑又挑剔。",
+    st:[{t:"停不下来的点子机",i:["你的新爱好每个月换一个，旧的还没开始就被新的取代了。","吵架的时候，你更在意赢，而不是对方的感受。","无聊对你来说，比失败还可怕。"]},
+        {t:"学会收尾的创意家",i:["你开始挑一两个点子认真做下去，而不是什么都想做。","你学会了分辨：什么时候是讨论，什么时候对方只是需要被支持。","你发现做完一件事的成就感，比想到一个好点子更踏实。"]},
+        {t:"把灵感变成现实的人",i:["你依然点子很多，但身边的人知道你说到能做到。","你辩论是为了找到更好的答案，而不是为了赢。","你能点燃别人的创造力，而不只是展示自己的。"]}]},
+  INFJ:{nick:"深度洞察者",
+    gift:"你常常比别人自己更早察觉到他们的情绪和需要。",
+    stress:"压力大时，一向克制的你可能突然暴饮暴食、疯狂购物，或者对周围的一切都特别烦躁。",
+    st:[{t:"默默承受的知心人",i:["你是朋友眼里的“树洞”，但你自己的心事很少有人知道。","你会在心里给一个人扣很多次分，然后某天突然彻底“关门”离开。","你总觉得自己和这个世界有点格格不入。"]},
+        {t:"开始照顾自己的理想主义者",i:["你开始敢说“今天我不想聊，我需要休息”。","你发现不必等到忍无可忍才离开，可以早一点说出不舒服。","你开始接受：不是每个人都能被拯救，也不是每件事都要完美。"]},
+        {t:"温柔而有力量的引路人",i:["你依然敏锐，但不再被别人的情绪淹没。","你把对世界的理想，变成了一件件具体的小事去做。","你既能深深理解别人，也敢于坚定地表达自己。"]}]},
+  INFP:{nick:"理想守护者",
+    gift:"你能感受到别人感受不到的细腻，这是你最珍贵的天赋。",
+    stress:"压力大时，一向温柔的你会突然变得挑剔、刻薄，对自己和别人都很苛刻，事后又非常内疚。",
+    st:[{t:"活在自己世界里的诗人",i:["你脑子里有一整部小说的剧情，现实里却连一封邮件都要拖三天才回。","别人一句无心的话，能让你反复想一整晚。","你常常觉得“没有人真正懂我”，但也很少让别人真正走近。"]},
+        {t:"在理想和现实之间搭桥的人",i:["你开始把一个大梦想，拆成今天就能做的一小步。","不舒服的时候，你学着说出来，而不是默默在心里记账。","你依然敏感，但已经知道哪些情绪要认真对待，哪些可以放下。"]},
+        {t:"有边界的温柔",i:["你的善良不再是讨好，而是一种选择。","你能坚定地拒绝别人，同时依然温柔。","你的理想没有被现实磨平，反而在一件件做成的事里变得更真实。"]}]},
+  ENFJ:{nick:"温暖引导者",
+    gift:"你有一种天然的感染力，能让身边的人相信自己可以更好。",
+    stress:"压力大时，一向体贴的你会突然变得尖锐、爱挑刺，或者陷入“我一点用都没有”的自我否定。",
+    st:[{t:"照顾所有人的人",i:["群里有人不开心，你比当事人还着急。","你很难拒绝别人，答应完又偷偷后悔。","别人没回你消息，你会忍不住想是不是自己哪里做错了。"]},
+        {t:"开始分清界限的人",i:["你发现“帮助别人”和“讨好别人”是两回事。","你开始给自己留出不被打扰的时间。","被人不喜欢的时候，你虽然难过，但不再因此否定整个自己。"]},
+        {t:"温暖而稳定的灯塔",i:["你依然热心，但只做你真心想做的事。","你帮助别人成长，而不是替他们扛下一切。","你对自己，也像对别人一样温柔。"]}]},
+  ENFP:{nick:"热情追梦人",
+    gift:"你能在任何人身上看到闪光点，也能让平淡的日子变得有趣。",
+    stress:"压力大时，一向乐观的你会陷入对细节的焦虑，反复检查、担心身体，变得一点都不像你。",
+    st:[{t:"三分钟热度的追梦人",i:["你的备忘录里有 20 件想做的事，完成的只有 2 件。","你很容易对一个人或一件事狂热，又很快失去兴趣。","一想到要做重复、琐碎的事，你就浑身难受。"]},
+        {t:"学会坚持的探险家",i:["你开始给自己定截止日期，而且大部分时候能做到。","你学着在众多可能里做选择，接受“不能什么都要”。","你发现深入一件事的快乐，一点也不比新鲜感少。"]},
+        {t:"热情又可靠的人",i:["你依然对世界充满好奇，但身边的人知道可以把事情交给你。","你的热情不再是一阵风，而是能一直照亮别人的光。","你既能天马行空，也能脚踏实地。"]}]},
+  ISTJ:{nick:"可靠执行者",
+    gift:"你说到做到，是别人眼里最靠得住的那个人。",
+    stress:"压力大时，一向稳重的你会开始往最坏的方向想，脑子里全是“万一……怎么办”。",
+    st:[{t:"严格守规矩的人",i:["别人不按流程来，你会浑身不舒服。","计划被临时打乱，你一整天心情都不好。","你很少表达感受，觉得把事情做好就是最好的表达。"]},
+        {t:"开始灵活的可靠者",i:["你开始接受，有些事换个方法做也行。","你学着在规则之外，考虑一点人情。","你偶尔尝试一些新东西，发现其实没那么可怕。"]},
+        {t:"稳定又开放的人",i:["你依然可靠，但不再死板。","你能守住原则，也能体谅别人的特殊情况。","你的稳定，成了身边人在变化中的依靠。"]}]},
+  ISFJ:{nick:"温柔守护者",
+    gift:"你记得每个人的小习惯和喜好，让人觉得被细心照顾着。",
+    stress:"压力大时，一向温和的你会陷入各种悲观的想象，担心未来发生最坏的事。",
+    st:[{t:"默默付出的人",i:["你记得所有人的生日，却很少有人记得你的。","你很难开口提要求，总怕麻烦别人。","不舒服的时候你会忍着，直到某天突然委屈到哭。"]},
+        {t:"开始照顾自己的守护者",i:["你第一次说“不”的时候，发现天并没有塌下来。","你开始把自己的需要，也放进计划里。","你发现被人照顾的感觉，其实也挺好的。"]},
+        {t:"温柔有力量的人",i:["你依然体贴，但付出是出于选择，而不是害怕。","你能温和而坚定地表达自己的立场。","你在变化中也能保持安稳，成了别人的避风港。"]}]},
+  ESTJ:{nick:"秩序管理者",
+    gift:"你能把混乱变得井井有条，让事情真正落地。",
+    stress:"压力大时，一向强硬的你会突然觉得没人理解自己，因为一点小事特别受伤。",
+    st:[{t:"说一不二的管理者",i:["你觉得“按我说的做就对了”，因为你确实常常是对的。","别人情绪化的时候，你会想“这有什么好哭的”。","你很难忍受低效和不守规矩。"]},
+        {t:"开始听见别人的人",i:["你学会了在下结论之前，先问问别人的想法。","你发现照顾大家的感受，反而让事情推进得更顺。","你开始允许一些“不按规矩来”的例外。"]},
+        {t:"有温度的领导者",i:["你依然高效，但大家愿意跟你一起做事。","你建立秩序，是为了让每个人更好，而不是为了控制。","你能承认自己的脆弱，这反而让你更受信任。"]}]},
+  ESFJ:{nick:"贴心照顾者",
+    gift:"你总能让聚会变得温暖，让每个人都被照顾到。",
+    stress:"压力大时，一向热情的你会变得挑剔多疑，反复分析别人一句话是什么意思。",
+    st:[{t:"需要被喜欢的人",i:["别人一个冷淡的表情，你会担心半天。","你很难拒绝，常常一下答应了太多事。","有人不喜欢你，会让你非常难受。"]},
+        {t:"开始有主见的照顾者",i:["大家意见不同时，你开始说出自己真正的想法。","你接受了不是每个人都会喜欢你，这其实很正常。","你照顾别人的同时，也开始照顾自己。"]},
+        {t:"温暖又坚定的人",i:["你依然热心，但不再为了被喜欢而付出。","你能温柔地坚持自己的立场。","你让身边的人感到被爱，也让他们学会尊重你。"]}]},
+  ISTP:{nick:"冷静手艺人",
+    gift:"你在危机时刻最冷静，总能找到最实际的解决办法。",
+    stress:"压力大时，一向冷静的你会突然情绪爆发，说出很重的话，觉得自己被所有人误解。",
+    st:[{t:"独来独往的手艺人",i:["别人问你在想什么，你通常回答“没什么”。","你更喜欢自己动手解决问题，而不是和人讨论。","长期计划对你来说太遥远，你更相信随机应变。"]},
+        {t:"开始敞开的行动派",i:["你开始愿意跟亲近的人说一些心里话。","你会为一件重要的事，做一个简单的计划。","你发现表达在乎，没有想象中那么别扭。"]},
+        {t:"冷静又有温度的人",i:["你依然独立，但身边的人能感受到你的在乎。","你能把灵活应变和长远打算结合起来。","你是大家遇到麻烦时，第一个想到的人。"]}]},
+  ISFP:{nick:"自由艺术家",
+    gift:"你对美和情绪有天然的敏感，能把日子过得很有感觉。",
+    stress:"压力大时，一向温和的你会突然变得冷硬、爱批评，对别人的错误特别不能容忍。",
+    st:[{t:"随风而行的艺术家",i:["你讨厌被计划和规则束缚，很多事都是“到时候再说”。","遇到冲突，你的第一反应是躲开。","你的感受很丰富，但很少说出口。"]},
+        {t:"开始为自己做选择的人",i:["你开始为真正在乎的事做一些计划。","不舒服的时候，你学着说出来，而不是默默走开。","你发现坚持一件喜欢的事，会让自由变得更有意义。"]},
+        {t:"温柔而坚定的创作者",i:["你依然随性，但在重要的事情上很有主见。","你能把自己的感受和审美，变成作品或者一种生活方式。","你尊重别人的自由，也坚定地守护自己的。"]}]},
+  ESTP:{nick:"行动冒险家",
+    gift:"你反应快、敢行动，别人还在犹豫，你已经开始了。",
+    stress:"压力大时，一向乐观的你会突然陷入负面猜想，疑神疑鬼，觉得事情会往最坏的方向走。",
+    st:[{t:"说走就走的冒险家",i:["你做决定很快，后悔得也很快。","长期规划让你觉得无聊，你更喜欢“现在就做”。","别人觉得你有点冲动，你觉得他们太磨叽。"]},
+        {t:"开始多想一步的行动派",i:["你学会在冲出去之前，先想想后果。","你开始为未来存一点钱、做一点准备。","你发现慢下来，有时候反而能看到更多机会。"]},
+        {t:"敢闯又靠得住的人",i:["你依然行动力十足，但做事有了方向感。","你敢于冒险，也愿意承担结果。","别人愿意跟着你冲，因为知道你心里有数。"]}]},
+  ESFP:{nick:"快乐表演家",
+    gift:"你有让身边的人开心起来的魔力，是天生的气氛担当。",
+    stress:"压力大时，一向开朗的你会对未来充满悲观的想象，突然觉得一切都没有意义。",
+    st:[{t:"只活在当下的人",i:["你最擅长享受此刻，最不擅长思考“以后怎么办”。","遇到严肃或难过的话题，你会想办法岔开。","你的钱和时间，常常一下子就花在开心的事上了。"]},
+        {t:"开始为未来准备的人",i:["你开始给自己的未来，做一点小小的计划。","你学着面对不那么开心的事，而不是一味逃开。","你发现有些快乐，需要先付出一点耐心。"]},
+        {t:"温暖又有方向的人",i:["你依然热爱生活，但多了一份定力。","你能陪朋友开心，也能陪他们熬过难过的时刻。","你的快乐不再只是一瞬间，而是能长久地感染身边的人。"]}]},
+};
+
+// 五个阶段；t 是对应类型解读的序号（0=初阶 1=中阶 2=高阶）
+const STAGES = [
+  { name:"初阶", min:0, t:0, color:"#a79fcc",
+    text:"你现在主要靠天性在生活：强项用得很顺，但另一面还比较生疏，压力大时容易被情绪或惯性带着走。这不是缺点，几乎每个人都是从这里开始的。" },
+  { name:"初中阶", min:40, t:0, color:"#8a80c0",
+    text:"你已经开始留意自己的模式，只是很多时候还是会被惯性带着走。你正在从“凭天性生活”走向“有意识地成长”，这一步其实最难。" },
+  { name:"中阶", min:55, t:1, color:"#6b5fa8",
+    text:"你已经认识自己的模式，也开始有意识地练习不擅长的那一面。大部分时候你都能好好应对，只是压力大的时候，偶尔还会回到旧模式。" },
+  { name:"中高阶", min:68, t:1, color:"#54489a",
+    text:"你对自己有清晰的认识，情绪和压力大多能稳稳接住，也能在需要时用上不擅长的那一面。离高阶只差一些“自然而然”：有些事你还需要刻意提醒自己。" },
+  { name:"高阶", min:80, t:2, color:"#3f3577",
+    text:"你既能发挥自己的天性，也能在需要时自如地用好另一面。你不再被人格标签限制，而是把它当成了解自己的工具。" },
+];
+
+const LIE_NOTE = "你的回答里有几处“完美答案”，比如从不发脾气、对每个人都一样友善。这很难做到，所以结果最高显示到中高阶。真正的成长，往往是从承认自己不完美开始的。";
+
+const DIM_TIPS = {
+  aware:"每周花十分钟复盘：这周哪件事让你情绪波动最大？它背后是你的什么需要？",
+  emotion:"下次情绪上来时，先给自己 10 秒钟，再决定怎么回应。",
+  stress:"留意自己的“压力信号”（失眠、暴躁、想逃），一出现就先停下来休息，而不是硬扛。",
+  open:"每天留意一个身边人的情绪或需要，哪怕只是一句“你今天看起来有点累”。",
+  balance:"每周刻意做一件“不像你”的小事，练习你不擅长的那一面。",
+  growth:"选一个最小的改变，坚持 21 天，比列十个计划更有用。",
+};
+
+// ---------- 状态 ----------
+let MODULES = [], TYPE = null;
+const QUESTIONS = [];
+function setType(t){
+  TYPE = (t && TYPES[t]) ? t : null;
+  MODULES = buildModules(TYPE);
+  QUESTIONS.length = 0;
+  MODULES.forEach((m,mi)=>m.qs.forEach((q,qi)=>QUESTIONS.push({...q, mi, qi})));
+  TOTAL = QUESTIONS.length;
+}
+let TOTAL = 0;
+setType(null);
+let answers = new Array(TOTAL).fill(null);   // 按题目原始编号存
+let order = [...Array(TOTAL).keys()];           // 本次答题的出题顺序
+let cur = 0;                                    // 当前是第几题（按出题顺序）
+const KEY = "stage-quiz-v1";
+
+// 打乱题目顺序；前 3 题不放红线类的重题，开头轻松一点
+function makeOrder(){
+  const heavy = new Set(QUESTIONS.map((q,i)=>q.o.some(o=>o[2])?i:-1).filter(i=>i>=0));
+  let a;
+  do{
+    a=[...Array(TOTAL).keys()];
+    for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  }while(a.slice(0,3).some(i=>heavy.has(i)));
+  return a;
+}
+
+function save(){try{localStorage.setItem(KEY,JSON.stringify({answers,order,cur,type:TYPE,optOrder}));}catch(e){}}
+function load(){try{return JSON.parse(localStorage.getItem(KEY));}catch(e){return null;}}
+function clearSave(){try{localStorage.removeItem(KEY);}catch(e){}}
+const LAST_KEY = "stage-quiz-last-v1";
+function saveLast(){try{localStorage.setItem(LAST_KEY,JSON.stringify({answers,time:Date.now(),type:TYPE}));}catch(e){}}
+function loadLast(){try{const l=JSON.parse(localStorage.getItem(LAST_KEY));return (l&&Array.isArray(l.answers)&&l.answers.every(a=>a!==null))?l:null;}catch(e){return null;}}
+
+const $ = id=>document.getElementById(id);
+function show(id){["intro","pick","quiz","result"].forEach(s=>$(s).classList.toggle("hidden",s!==id));window.scrollTo(0,0);}
+
+function goHome(){
+  checkResume(); applyGate();
+  show("intro");
+}
+function checkResume(){
+  const has = answers.some(a=>a!==null) && answers.some(a=>a===null);
+  $("resumeBtn").classList.toggle("hidden", !has);
+  $("startBtn").textContent = has ? "重新开始" : "开始测试";
+  const last = loadLast();
+  if(last){const d=new Date(last.time);$("lastBtn").textContent=`查看上次的结果（${d.getMonth()+1}月${d.getDate()}日）`;}
+  $("lastBtn").classList.toggle("hidden", !last);
+}
+
+function start(fresh){
+  if(fresh){ renderPick(); show("pick"); return; }
+  show("quiz");render();
+}
+function beginWith(t){
+  setType(t); answers=new Array(TOTAL).fill(null); order=makeOrder(); optOrder={}; cur=0; save();
+  show("quiz"); render();
+}
+function renderPick(){
+  const groups=[["INTJ","INTP","ENTJ","ENTP"],["INFJ","INFP","ENFJ","ENFP"],["ISTJ","ISFJ","ESTJ","ESFJ"],["ISTP","ISFP","ESTP","ESFP"]];
+  $("typeGrid").innerHTML=groups.map((g,gi)=>g.map(t=>`<button class="tp g${gi}" data-t="${t}"><b>${t}</b><span>${TYPES[t].nick}</span></button>`).join("")).join("");
+  $("typeGrid").querySelectorAll(".tp").forEach(b=>b.onclick=()=>beginWith(b.dataset.t));
+}
+
+let optOrder = {};   // 情境题的选项顺序（每次测试随机）
+function shuffled(n){const a=[...Array(n).keys()];for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function render(){
+  const qi=order[cur], q=QUESTIONS[qi];
+  $("count").textContent=`${cur+1} / ${TOTAL}`;
+  $("bar").style.width=`${cur/TOTAL*100}%`;
+  $("backBtn").disabled = cur===0;
+  const box=$("qbox");
+  let body;
+  if(q.kind==="likert"){
+    body=`<p class="q stmt">${q.q}</p>
+    <div class="likert">${q.o.map((o,oi)=>`<button class="lk lk${oi}${answers[qi]===oi?" sel":""}" data-i="${oi}" aria-label="${o[0]}"><i></i><span>${o[0]}</span></button>`).join("")}</div>`;
+  } else {
+    const ord = q.kind==="choice" ? (optOrder[qi] || (optOrder[qi]=shuffled(q.o.length))) : q.o.map((_,i)=>i);
+    body=`<p class="q">${q.q}</p>
+    <div class="opts">${ord.map(oi=>`<button class="opt${answers[qi]===oi?" sel":""}" data-i="${oi}">${q.o[oi][0]}</button>`).join("")}</div>`;
+  }
+  box.innerHTML=`<div class="fade">${body}</div>`;
+  box.querySelectorAll(".lk,.opt").forEach(b=>b.onclick=()=>pick(+b.dataset.i,b));
+}
+
+let locked=false;
+function pick(i,btn){
+  if(locked) return; locked=true;
+  answers[order[cur]]=i; save();
+  document.querySelectorAll(".opt,.lk").forEach(b=>b.classList.remove("sel")); btn.classList.add("sel");
+  setTimeout(()=>{
+    locked=false;
+    if(cur<TOTAL-1){cur++;save();render();}
+    else {$("bar").style.width="100%";showResult();}
+  },260);
+}
+
+$("backBtn").onclick=()=>{if(cur>0){cur--;save();render();}};
+$("homeBtn1").onclick=goHome;
+$("startBtn").onclick=()=>start(true);
+
+// ---------- 兑换码 ----------
+const SB_URL = "https://mjsgcvuyousczqexxszs.supabase.co";
+const SB_KEY = "sb_publishable_WEmGQIZnbWUMSXm9oKSWdQ_l7tDrIIE";
+const UNLOCK_KEY = "stage-unlock-v1";
+const REQUIRE_CODE = true;   // 改成 true 就需要兑换码
+function deviceId(){
+  try{
+    let d=localStorage.getItem("quiz-device-id");
+    if(!d){ d=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(36).slice(2)); localStorage.setItem("quiz-device-id",d); }
+    return d;
+  }catch(e){ return "nostorage-"+Math.random().toString(36).slice(2); }
+}
+function isUnlocked(){ try{ return !!localStorage.getItem(UNLOCK_KEY); }catch(e){ return false; } }
+function setUnlocked(code){ try{ localStorage.setItem(UNLOCK_KEY, code); }catch(e){} }
+function applyGate(){
+  const u=!REQUIRE_CODE||isUnlocked();
+  $("gate").classList.toggle("hidden", u);
+  $("startBtn").classList.toggle("hidden", !u);
+  if(!u){ $("resumeBtn").classList.add("hidden"); $("lastBtn").classList.add("hidden"); }
+}
+async function callRedeem(code){
+  const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),9000);
+  try{
+    const r=await fetch(SB_URL+"/rest/v1/rpc/redeem_code",{method:"POST",signal:ctrl.signal,
+      headers:{"Content-Type":"application/json","apikey":SB_KEY},
+      body:JSON.stringify({p_code:code,p_device:deviceId(),p_quiz:"stage"})});
+    if(!r.ok) throw new Error("http "+r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+$("redeemBtn").onclick=async()=>{
+  const code=$("codeInput").value.trim().toUpperCase().replace(/\s+/g,"");
+  const msg=$("gateMsg"), btn=$("redeemBtn");
+  if(!code){ msg.textContent="请先输入兑换码"; return; }
+  btn.disabled=true; btn.textContent="验证中…"; msg.textContent="";
+  let res=null;
+  for(let i=0;i<2 && res===null;i++){ try{ res=await callRedeem(code); }catch(e){ if(i===0) await new Promise(r=>setTimeout(r,800)); } }
+  btn.disabled=false; btn.textContent="验证并开始";
+  if(res==="ok"){ setUnlocked(code); applyGate(); start(true); }
+  else if(res==="used") msg.textContent="这个兑换码已经在其他手机上使用过了";
+  else if(res==="invalid") msg.textContent="兑换码不对，请检查一下（注意区分字母和数字）";
+  else msg.textContent="网络不太好，请稍后再试；一直不行的话请联系客服";
+};
+$("codeInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("redeemBtn").click(); });
+$("resumeBtn").onclick=()=>start(false);
+$("lastBtn").onclick=()=>{const l=loadLast(); if(!l) return; setType(l.type); if(l.answers.length!==TOTAL) return; showResult(l.answers, l.time);};
+
+// ---------- 计算结果 ----------
+function compute(answers){
+  const mods=MODULES.map(()=>({sum:0,max:0}));
+  let lie=0;
+  QUESTIONS.forEach((q,i)=>{ const o=q.o[answers[i]]; if(o[2]==="lie") lie++; if(o[1]===null) return; mods[q.mi].sum+=o[1]; mods[q.mi].max+=4; });
+  const modScores=mods.map(m=>m.max?Math.round(m.sum/m.max*100):null);
+  const tot=mods.reduce((a,m)=>a+m.sum,0), max=mods.reduce((a,m)=>a+m.max,0);
+  return {modScores,total:Math.round(tot/max*100),lie};
+}
+
+function showResult(ans, time){
+  const fromHistory = !!ans;
+  if(!fromHistory){ans=answers; saveLast(); clearSave(); answers=new Array(TOTAL).fill(null); cur=0;}
+  const {modScores,total,lie}=compute(ans);
+  const faked = lie>=2;
+  const d=new Date(time||Date.now()), dateStr=`${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`;
+  let si = 0; STAGES.forEach((x,i)=>{ if(total>=x.min) si=i; });
+  if(faked && si===4) si=3;
+  // 不确定类型时，根据类型题估计最可能的类型
+  let SHOW=TYPE, cands=null;
+  if(!TYPE){
+    const pick={};
+    QUESTIONS.forEach((q,i)=>{ if(q.axis){ (pick[q.axis]=pick[q.axis]||[]).push(q.o[ans[i]][4]); } });
+    const axes=["EI","SN","TF","JP"];
+    let list=[""];
+    axes.forEach(ax=>{ const v=pick[ax]||[]; const opts = v.length&&v.every(x=>x===v[0]) ? [v[0]] : [...new Set(v)];
+      list = list.flatMap(p=>opts.map(o=>p+o)); });
+    cands=list.filter(t=>TYPES[t]).slice(0,3);
+    SHOW=cands[0]||null;
+  }
+  const st=STAGES[si], T=SHOW&&TYPES[SHOW];
+  // 阶段内的位置（用于进度点）
+  const lo=st.min, hi= si<4?STAGES[si+1].min:100;
+  const pos = Math.round(((si) + Math.max(0,Math.min(1,(total-lo)/Math.max(1,hi-lo))))/5*100);
+
+  const rows = MODULES.map((m,i)=>{
+    const s=modScores[i];
+    if(m.hidden||s===null) return "";
+    return `<div class="row">
+      <div class="row-top"><span>${m.name}</span><b style="color:${s>=80?"#3f3577":s>=55?"#6b5fa8":"#9a8fc4"}">${s}</b></div>
+      <div class="track"><i style="width:${Math.max(s,3)}%;background:${s>=80?"#3f3577":s>=55?"#6b5fa8":"#b3aad6"}"></i></div>
+    </div>`;}).join("");
+  const sorted = modScores.map((s,i)=>({s,i})).filter(x=>x.s!==null&&!MODULES[x.i].hidden).sort((a,b)=>a.s-b.s);
+  const weak = sorted.slice(0,2).filter(x=>x.s<80);
+  const strong = sorted[sorted.length-1];
+
+  $("result").innerHTML = `<div class="fade">
+    <div class="top">
+      <button class="link" id="homeBtn2">‹ 首页</button>
+    </div>
+    <div id="card">
+      <div class="r-head">
+        <div class="r-title serif">16型人格 · 成长阶段</div>
+        <div class="r-label">${T?`${SHOW} · ${T.nick}`:"你的成长阶段"} · ${dateStr}</div>
+        ${cands&&cands.length?`<div class="r-label" style="margin-top:4px">根据你的回答，你最可能是 ${cands.join(" / ")}</div>`:""}
+        <div class="verdict serif big" style="color:${st.color}">${T?SHOW+" · ":""}${st.name}</div>
+        ${T?`<div class="persona serif">「${T.st[st.t].t}」</div>`:""}
+      </div>
+      <div class="stairs">
+        <div class="st-track"><i style="width:${pos}%"></i></div>
+        <div class="st-labels">${STAGES.map((x,i)=>`<span class="${i===si?"on":""}">${x.name}</span>`).join("")}</div>
+      </div>
+      ${T?`<div class="card"><h3>这个阶段的你，可能会……</h3><ul class="pts">${T.st[st.t].i.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+      <div class="card duo">
+        <div><h4>你的天赋</h4><p>${T.gift}</p></div>
+        <div><h4>压力下的你</h4><p>${T.stress}</p></div>
+      </div>`:""}
+      <div class="card"><p>${st.text}</p>
+        ${st.t<2&&T?`<p class="muted-p">再往前一步，你会成为「${T.st[st.t+1].t}」：${T.st[st.t+1].i[0]}</p>`:""}
+      </div>
+      ${faked?`<div class="card soft"><h3>一个小发现</h3><p>${LIE_NOTE}</p></div>`:""}
+      <div class="card"><h3>七个方面</h3>${rows}
+        <p class="row-note" style="margin-top:12px">你最成熟的一面是「${MODULES[strong.i].name}」。</p>
+      </div>
+      ${weak.length?`<div class="card soft"><h3>下一步可以练习</h3>${weak.map(w=>`<p><b>${MODULES[w.i].name}：</b>${DIM_TIPS[MODULES[w.i].key]}</p>`).join("")}</div>`:""}
+      <div class="brand">test.spelloapp.com/jieduan</div>
+    </div>
+    <button class="btn" id="saveBtn" style="margin-top:24px">保存结果图片</button>
+    <button class="btn ghost" id="againBtn">重新测一次</button>
+    <p class="foot">本测试仅供娱乐和自我觉察参考，不构成专业的心理评估。<br>人格不是标签，成长才是重点。</p>
+    <button class="legal-link" onclick="showLegal()">使用说明 · 隐私 · 免责声明</button>
+  </div>`;
+  $("homeBtn2").onclick=goHome;
+  $("againBtn").onclick=()=>start(true);
+  $("saveBtn").onclick=saveImage;
+  show("result");
+}
+
+// ---------- 保存图片 ----------
+let h2cLoading=null;
+function loadH2C(){
+  if(window.html2canvas) return Promise.resolve();
+  if(!h2cLoading) h2cLoading=new Promise((res,rej)=>{const s=document.createElement("script");s.src="html2canvas.min.js";s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+  return h2cLoading;
+}
+async function saveImage(){
+  const btn=$("saveBtn"); const old=btn.textContent;
+  btn.textContent="生成中…"; btn.disabled=true;
+  try{
+    await loadH2C();
+    const holder=document.createElement("div"); holder.className="share-img";
+    holder.appendChild($("card").cloneNode(true)); holder.firstChild.removeAttribute("id");
+    document.body.appendChild(holder);
+    const bg=getComputedStyle(document.body).backgroundColor;
+    let canvas;
+    try{ canvas = await html2canvas(holder,{backgroundColor:bg,scale:2.5,useCORS:true,windowWidth:420,x:0,y:0}); }
+    finally{ holder.remove(); }
+    const url = canvas.toDataURL("image/jpeg",0.92);
+    const blob = await new Promise(r=>canvas.toBlob(r,"image/jpeg",0.92));
+    const file = blob && new File([blob],"16型人格成长阶段-结果.jpg",{type:"image/jpeg"});
+    const inApp = /MicroMessenger|xhsdiscover|XiaoHongShu|Weibo|QQ\/|DingTalk|aweme|Lark/i.test(navigator.userAgent);
+    const desktop = window.matchMedia("(hover:hover)").matches;
+    const canShare = !desktop && file && navigator.canShare && navigator.canShare({files:[file]});
+
+    const ov=document.createElement("div"); ov.className="overlay";
+    ov.innerHTML=`
+      <div class="ov-top">
+        <b>${desktop?"图片已下载":canShare?"点下方按钮保存到相册":"长按图片 → 保存图片"}</b>
+        <span>${desktop?"在下载文件夹里可以找到":canShare?"在弹出的菜单里选「存储图像」或「保存图片」":inApp?"长按没反应的话：点右上角「…」选择在浏览器打开，或者直接截图":"图片还没有保存，记得长按哦；不行的话直接截图也可以"}</span>
+      </div>
+      <div class="ov-img"><img src="${url}" alt="测试结果"></div>
+      <div class="ov-bar">
+        ${canShare?`<button class="ov-save">保存到相册</button>`:""}
+        <button class="ov-close">${canShare?"关闭":"我保存好了"}</button>
+      </div>`;
+    ov.querySelector(".ov-close").onclick=()=>ov.remove();
+    const sv=ov.querySelector(".ov-save");
+    if(sv) sv.onclick=async()=>{
+      try{ await navigator.share({files:[file]}); sv.textContent="已保存 ✓"; }
+      catch(e){ if(e && e.name!=="AbortError") ov.querySelector(".ov-top span").textContent="没成功的话，长按图片也可以保存"; }
+    };
+    document.body.appendChild(ov);
+    if(desktop){ const a=document.createElement("a"); a.href=url; a.download="16型人格成长阶段-结果.jpg"; a.click(); }
+  }catch(e){
+    alert("生成图片失败，可以直接截图保存哦");
+  }finally{btn.textContent=old;btn.disabled=false;}
+}
+
+// ---------- 使用说明 / 隐私 / 免责 ----------
+function showLegal(){
+  const d=document.createElement("div"); d.className="legal";
+  d.innerHTML=`<div class="legal-in">
+    <button class="link" id="legalBack">‹ 返回</button>
+    <h2 class="serif">使用说明与免责声明</h2>
+    <h4>关于本测试</h4>
+    <p>本测试是一份趣味性质的自我觉察问卷，题目和计分规则由作者原创设计，未经科学量表验证。测试结果仅供娱乐和自我反思参考，不构成心理咨询、心理诊断、婚恋咨询、法律或任何其他专业建议。</p>
+    <p>本测试面向 18 岁及以上的用户。</p>
+    <h4>免责声明</h4>
+    <p>本测试不是标准化心理测评，也与任何官方人格测评机构无关。重要的人生决定请结合你自己的实际情况慎重考虑，必要时寻求专业人士的帮助。使用者根据测试结果做出的任何决定及其后果，由使用者自行承担，作者不承担任何责任。</p>
+    <h4>如果你正在受到伤害</h4>
+    <p>如果你在关系中遭受暴力、威胁或控制，请优先保护自己的安全。紧急情况请拨打 110；也可以拨打全国妇联妇女维权公益服务热线 12338 寻求帮助。</p>
+    <h4>隐私说明</h4>
+    <p>本测试不需要注册，不收集你的姓名、联系方式等个人信息，也不会把你的答案上传到任何服务器。所有计算都在你自己的设备上完成。验证兑换码时，只会发送兑换码本身和一串随机生成的设备编号（用来把兑换码绑定到这台设备），不包含任何个人信息。</p>
+    <p>为了方便你继续答题或查看上次结果，答题进度和最近一次的结果会保存在你当前浏览器的本地存储里，只有你自己的设备能读取。清除浏览器数据即可删除。</p>
+    <p>网站托管服务商可能会按照其自身政策记录常规的访问日志（如 IP 地址、访问时间）。我们使用 Cloudflare Web Analytics 统计匿名的访问量，它不使用 Cookie，不追踪个人身份。以上信息都不包含你的答案。</p>
+    <h4>版权声明</h4>
+    <p>本测试的题目、选项、计分规则、结果文案和页面设计均为原创作品，版权归作者所有。未经书面许可，禁止复制、转载、改编或用于任何商业用途。</p>
+    <p style="margin-top:18px;color:var(--muted)">© ${new Date().getFullYear()} 16型人格 · 成长阶段测试 保留所有权利。</p>
+  </div>`;
+  d.querySelector("#legalBack").onclick=()=>d.remove();
+  document.body.appendChild(d);
+}
+
+// ---------- 首页大圆 ----------
+(function drawChips(){
+  $("pie").innerHTML = MODULES.filter(m=>!m.hidden).map((m,i)=>`<span style="animation-delay:${i*60}ms">${m.name}</span>`).join("");
+})();
+
+// 有未完成进度时显示“继续”
+(function(){
+  const s=load();
+  if(s && Array.isArray(s.answers)) setType(s.type);
+  if(s && Array.isArray(s.answers) && s.answers.length===TOTAL){
+    answers=s.answers; cur=Math.min(s.cur||0, TOTAL-1); optOrder=s.optOrder||{};
+    if(Array.isArray(s.order) && s.order.length===TOTAL) order=s.order;
+  }
+  checkResume();
+  applyGate();
+})();
+</script>
+</body>
+</html>

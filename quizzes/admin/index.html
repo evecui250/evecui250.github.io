@@ -53,7 +53,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>发码助手 · 该结婚还是分手？</h1>
+  <h1>发码助手</h1>
 
   <!-- 登录 -->
   <div id="login" class="card">
@@ -64,6 +64,19 @@
   </div>
 
   <div id="main" class="hidden">
+    <div class="card">
+      <h3 style="margin:0 0 10px;font-size:16px">通用兑换码（所有买家用同一个，不限次数）</h3>
+      <select id="shQuiz" class="in" style="margin-bottom:10px">
+        <option value="stage">16型人格 · 成长阶段（test.spelloapp.com/jieduan/）</option>
+        <option value="single">适合结婚，还是一个人？</option>
+        <option value="marry">该结婚还是分手？</option>
+      </select>
+      <div id="shNow" class="muted" style="margin-bottom:10px">加载中…</div>
+      <input id="shNew" class="in" placeholder="新码（可留空，自动生成）" autocapitalize="characters">
+      <button class="btn ghost" id="shRotate">换一个新的通用码</button>
+      <p class="muted" style="margin-bottom:0">换码后旧码立刻失效，已经用旧码解锁过的手机不受影响。记得同时更新自动发货里的话术。</p>
+    </div>
+    <h3 style="margin:18px 0 10px;font-size:16px">一次性兑换码 · 该结婚还是分手？</h3>
     <div class="stats">
       <div class="stat"><b id="sLeft">–</b><span>还没发出</span></div>
       <div class="stat"><b id="sWait">–</b><span>已发出·待使用</span></div>
@@ -200,11 +213,23 @@ $("exportBtn").onclick=()=>{
   const csv="﻿"+lines.map(l=>l.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
   const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download=`兑换码_${new Date().toISOString().slice(0,10)}.csv`; a.click();
 };
+async function loadShared(){
+  const q=$("shQuiz").value; const list=await rpc("admin_list",{p_quiz:q});
+  const cur=list.filter(r=>r.kind==="shared"&&r.active&&(r.note||"").startsWith("通用"));
+  $("shNow").innerHTML = cur.length ? cur.map(r=>`当前通用码：<b style="font-size:18px;font-family:ui-monospace,Menlo,monospace;user-select:all">${esc(r.code)}</b>　已有 ${r.devices_used} 台手机使用`).join("<br>") : "这个测试还没有通用码";
+}
+$("shQuiz").onchange=()=>loadShared();
+$("shRotate").onclick=async()=>{
+  const q=$("shQuiz").value; const want=$("shNew").value.trim();
+  if(!confirm(`确定要换新的通用码吗？旧码会立刻失效。`)) return;
+  try{ const code=await rpc("admin_rotate_shared",{p_quiz:q,p_code:want||null}); $("shNew").value=""; await loadShared(); copy(code); toast("新码 "+code+" 已复制"); }
+  catch(e){ toast(e.message.includes("code exists")?"这个码已经存在，换一个":"出错了："+e.message); }
+};
 $("logout").onclick=()=>{ try{localStorage.removeItem(PW_KEY);}catch(e){} location.reload(); };
 
 async function tryLogin(pw,silent){
   PW=pw;
-  try{ await load(); try{localStorage.setItem(PW_KEY,pw);}catch(e){} $("login").classList.add("hidden"); $("main").classList.remove("hidden"); }
+  try{ await load(); loadShared(); try{localStorage.setItem(PW_KEY,pw);}catch(e){} $("login").classList.add("hidden"); $("main").classList.remove("hidden"); }
   catch(e){ PW=""; if(!silent) $("loginMsg").textContent = e.message==="unauthorized"?"密码不对":"连接失败，请稍后再试"; }
 }
 $("loginBtn").onclick=()=>tryLogin($("pw").value.trim());
