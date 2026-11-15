@@ -177,7 +177,7 @@
       <input id="codeInput" class="code-input" placeholder="输入兑换码" autocomplete="off" autocapitalize="characters" spellcheck="false">
       <button class="btn" id="redeemBtn">验证并开始</button>
       <p class="gate-msg" id="gateMsg"></p>
-      <p class="gate-hint">还没有兑换码？联系微信 <b style="user-select:all">ismeeeve</b> 获取</p>
+      <p class="gate-hint">兑换码随商品一起发送，没收到的话请联系卖家</p>
     </div>
     <button class="btn" id="startBtn">开始测试</button>
     <button class="btn ghost hidden" id="resumeBtn">继续上次的进度</button>
@@ -370,7 +370,7 @@ $("startBtn").onclick=()=>start(true);
 const SB_URL = "https://mjsgcvuyousczqexxszs.supabase.co";
 const SB_KEY = "sb_publishable_WEmGQIZnbWUMSXm9oKSWdQ_l7tDrIIE";
 const UNLOCK_KEY = "single-unlock-v1";
-const REQUIRE_CODE = false;   // 改成 true 就需要兑换码
+const REQUIRE_CODE = true;   // 改成 true 就需要兑换码
 function deviceId(){
   try{
     let d=localStorage.getItem("quiz-device-id");
