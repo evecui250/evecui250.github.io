@@ -178,6 +178,10 @@
   .duo p{font-size:15px}
   .duo div+div{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
   .share-img .persona{font-size:22px}
+  .fnstack{display:flex;gap:8px;margin:0 0 12px!important}
+  .fn{flex:1;text-align:center;padding:8px 0;border-radius:10px;background:var(--accent-soft);font-weight:700;color:var(--accent);font-size:15px}
+  .fn small{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}
+  .fn.inf{background:var(--accent);color:#fff} .fn.inf small{color:#ffffffcc}
 </style>
 </head>
 <body>
@@ -199,7 +203,7 @@
     <h1 class="serif center">你的人格，<br>修炼到<em>第几阶</em>了？</h1>
     <p class="lead center">同一个类型，也有不同的成长状态。<br>看看你现在走到了哪里。</p>
     <div class="chips" id="pie"></div>
-    <div class="note">先选你的类型，再答 39 道题，约 7 分钟。<br>凭真实情况选，“完美答案”反而会被识破哦。</div>
+    <div class="note">先选你的类型，再答 39 道题，约 7 分钟。<br>部分题目会根据你类型的认知功能定制。<br>凭真实情况选，“完美答案”反而会被识破哦。</div>
     <div id="gate" class="gate hidden">
       <input id="codeInput" class="code-input" placeholder="输入兑换码" autocomplete="off" autocapitalize="characters" spellcheck="false">
       <button class="btn" id="redeemBtn">验证并开始</button>
@@ -249,9 +253,9 @@ const C = (q,opts)=>({kind:"choice",q,o:opts});
 const SHARED = [
   { name:"了解自己", key:"aware", qs:[
     L("我能说出自己在关系里反复出现的模式","H"),
-    L("我知道自己在某些事情上很固执","H"),
     L("我很少需要反省，因为我做事一般没什么问题","L"),
     L("我常常分析自己，却越分析越乱","M"),
+    L("我想得很多，但很少真正去做","M"),
   ]},
   { name:"管理情绪", key:"emotion", qs:[
     L("生气的时候，我能先停一下，再决定怎么回应","H"),
@@ -265,12 +269,10 @@ const SHARED = [
     L("我相信事情总会好起来，不太去想太深","L"),
     L("我常常觉得很多事情没什么意义","M",{care:true}),
     L("我见过生活的难，但依然愿意热爱它","H"),
-    L("我相信大多数人本质上是善意的","H"),
     C("下雪天，看到维修工人在寒风里修路灯，你心里想的是？",[
       ["好冷，赶紧回家",1],["心疼他，觉得世界有点不公平",2],["有点感动，有人在默默守护这座城市",3]]),
   ]},
   { name:"对待他人", key:"open", qs:[
-    L("身边的人过得比我好，我能真心为他高兴","H"),
     L("在亲密关系里，我常常需要对方证明他爱我","L"),
     C("朋友向你倾诉烦恼时，你通常会？",[
       ["不太想听太多，会找机会岔开",1],["直接告诉他该怎么做",1],["讲讲自己类似的经历",1.5],["先认真听完，再说说我的看法",2.5],["先问他想要建议，还是只想被听",3]]),
@@ -287,22 +289,37 @@ const SHARED = [
     L("我常常需要别人的肯定，才觉得自己做得还行","L"),
     L("比起别人怎么看，我更在意自己有没有活成想要的样子","H"),
   ]},
-  { name:"说到做到", key:"growth", qs:[
-    L("我想得很多，但很少真正去做","M"),
-    L("说好要做的事，我一般都能按时完成","H"),
+  { name:"接纳阴暗面", key:"shadow", qs:[
+    L("我讨厌的人身上的某些特点，其实我自己也有","H"),
+    L("我能承认自己也有嫉妒、自私的时候","H"),
+    L("被人说中缺点时，我的第一反应是反驳","L"),
+    L("在不同场合我会戴着不同的“面具”，有时会忘了真实的自己","M"),
   ]},
 ];
 
 // “另一面”：按所选类型的字母，问能不能用好相反的倾向（问习惯和能力，不问“最近”）
+// 荣格的八种认知功能：每种写 4 句“用得好的表现”
+const FN_NAME = {Ni:"内倾直觉",Ne:"外倾直觉",Si:"内倾感觉",Se:"外倾感觉",Ti:"内倾思维",Te:"外倾思维",Fi:"内倾情感",Fe:"外倾情感"};
+const FN_DESC = {Ni:"看见趋势和深层意义",Ne:"发现各种新可能",Si:"积累经验、照顾好身体和日常",Se:"活在当下、动手去做",Ti:"把道理想清楚",Te:"把事情推进、落地",Fi:"清楚自己真正在乎什么",Fe:"感受和照顾他人的情绪"};
+const FN_ITEMS = {
+  Ni:["我能从零散的信息里，看出事情大概会往哪里发展","我会给自己留出安静的时间，想想这一切意味着什么","我能相信自己的直觉，哪怕一时说不出理由","我能放下眼前的小事，专注在长远真正重要的目标上"],
+  Ne:["遇到问题时，我能想到好几种不同的可能","我愿意尝试从没做过的事，看看会发生什么","我能在看似无关的东西之间，发现有趣的联系","计划行不通的时候，我能很快想到别的办法"],
+  Si:["我会从过去的经验里总结教训，不在同一个地方跌倒两次","我有一些稳定的生活习惯，让自己保持踏实","我能留意到身体发出的信号，累了就会休息","做事时，我能把细节和步骤记得清清楚楚"],
+  Se:["我能全心投入当下，享受眼前的风景、食物或音乐","突发情况发生时，我能马上做出反应","我会留意周围环境的变化和细节","我愿意动手去做，而不只是在脑子里想"],
+  Ti:["我能把一件事的道理想清楚，而不是人云亦云","遇到矛盾的说法，我会自己分析哪里不对","我能用清晰的逻辑，解释自己为什么这样做","情绪上来的时候，我依然能冷静地分析问题"],
+  Te:["我能把一件复杂的事拆成步骤，按时做完","需要的时候，我能直接、清楚地提出要求","我会用事实和数据来做判断，而不只是凭感觉","我能为一个目标定下计划，并且推动它落地"],
+  Fi:["我清楚自己真正在乎什么，不轻易被别人带着走","我能分辨出自己此刻真实的感受","做选择时，我会问自己：这符合我的价值观吗","即使别人不理解，我也能坚持对我重要的东西"],
+  Fe:["我能察觉到别人没说出口的情绪","在一群人里，我能照顾到大家的感受和气氛","安慰别人时，我能先共情，而不是急着讲道理","我愿意为了关系的和谐，主动沟通和让步"],
+};
+// 16 型的功能顺序：主导 → 辅助 → 第三 → 劣势
+const STACKS = {
+  INTJ:["Ni","Te","Fi","Se"], INTP:["Ti","Ne","Si","Fe"], ENTJ:["Te","Ni","Se","Fi"], ENTP:["Ne","Ti","Fe","Si"],
+  INFJ:["Ni","Fe","Ti","Se"], INFP:["Fi","Ne","Si","Te"], ENFJ:["Fe","Ni","Se","Ti"], ENFP:["Ne","Fi","Te","Si"],
+  ISTJ:["Si","Te","Fi","Ne"], ISFJ:["Si","Fe","Ti","Ne"], ESTJ:["Te","Si","Ne","Fi"], ESFJ:["Fe","Si","Ne","Ti"],
+  ISTP:["Ti","Se","Ni","Fe"], ISFP:["Fi","Se","Ni","Te"], ESTP:["Se","Ti","Fe","Ni"], ESFP:["Se","Fi","Te","Ni"],
+};
+// 不确定类型时用的通用平衡题
 const BALANCE = {
-  I:["需要的时候，我能自在地和陌生人聊起来","必要时，我能在一群人面前站出来表达自己"],
-  E:["我能享受一个人安静待着，不觉得无聊","做重要决定前，我会先自己安静地想清楚"],
-  S:["我愿意尝试从没用过的新方法","我能看到事情背后的意义和可能性，不只是眼前的事实"],
-  N:["我能把想法落实成具体的步骤","我会留意具体的细节和现实条件"],
-  T:["我能察觉到别人没说出口的情绪","安慰别人时，我能先共情，而不是急着讲道理"],
-  F:["重要的事上，我能先放下感受，理性分析利弊","需要的时候，我能直接指出问题，不怕伤和气"],
-  J:["计划被打乱时，我能很快调整过来","我能接受有些事暂时没有答案，不急着下结论"],
-  P:["重要的事，我会提前安排，而不是拖到最后","我能为一件事定下计划，并坚持做完"],
   X:["热闹和安静，我都能自在地切换","必要时，我能在一群人面前表达自己",
      "我既能关注细节，也能看到大方向","我能从具体的事实里看到更大的意义",
      "我能兼顾道理和别人的感受","需要的时候，我能直接指出问题，不怕伤和气",
@@ -338,7 +355,13 @@ function toOptions(item){
 }
 function buildModules(type){
   const mods = SHARED.map(m=>({name:m.name,key:m.key,qs:m.qs.slice()}));
-  const bal = (type && type.length===4) ? [...type].flatMap(ch=>BALANCE[ch].map(q=>L(q,"H"))) : BALANCE.X.map(q=>L(q,"H"));
+  let bal;
+  if(type && STACKS[type]){
+    const [, aux, ter, inf] = STACKS[type];   // 辅助 2 道 + 第三 2 道 + 劣势 4 道（劣势功能是成长的关键）
+    bal = [...FN_ITEMS[aux].slice(0,2).map(q=>L(q,"H",{fn:aux,role:"aux"})),
+           ...FN_ITEMS[ter].slice(0,2).map(q=>L(q,"H",{fn:ter,role:"ter"})),
+           ...FN_ITEMS[inf].map(q=>L(q,"H",{fn:inf,role:"inf"}))];
+  } else bal = BALANCE.X.map(q=>L(q,"H"));
   mods.push({name:"补足短板", key:"balance", qs:bal});
   mods.push({name:"测谎", key:"lie", hidden:true, qs:LIE});
   if(!(type && type.length===4)) mods.push({name:"类型", key:"type", hidden:true, qs:TYPE_QS});
@@ -471,10 +494,10 @@ const STAGES = [
   { name:"中高阶", min:63, t:1, color:"#54489a",
     text:"你对自己有清晰的认识，情绪和压力大多能稳稳接住，也能在需要时用上不擅长的那一面。离高阶只差一些“自然而然”：有些事你还需要刻意提醒自己。" },
   { name:"高阶", min:76, t:2, color:"#3f3577",
-    text:"你既能发挥自己的天性，也能在需要时自如地用好另一面。你不再被人格标签限制，而是把它当成了解自己的工具。" },
+    text:"你既能发挥自己的天性，也能在需要时用好另一面，还能坦然接纳自己不那么光彩的部分。荣格说，成长的目标是完整，而不是完美。你不再被人格标签限制，而是把它当成了解自己的工具。" },
 ];
 
-const LIE_NOTE = "你的回答里有几处“完美答案”，比如从不发脾气、对每个人都一样友善。这很难做到，所以结果最高显示到中高阶。真正的成长，往往是从承认自己不完美开始的。";
+const LIE_NOTE = "你的回答里有几处“完美答案”，比如从不发脾气、对每个人都一样友善。荣格把这叫作“人格面具”：我们太想成为理想中的自己，反而看不见真实的自己。所以这次结果最高显示到中高阶。成长，往往是从摘下面具、承认自己不完美开始的。";
 
 const CARE_NOTE = "你提到常常觉得很多事情没什么意义。这种感觉很多人都经历过，它不是缺点，也不代表你“阶段低”。如果它持续了很久、让你很累，和信任的人聊聊，或者打 12356（全国统一心理援助热线），会有人认真听你说。";
 
@@ -486,6 +509,7 @@ const DIM_TIPS = {
   open:"每天留意一个身边人的情绪或需要，哪怕只是一句“你今天看起来有点累”。",
   balance:"每周刻意做一件“不像你”的小事，练习你不擅长的那一面。",
   growth:"选一个最小的改变，坚持 21 天，比列十个计划更有用。",
+  shadow:"下次特别讨厌某个人的时候，问问自己：他身上的什么，让我这么在意？",
 };
 
 // ---------- 状态 ----------
@@ -665,13 +689,17 @@ function compute(answers){
   });
   const to100 = v => Math.round(Math.max(0,Math.min(100,(v-1)/2*100)));
   const modScores=mods.map(m=>m.sw?to100(m.sv/m.sw):null);
-  return {modScores,total:SW?to100(SV/SW):0,lie,care};
+  const roles={};
+  QUESTIONS.forEach((q,i)=>{ if(!q.role) return; const e=itemEstimate(q,answers[i]); if(!e) return;
+    const r=roles[q.role]||(roles[q.role]={sv:0,sw:0}); r.sv+=e.v*e.w; r.sw+=e.w; });
+  const roleScores={}; for(const k in roles) roleScores[k]=to100(roles[k].sv/roles[k].sw);
+  return {modScores,total:SW?to100(SV/SW):0,lie,care,roleScores};
 }
 
 function showResult(ans, time){
   const fromHistory = !!ans;
   if(!fromHistory){ans=answers; saveLast(); clearSave(); answers=new Array(TOTAL).fill(null); cur=0;}
-  const {modScores,total,lie,care}=compute(ans);
+  const {modScores,total,lie,care,roleScores}=compute(ans);
   const faked = lie>=2;
   const d=new Date(time||Date.now()), dateStr=`${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`;
   let si = 0; STAGES.forEach((x,i)=>{ if(total>=x.min) si=i; });
@@ -731,15 +759,21 @@ function showResult(ans, time){
       </div>
       ${faked?`<div class="card soft"><h3>一个小发现</h3><p>${LIE_NOTE}</p></div>`:""}
       ${care?`<div class="card soft"><h3>想对你说</h3><p>${CARE_NOTE}</p></div>`:""}
+      ${TYPE&&STACKS[TYPE]&&roleScores.inf!=null?(()=>{const st4=STACKS[TYPE], inf=st4[3], sc=roleScores.inf;
+        const lvl = sc>=70?"发展得不错":sc>=45?"正在发展中":"还在起步阶段";
+        return `<div class="card"><h3>你的认知功能</h3>
+        <p class="fnstack">${st4.map((f,i)=>`<span class="fn${i===3?" inf":""}">${f}<small>${["主导","辅助","第三","劣势"][i]}</small></span>`).join("")}</p>
+        <p>你的劣势功能是<b>${FN_NAME[inf]}（${inf}）</b>，也就是“${FN_DESC[inf]}”的能力。在你身上，它<b>${lvl}</b>。</p>
+        <p class="muted-p">荣格认为，劣势功能是一个人最难、也最有成长空间的地方：压力大时它最容易失控，而随着成熟，它会慢慢变成新的力量。</p></div>`;})():""}
       <div class="card"><h3>七个方面</h3>${rows}
         <p class="row-note" style="margin-top:12px">你最成熟的一面是「${MODULES[strong.i].name}」。</p>
       </div>
-      ${weak.length?`<div class="card soft"><h3>下一步可以练习</h3>${weak.map(w=>`<p><b>${MODULES[w.i].name}：</b>${DIM_TIPS[MODULES[w.i].key]}</p>`).join("")}</div>`:""}
+      ${weak.length?`<div class="card soft"><h3>下一步可以练习</h3>${weak.map(w=>{const k=MODULES[w.i].key; const tip=(k==="balance"&&TYPE&&STACKS[TYPE])?`多练习你的劣势功能${FN_NAME[STACKS[TYPE][3]]}，比如：“${FN_ITEMS[STACKS[TYPE][3]][0]}”。每周刻意做一次，哪怕很小。`:DIM_TIPS[k]; return `<p><b>${MODULES[w.i].name}：</b>${tip}</p>`;}).join("")}</div>`:""}
       <div class="brand">test.spelloapp.com/jieduan</div>
     </div>
     <button class="btn" id="saveBtn" style="margin-top:24px">保存结果图片</button>
     <button class="btn ghost" id="againBtn">重新测一次</button>
-    <p class="foot">本测试仅供娱乐和自我觉察参考，不构成专业的心理评估。<br>人格不是标签，成长才是重点。</p>
+    <p class="foot">本测试仅供娱乐和自我觉察参考，不构成专业的心理评估。<br>荣格认为成长是一生的过程，这里的阶段只是你此刻的位置。</p>
     <button class="legal-link" onclick="showLegal()">使用说明 · 隐私 · 免责声明</button>
   </div>`;
   $("homeBtn2").onclick=goHome;
