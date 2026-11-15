@@ -491,11 +491,12 @@ async function saveImage(){
     document.body.appendChild(holder);
     const bg=getComputedStyle(document.body).backgroundColor;
     let canvas;
-    try{ canvas = await html2canvas(holder,{backgroundColor:bg,scale:3,useCORS:true,windowWidth:420,x:0,y:0}); }
+    try{ canvas = await html2canvas(holder,{backgroundColor:bg,scale:2.5,useCORS:true,windowWidth:420,x:0,y:0}); }
     finally{ holder.remove(); }
-    const url = canvas.toDataURL("image/png");
-    const blob = await new Promise(r=>canvas.toBlob(r,"image/png"));
-    const file = blob && new File([blob],"该结婚还是分手-结果.png",{type:"image/png"});
+    const url = canvas.toDataURL("image/jpeg",0.92);
+    const blob = await new Promise(r=>canvas.toBlob(r,"image/jpeg",0.92));
+    const file = blob && new File([blob],"该结婚还是分手-结果.jpg",{type:"image/jpeg"});
+    const inApp = /MicroMessenger|xhsdiscover|XiaoHongShu|Weibo|QQ\/|DingTalk|aweme|Lark/i.test(navigator.userAgent);
     const desktop = window.matchMedia("(hover:hover)").matches;
     const canShare = !desktop && file && navigator.canShare && navigator.canShare({files:[file]});
 
@@ -503,7 +504,7 @@ async function saveImage(){
     ov.innerHTML=`
       <div class="ov-top">
         <b>${desktop?"图片已下载":canShare?"点下方按钮保存到相册":"长按图片 → 保存图片"}</b>
-        <span>${desktop?"在下载文件夹里可以找到":canShare?"在弹出的菜单里选「存储图像」或「保存图片」":"图片还没有保存，记得长按哦"}</span>
+        <span>${desktop?"在下载文件夹里可以找到":canShare?"在弹出的菜单里选「存储图像」或「保存图片」":inApp?"长按没反应的话：点右上角「…」选择在浏览器打开，或者直接截图":"图片还没有保存，记得长按哦；不行的话直接截图也可以"}</span>
       </div>
       <div class="ov-img"><img src="${url}" alt="测试结果"></div>
       <div class="ov-bar">
@@ -517,7 +518,7 @@ async function saveImage(){
       catch(e){ if(e && e.name!=="AbortError") ov.querySelector(".ov-top span").textContent="没成功的话，长按图片也可以保存"; }
     };
     document.body.appendChild(ov);
-    if(desktop){ const a=document.createElement("a"); a.href=url; a.download="该结婚还是分手-结果.png"; a.click(); }
+    if(desktop){ const a=document.createElement("a"); a.href=url; a.download="该结婚还是分手-结果.jpg"; a.click(); }
   }catch(e){
     alert("生成图片失败，可以直接截图保存哦");
   }finally{btn.textContent=old;btn.disabled=false;}

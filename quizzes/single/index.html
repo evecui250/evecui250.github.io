@@ -242,11 +242,11 @@ const RAW = [
     ["在亲密关系里，我常担心失去自我",-1],
     ["一段感情结束后，我还是会期待下一段",1],
   ]},
-  { name:"独处能力", key:"solo", qs:[
-    ["一个人吃饭、看电影、旅行，我很享受",-1],
-    ["我的兴趣爱好和朋友圈子很丰富，生活很满",-1],
-    ["想到老了以后一个人生活，我会害怕",1],
-    ["生活琐事（修东西、看病、搬家），我一个人完全搞得定",-1],
+  { name:"独处偏好", key:"solo", qs:[
+    ["一个人吃饭、看电影、旅行，比和别人一起更让我自在",-1],
+    ["我的生活已经很充实，不太需要另一个人来填满",-1],
+    ["我希望老了以后，身边有一个人陪我一起变老",1],
+    ["就算我一个人什么都搞得定，我还是希望有人和我一起分担",1],
     ["就算一直一个人过下去，我的生活依然完整",-1],
   ]},
   { name:"婚姻动机", key:"motive", qs:[
@@ -270,7 +270,7 @@ const MOD_NOTES = {
   flex:    ["你很能包容和让步，这是长期关系里非常珍贵的能力。","你会妥协，但有自己的原则，这是健康的状态。","你很清楚自己要什么，不轻易为别人改变。好处是不委屈自己，代价是磨合会比较难。"],
   commit:  ["你向往长久、稳定的承诺，也愿意为此承担责任。","你愿意承担，但对“一辈子”还有些保留。","你对长期承诺比较谨慎，更看重当下的自在。"],
   emotion: ["你在亲密关系里比较有安全感，也愿意沟通，这让你容易经营好一段关系。","你在亲密关系里有一些不安或回避的时候，大多数人都是这样，可以慢慢练习。","在亲密关系里，你更习惯自己消化情绪、保持距离，一个人时你会更放松。"],
-  solo:    ["你不太享受独处，有人在身边会让生活更完整。","你一个人也能过好，但有人分享会更好。","你的独处能力很强，一个人的生活已经很丰富、很完整。"],
+  solo:    ["你也许一个人什么都能扛，但你更想要两个人一起生活。独立又愿意亲密的人，往往是很好的伴侣。","你一个人也能过好，但有人分享会更好。","你在独处里最自在，一个人的生活对你来说已经很完整。"],
   motive:  ["你对婚姻有真实的向往，而不只是因为外界的期待。","你对婚姻的态度是开放的，也带着一些现实的考量。","对你来说，婚姻不是人生的必选项。"],
 };
 
@@ -282,7 +282,7 @@ const TIERS = [
   { min:42, title:"自由切换型", color:"var(--mid)",
     text:["结婚或者一个人，你都能过得很好。你既享受陪伴，也享受独处。","对你来说，关键不是“要不要结婚”，而是“遇没遇到对的人”。遇到了就好好在一起，没遇到也不必将就。"] },
   { min:22, title:"自在的独行者", color:"var(--teal)",
-    text:["你很享受一个人的自由，独处对你来说是充电，不是孤单。","你不是不能结婚，而是只有遇到一个非常合拍、懂得给你空间的人，婚姻才会让你更好。在那之前，好好经营自己的生活就很好。"] },
+    text:["你很享受一个人的自由，独处对你来说是充电，不是孤单。会照顾自己从来不是不适合婚姻的理由，只是你对婚姻的要求更高。","你不是不能结婚，而是只有遇到一个非常合拍、懂得给你空间的人，婚姻才会让你更好。在那之前，好好经营自己的生活就很好。"] },
   { min:0, title:"自由的灵魂", color:"var(--teal)",
     text:["你的生活已经很完整，一个人过是你最舒服的状态。","这不是缺点，也不需要被“治好”。如果有一天你想结婚，那一定是因为遇到了让你心甘情愿的人，而不是因为到了某个年龄。"] },
 ];
@@ -504,11 +504,12 @@ async function saveImage(){
     document.body.appendChild(holder);
     const bg=getComputedStyle(document.body).backgroundColor;
     let canvas;
-    try{ canvas = await html2canvas(holder,{backgroundColor:bg,scale:3,useCORS:true,windowWidth:420,x:0,y:0}); }
+    try{ canvas = await html2canvas(holder,{backgroundColor:bg,scale:2.5,useCORS:true,windowWidth:420,x:0,y:0}); }
     finally{ holder.remove(); }
-    const url = canvas.toDataURL("image/png");
-    const blob = await new Promise(r=>canvas.toBlob(r,"image/png"));
-    const file = blob && new File([blob],"适合结婚还是一个人-结果.png",{type:"image/png"});
+    const url = canvas.toDataURL("image/jpeg",0.92);
+    const blob = await new Promise(r=>canvas.toBlob(r,"image/jpeg",0.92));
+    const file = blob && new File([blob],"适合结婚还是一个人-结果.jpg",{type:"image/jpeg"});
+    const inApp = /MicroMessenger|xhsdiscover|XiaoHongShu|Weibo|QQ\/|DingTalk|aweme|Lark/i.test(navigator.userAgent);
     const desktop = window.matchMedia("(hover:hover)").matches;
     const canShare = !desktop && file && navigator.canShare && navigator.canShare({files:[file]});
 
@@ -516,7 +517,7 @@ async function saveImage(){
     ov.innerHTML=`
       <div class="ov-top">
         <b>${desktop?"图片已下载":canShare?"点下方按钮保存到相册":"长按图片 → 保存图片"}</b>
-        <span>${desktop?"在下载文件夹里可以找到":canShare?"在弹出的菜单里选「存储图像」或「保存图片」":"图片还没有保存，记得长按哦"}</span>
+        <span>${desktop?"在下载文件夹里可以找到":canShare?"在弹出的菜单里选「存储图像」或「保存图片」":inApp?"长按没反应的话：点右上角「…」选择在浏览器打开，或者直接截图":"图片还没有保存，记得长按哦；不行的话直接截图也可以"}</span>
       </div>
       <div class="ov-img"><img src="${url}" alt="测试结果"></div>
       <div class="ov-bar">
@@ -530,7 +531,7 @@ async function saveImage(){
       catch(e){ if(e && e.name!=="AbortError") ov.querySelector(".ov-top span").textContent="没成功的话，长按图片也可以保存"; }
     };
     document.body.appendChild(ov);
-    if(desktop){ const a=document.createElement("a"); a.href=url; a.download="适合结婚还是一个人-结果.png"; a.click(); }
+    if(desktop){ const a=document.createElement("a"); a.href=url; a.download="适合结婚还是一个人-结果.jpg"; a.click(); }
   }catch(e){
     alert("生成图片失败，可以直接截图保存哦");
   }finally{btn.textContent=old;btn.disabled=false;}
