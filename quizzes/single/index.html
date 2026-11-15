@@ -378,6 +378,13 @@ function deviceId(){
     return d;
   }catch(e){ return "nostorage-"+Math.random().toString(36).slice(2); }
 }
+// 通用码直接在本机验证（只存指纹，不存原码）；换码时更新这里
+const LOCAL_CODES = ["14b16032d7272f2b8726f4da6a3ef510ca67b78fbd979083c3f642a180fe27c5"];
+async function localCheck(code){
+  try{ const b=await crypto.subtle.digest("SHA-256", new TextEncoder().encode("spello:"+code));
+    const h=[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+    return LOCAL_CODES.includes(h); }catch(e){ return null; }
+}
 function isUnlocked(){ try{ return !!localStorage.getItem(UNLOCK_KEY); }catch(e){ return false; } }
 function setUnlocked(code){ try{ localStorage.setItem(UNLOCK_KEY, code); }catch(e){} }
 function applyGate(){
@@ -402,13 +409,20 @@ $("redeemBtn").onclick=async()=>{
   const msg=$("gateMsg"), btn=$("redeemBtn");
   if(!code){ msg.textContent="请先输入兑换码"; return; }
   btn.disabled=true; btn.textContent="验证中…"; msg.textContent="";
+  const lc=await localCheck(code);
+  if(lc===true){
+    btn.disabled=false; btn.textContent="验证并开始";
+    setUnlocked(code); applyGate(); start(true);
+    callRedeem(code).catch(()=>{});   // 后台记一次使用，失败不影响
+    return;
+  }
   let res=null;
   for(let i=0;i<3 && res===null;i++){ try{ res=await callRedeem(code, i===1); }catch(e){ await new Promise(r=>setTimeout(r,600)); } }
   btn.disabled=false; btn.textContent="验证并开始";
   if(res==="ok"){ setUnlocked(code); applyGate(); start(true); }
   else if(res==="used") msg.textContent="这个兑换码已经在其他手机上使用过了";
   else if(res==="invalid") msg.textContent="兑换码不对，请检查一下（注意区分字母和数字）";
-  else msg.textContent="网络不太好，请稍后再试；一直不行的话请联系客服";
+  else msg.textContent = lc===false ? "兑换码不对，请检查一下（注意区分字母和数字）" : "网络不太好，请稍后再试；一直不行的话请联系客服";
 };
 $("codeInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("redeemBtn").click(); });
 $("resumeBtn").onclick=()=>start(false);
