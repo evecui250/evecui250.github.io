@@ -776,14 +776,14 @@ function showResult(ans, time){
         <div class="st-track"><i style="width:${pos}%"></i></div>
         <div class="st-labels">${STAGES.map((x,i)=>`<span class="${i===si?"on":""}">${x.name}</span>`).join("")}</div>
       </div>
-      ${T?`<div class="card"><h3>这个阶段的你，可能会……</h3><ul class="pts">${T.st[st.t].i.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+      ${T?`<div class="card"><h3>这个阶段的你，可能会……</h3><ul class="pts">${T.st[st.t].i.map(x=>`<li>${x}</li>`).join("")}</ul>
+        <div class="no-img" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><p>${st.text}</p>
+        ${st.t<2?`<p class="muted-p">再往前一步，你会成为「${T.st[st.t+1].t}」：${T.st[st.t+1].i[0]}</p>`:""}</div></div>
       <div class="card duo">
         <div><h4>你的天赋</h4><p>${T.gift}</p></div>
         <div><h4>压力下的你</h4><p>${T.stress}</p></div>
       </div>`:""}
-      <div class="card no-img"><h3>你现在在哪一步</h3><p>${st.text}</p>
-        ${st.t<2&&T?`<p class="muted-p">再往前一步，你会成为「${T.st[st.t+1].t}」：${T.st[st.t+1].i[0]}</p>`:""}
-      </div>
+      ${T?"":`<div class="card no-img"><p>${st.text}</p></div>`}
       ${faked?`<div class="card soft no-img"><h3>一个小发现</h3><p>${LIE_NOTE}</p></div>`:""}
       ${care?`<div class="card soft no-img"><h3>想对你说</h3><p>${CARE_NOTE}</p></div>`:""}
       ${TYPE&&STACKS[TYPE]&&roleScores.inf!=null?(()=>{const st4=STACKS[TYPE], inf=st4[3], sc=roleScores.inf;
