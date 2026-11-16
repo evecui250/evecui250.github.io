@@ -552,7 +552,22 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify({answers,order,cur,t
 function load(){try{return JSON.parse(localStorage.getItem(KEY));}catch(e){return null;}}
 function clearSave(){try{localStorage.removeItem(KEY);}catch(e){}}
 const LAST_KEY = "stage-quiz-last-v1";
-function saveLast(){try{localStorage.setItem(LAST_KEY,JSON.stringify({answers,time:Date.now(),type:TYPE}));}catch(e){}}
+function saveLast(){try{
+  // 按题目文字保存答案，以后改题、删题也能还原大部分结果
+  const items=QUESTIONS.map((q,i)=>[q.q, q.kind==="choice"?(q.o[answers[i]]||[])[0]:answers[i]]);
+  localStorage.setItem(LAST_KEY,JSON.stringify({answers,items,time:Date.now(),type:TYPE}));}catch(e){}}
+function restoreLast(l){
+  setType(l.type);
+  if(!l.items) return l.answers.length===TOTAL ? l.answers : null;   // 旧格式：题目没变才能还原
+  const m=new Map(l.items);
+  return QUESTIONS.map(q=>{
+    const v=m.get(q.q);
+    if(q.kind==="likert") return (typeof v==="number")?v:2;
+    let k=q.o.findIndex(o=>o[0]===v);
+    if(k<0){ const ok=q.o.map((o,i)=>[o[1],i]).filter(x=>x[0]!=null).sort((a,b)=>a[0]-b[0]); k=ok[Math.floor(ok.length/2)][1]; }
+    return k;
+  });
+}
 function loadLast(){try{const l=JSON.parse(localStorage.getItem(LAST_KEY));return (l&&Array.isArray(l.answers)&&l.answers.every(a=>a!==null))?l:null;}catch(e){return null;}}
 
 const $ = id=>document.getElementById(id);
@@ -699,7 +714,9 @@ $("redeemBtn").onclick=async()=>{
 };
 $("codeInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("redeemBtn").click(); });
 $("resumeBtn").onclick=()=>start(false);
-$("lastBtn").onclick=()=>{const l=loadLast(); if(!l) return; setType(l.type); if(l.answers.length!==TOTAL) return; showResult(l.answers, l.time);};
+$("lastBtn").onclick=()=>{const l=loadLast(); if(!l) return; const a=restoreLast(l);
+  if(!a){ $("lastBtn").textContent="题目更新过，上次的结果无法显示了，可以重新测一次"; $("lastBtn").disabled=true; return; }
+  showResult(a, l.time);};
 
 // ---------- 计算结果 ----------
 function compute(answers){
