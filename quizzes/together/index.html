@@ -56,6 +56,21 @@
   .opt.na{color:var(--muted);border-style:dashed}
   .opt:active{transform:scale(.99)}
   .opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+  .q.stmt{font-size:20px;margin:18px 0 34px;min-height:90px}
+  .likert{display:flex;flex-direction:row-reverse;justify-content:space-between;align-items:stretch;gap:4px}
+  .lk{flex:1;background:none;display:grid;grid-template-rows:56px auto;justify-items:center;align-items:center;row-gap:6px;padding:4px 0}
+  .lk i{display:block;border-radius:50%;border:2.5px solid;transition:background .15s,transform .15s}
+  .lk span{font-size:12px;color:var(--muted);white-space:nowrap}
+  .lk0 i{width:50px;height:50px;border-color:#d0657a}
+  .lk1 i{width:40px;height:40px;border-color:#e0939f}
+  .lk2 i{width:32px;height:32px;border-color:#c4b6b8}
+  .lk3 i{width:40px;height:40px;border-color:#a9abc0}
+  .lk4 i{width:50px;height:50px;border-color:#8d8fa8}
+  .lk0.sel i{background:#d0657a} .lk1.sel i{background:#e0939f} .lk2.sel i{background:#c4b6b8} .lk3.sel i{background:#a9abc0} .lk4.sel i{background:#8d8fa8}
+  .lk.sel span{color:var(--ink);font-weight:600}
+  .lk:active i{transform:scale(.92)}
+  @media (hover:hover){.lk:hover i{transform:scale(1.06)}}
+  .unk{display:block;margin:34px auto 0;width:auto;padding:9px 26px;font-size:14px;text-align:center}
   @media (hover:hover){.opt:hover{border-color:#ecbcc5}}
 
   /* result */
@@ -132,7 +147,7 @@
     <h1 class="serif">我们会<br><em>在一起</em>吗？</h1>
     <p class="lead">TA 喜不喜欢我？我们有没有可能？<br>算一算你们在一起的概率。</p>
     <div class="pie" id="pie"></div>
-    <div class="note">24 道题，约 5 分钟，拿不准可以选「不清楚」。<br>按真实情况选，答案只留在你的手机上。</div>
+    <div class="note">25 道题，约 5 分钟，拿不准可以选「不清楚」。<br>按真实情况选，答案只留在你的手机上。</div>
     <div id="gate" class="gate hidden">
       <input id="codeInput" class="code-input" placeholder="输入兑换码" autocomplete="off" autocapitalize="characters" spellcheck="false">
       <button class="btn" id="redeemBtn">验证并开始</button>
@@ -164,62 +179,51 @@
 <script>
 // ---------- 题库 ----------
 // 选项按从理想到不理想排列；[文字, 分数 0-4 或 null(不适用，不计分), 红线说明(可选)]
+// 量表题：L(标签, 题目, 方向 1=符合越多越好 / -1=符合越多越差, 能否选“不清楚”)
+const LIKERT = ["很符合","比较符合","一般","不太符合","很不符合"];
+const L = (tag,q,k=1,u=false)=>({kind:"likert", tag, q, u,
+  o:[...LIKERT.map((l,a)=>[l, k===1?4-a:a]), ...(u?[["不清楚",null]]:[])]});
+// 程度题：五个圈，自定义标签（从高到低）
+const S = (tag,q,labels)=>({kind:"likert", tag, q, u:false, o:labels.map((l,a)=>[l,4-a])});
+const C = (tag,q,o)=>({kind:"choice", tag, q, o});
+
 const MODULES = [
   { name:"TA的信号", key:"signal", qs:[
-    { tag:"好感表示", q:"TA 有没有表现出对你的好感？", o:[
-      ["很明显，我几乎能确定",4],["有一些，但说不准",3],["偶尔有，也可能是我想多了",2],["没感觉到",1],["TA 好像在刻意和我保持距离",0]]},
-    { tag:"暧昧程度", q:"给你们现在的暧昧程度打个分", o:[
-      ["已经像在谈恋爱了，就差一句话",4],["很暧昧，彼此心照不宣",3],["有一点暧昧，偶尔会心动",2],["聊得来，但没越过朋友的界线",1],["就是普通朋友或同事",0]]},
-    { tag:"联系频率", q:"最近两周，你们大概联系多少次？", o:[
-      ["几乎每天都聊",4],["每周好几次",3],["每周一两次",2],["两周才一两次",1],["基本没联系",0]]},
-    { tag:"谁更主动", q:"平时通常是谁先找谁？", o:[
-      ["TA 主动得多",4],["差不多",3],["我主动多一些",2],["几乎都是我",1]]},
-    { tag:"回消息", q:"TA 回你消息的情况？", o:[
-      ["回得快，也很用心",4],["有时快有时慢，但都会认真回",3],["回得慢，或者有点敷衍",1],["经常不回",0]]},
-    { tag:"单独见面", q:"最近一个月，你们单独见面几次？", o:[
-      ["4 次以上",4],["2–3 次",3],["1 次",2],["没有单独见过",1],["我们不在一个城市，暂时见不了",null,null,"skip"]]},
-    { tag:"肢体接触", q:"你们之间有肢体接触吗？", o:[
-      ["有，很明确（牵手、拥抱等）",4],["有一点暧昧的接触",3],["只有不经意的碰到",2],["没有",1]]},
-    { tag:"礼物和帮忙", q:"TA 送过你礼物，或者特意帮过你的忙吗？", o:[
-      ["经常，而且很用心",4],["有过几次",3],["偶尔一次",2],["没有",1]]},
-    { tag:"记得小事", q:"你说过的小事，TA 会记得吗？", o:[
-      ["经常记得，还会提起",4],["偶尔记得",3],["很少记得",1],["不清楚",null]]},
-    { tag:"在意你身边的人", q:"你提到别的异性时，TA 的反应？", o:[
-      ["明显在意，会追问",4],["有一点在意",3],["没什么反应",1],["还没提过",null,null,"skip"]]},
-    { tag:"相处时的状态", q:"和你在一起时，TA 看起来？", o:[
-      ["很放松，也很开心",4],["还不错",3],["有点拘谨，或心不在焉",1],["说不好",null]]},
+    L("好感表示","TA 对我有明显的好感表现"),
+    S("暧昧程度","给你们现在的暧昧程度打个分",["像在恋爱","很暧昧","有点暧昧","好朋友","普通朋友"]),
+    L("联系频率","我们几乎每天都会聊天"),
+    L("谁更主动","大多数时候，是 TA 先来找我"),
+    L("回消息","TA 回我消息很快，也很用心"),
+    C("单独见面","最近一个月，你们单独见过几次面？",[
+      ["3 次以上",4],["1–2 次",2.5],["没有单独见过",1],["不在一个城市，暂时见不了",null,null,"skip"]]),
+    L("肢体接触","我们之间有过有点暧昧的肢体接触"),
+    L("记得小事","TA 会记得我说过的小事",1,true),
+    L("礼物和帮忙","TA 送过我礼物，或者特意帮过我的忙"),
+    L("在意你身边的人","我提到别的异性时，TA 会明显在意",1,true),
+    L("相处时的状态","和我在一起时，TA 看起来很放松、很开心",1,true),
   ]},
   { name:"现实条件", key:"reality", qs:[
-    { tag:"TA是否单身", q:"TA 现在单身吗？", o:[
-      ["单身",4],["不清楚",null],["有对象",0,"taken"]]},
-    { tag:"TA喜欢的性别", q:"TA 喜欢的性别包括你吗？", o:[
-      ["包括",4],["不清楚",null],["不包括",0,"orient"]]},
-    { tag:"TA单身多久", q:"TA 单身多久了？", o:[
-      ["3 个月到 1 年",4],["1 到 5 年",3],["刚分手不到 3 个月",1],["5 年以上",1],["从没谈过恋爱",1],["不清楚",null]]},
-    { tag:"TA在接触别人吗", q:"TA 最近有没有在接触别人？", o:[
-      ["好像没有",4],["好像在和别人暧昧",1],["明确在约会别人",0],["不清楚",null]]},
-    { tag:"未来一年是否异地", q:"未来一年，你们会在同一个城市吗？", o:[
-      ["会，一直在同一个城市",4],["现在异地，但很快会到一起",3],["现在同城，但可能会分开",2],["异地，而且没有到一起的打算",1],["不清楚",null]]},
-    { tag:"未来规划", q:"你们对未来的规划（城市、工作、生活方式）合得上吗？", o:[
-      ["很合得上",4],["大体合得上",3],["有明显分歧",1],["还不了解",null]]},
+    C("TA是否单身","TA 现在单身吗？",[["单身",4],["有对象",0,"taken"],["不清楚",null]]),
+    C("TA喜欢的性别","TA 喜欢的性别包括你吗？",[["包括",4],["不包括",0,"orient"],["不清楚",null]]),
+    C("TA单身多久","TA 单身多久了？",[
+      ["3 个月到 5 年",4],["刚分手，不到 3 个月",1],["5 年以上，或从没谈过",1],["不清楚",null]]),
+    L("TA在接触别人吗","TA 最近好像在和别人暧昧或约会",-1,true),
+    C("未来一年是否异地","未来一年，你们会在同一个城市吗？",[
+      ["会，一直在同一个城市",4],["现在异地，但很快会到一起",3],["会异地，或者可能分开",1],["不清楚",null]]),
+    L("未来规划","我们对未来的规划（城市、工作、生活方式）比较合得上",1,true),
+    L("共同话题","我们有很多共同话题或共同爱好"),
   ]},
   { name:"你这边", key:"you", qs:[
-    { tag:"你有多喜欢TA", q:"你有多喜欢 TA？", o:[
-      ["非常喜欢，认定了",4],["很喜欢",3],["有好感，还在观察",2],["说不清",1]]},
-    { tag:"你表达过吗", q:"你有没有向 TA 表达过好感？", o:[
-      ["暗示过，TA 接住了",4],["表白过，TA 说要想一想",3],["还没表达过",2],["暗示过，TA 装作没看见",1],["表白过，被拒绝了",0,"rejected"]]},
-    { tag:"你的感情经历", q:"你自己的感情经历？", o:[
-      ["谈过几段，比较有经验",4],["谈过一两段",3],["还没谈过（母单）",1]]},
-    { tag:"认识多久", q:"你们认识多久了？", o:[
-      ["半年到三年",4],["一到六个月",3],["不到一个月",2],["三年以上的老朋友",2]]},
+    L("你有多喜欢TA","我非常喜欢 TA"),
+    C("你表达过吗","你有没有向 TA 表达过好感？",[
+      ["表达过，TA 有回应",4],["还没表达过",2],["表达过，TA 没什么回应",1],["明确被拒绝过",0,"rejected"]]),
+    C("你的感情经历","你自己的感情经历？",[["谈过几段",4],["谈过一两段",3],["还没谈过（母单）",1]]),
+    C("认识多久","你们认识多久了？",[["不到 1 个月",2],["1–6 个月",3],["半年到 3 年",4],["3 年以上的老朋友",2]]),
   ]},
   { name:"TA的状态", key:"ta", qs:[
-    { tag:"忽冷忽热", q:"TA 对你会忽冷忽热吗？", o:[
-      ["一直比较稳定",4],["偶尔",3],["经常",1],["说不好",null]]},
-    { tag:"靠近时的反应", q:"你们关系往前走一步时（多聊一点、多见一次），TA？", o:[
-      ["会顺着往前走",4],["有点犹豫，但没有退",3],["每次靠近，TA 就往后退",0],["还没试过",null]]},
-    { tag:"TA对恋爱的态度", q:"TA 对谈恋爱的态度？", o:[
-      ["想认真谈一段",4],["随缘",3],["说过现在不想谈恋爱",0],["不清楚",null]]},
+    L("忽冷忽热","TA 对我会忽冷忽热",-1,true),
+    L("靠近时的反应","我们的关系一往前走，TA 就会往后退",-1,true),
+    L("TA对恋爱的态度","TA 看起来想认真谈一段恋爱",1,true),
   ]},
 ];
 
@@ -305,18 +309,27 @@ function render(){
   $("bar").style.width=`${cur/TOTAL*100}%`;
   $("backBtn").disabled = cur===0;
   const box=$("qbox");
-  box.innerHTML=`<div class="fade">
-    <p class="q">${q.q}</p>
-    <div class="opts">${q.o.map((o,oi)=>`<button class="opt${o[1]===null?" na":""}${answers[qi]===oi?" sel":""}" data-i="${oi}">${o[0]}</button>`).join("")}</div>
-  </div>`;
-  box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pick(+b.dataset.i,b));
+  if(q.kind==="likert"){
+    const sc=q.o.slice(0,5);
+    box.innerHTML=`<div class="fade">
+      <p class="q stmt">${q.q}</p>
+      <div class="likert">${sc.map((o,oi)=>`<button class="lk lk${oi}${answers[qi]===oi?" sel":""}" data-i="${oi}" aria-label="${o[0]}"><i></i><span>${o[0]}</span></button>`).join("")}</div>
+      ${q.o[5]?`<button class="opt na unk${answers[qi]===5?" sel":""}" data-i="5">不清楚</button>`:""}
+    </div>`;
+  } else {
+    box.innerHTML=`<div class="fade">
+      <p class="q">${q.q}</p>
+      <div class="opts">${q.o.map((o,oi)=>`<button class="opt${o[1]===null?" na":""}${answers[qi]===oi?" sel":""}" data-i="${oi}">${o[0]}</button>`).join("")}</div>
+    </div>`;
+  }
+  box.querySelectorAll(".opt,.lk").forEach(b=>b.onclick=()=>pick(+b.dataset.i,b));
 }
 
 let locked=false;
 function pick(i,btn){
   if(locked) return; locked=true;
   answers[order[cur]]=i; save();
-  document.querySelectorAll(".opt").forEach(b=>b.classList.remove("sel")); btn.classList.add("sel");
+  document.querySelectorAll(".opt,.lk").forEach(b=>b.classList.remove("sel")); btn.classList.add("sel");
   setTimeout(()=>{
     locked=false;
     if(cur<TOTAL-1){cur++;save();render();}
