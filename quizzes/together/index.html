@@ -19,7 +19,9 @@
   h1{font-size:34px;line-height:1.25;margin:48px 0 12px;letter-spacing:1px}
   h1 em{font-style:normal;color:var(--accent)}
   .lead{color:var(--muted);font-size:15px;margin:0 0 28px}
-  .pie{width:100%;max-width:340px;margin:4px auto 22px}
+  .pie{width:100%;max-width:400px;margin:0 auto 18px}
+  .r-img{display:block;width:62%;max-width:240px;margin:0 auto 12px}
+  .share-img .r-img{width:58%}
   .pie svg{animation:fade .6s ease}
   .hb{transform-origin:170px 92px;animation:beat 1.6s ease-in-out infinite}
   @keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.12)}30%{transform:scale(1)}45%{transform:scale(1.08)}}
@@ -228,15 +230,15 @@ const MOD_NOTES = {
 };
 
 const TIERS = [
-  { min:85, title:"别测了，快去表白 💌", color:"var(--good)",
+  { min:85, img:"s0", title:"别测了，快去表白 💌", color:"var(--good)",
     text:["几乎所有信号都指向同一个答案：TA 很可能也喜欢你。","这种时候最怕的不是被拒绝，而是两个人都在等对方先开口。找一个轻松的时机，把话说出来吧。"] },
-  { min:70, title:"很有戏，再推一把", color:"var(--good)",
+  { min:70, img:"b0", title:"很有戏，再推一把", color:"var(--good)",
     text:["你们之间有真实的火花，TA 对你也不是没感觉。","现在缺的可能只是一个契机：多约几次单独见面，或者把暗示说得更明白一点。看 TA 接不接，答案就清楚了。"] },
-  { min:50, title:"有好感，但还差点火候", color:"var(--mid)",
+  { min:50, img:"s1", title:"有好感，但还差点火候", color:"var(--mid)",
     text:["TA 对你有好感，但还没到非你不可。也可能 TA 也在观察你。","别急着表白，先把关系往前推一点：多一些单独相处，聊一些更私人的话题。如果 TA 愿意接住，再往前走。"] },
-  { min:30, title:"目前更像朋友", color:"var(--bad)",
+  { min:30, img:"b1", title:"目前更像朋友", color:"var(--bad)",
     text:["从现在的情况看，TA 更像把你当成朋友。不是你不好，只是 TA 还没往那个方向想，或者有自己的原因。","可以试着创造一点不一样的相处，但也别把所有希望都押在 TA 身上。你的心意值得被认真回应。"] },
-  { min:0, title:"先把心收一收，照顾好自己", color:"var(--bad)",
+  { min:0, img:"b2", title:"先把心收一收，照顾好自己", color:"var(--bad)",
     text:["这次的结果可能不是你想听的：TA 给出的信号很少，现实阻碍也不小。","喜欢一个人没有错，但单方面的付出会很累。先把注意力放回自己身上，好好生活。真正合适的人，会让你不用这么猜。"] },
 ];
 
@@ -435,6 +437,7 @@ function showResult(ans, time){
     <div id="card">
       <div class="r-head">
         <div class="r-title serif">我们会在一起吗？</div>
+        <img class="r-img" src="img/${tier.img}.webp" alt="">
         <div class="r-label">在一起的概率 · ${dateStr}</div>
         <div class="score" style="color:${tier.color}">${total}<small> %</small></div>
         <div class="verdict serif" style="color:${tier.color}">${tier.title}</div>
@@ -536,17 +539,7 @@ function showLegal(){
 }
 
 // ---------- 首页插图 ----------
-(function drawHero(){
-  $("pie").innerHTML=`<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="118" cy="96" r="70" fill="#f6c9d1" opacity=".85"/>
-    <circle cx="222" cy="96" r="70" fill="#f4d3b8" opacity=".85"/>
-    <path d="M118 96m-70 0" />
-    <g class="hb"><path d="M170 118 C 150 102, 140 92, 140 80 C 140 70, 148 63, 157 63 C 163 63, 168 67, 170 72 C 172 67, 177 63, 183 63 C 192 63, 200 70, 200 80 C 200 92, 190 102, 170 118 Z" fill="#d0657a"/></g>
-    <text x="80" y="104" text-anchor="middle" font-size="18" font-weight="600" fill="#a24a5c" letter-spacing="2">你</text>
-    <text x="260" y="104" text-anchor="middle" font-size="18" font-weight="600" fill="#b06a3c" letter-spacing="2">TA</text>
-    <text x="170" y="190" text-anchor="middle" font-size="13" fill="#8f7f82" letter-spacing="3">信号 · 现实 · 你 · TA</text>
-  </svg>`;
-})();
+$("pie").innerHTML=`<img src="img/hero.webp" alt="" style="width:100%;display:block">`;
 
 // 有未完成进度时显示“继续”
 (function(){
