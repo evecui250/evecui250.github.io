@@ -728,6 +728,7 @@ function showResult(ans, time){
   const d=new Date(time||Date.now()), dateStr=`${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`;
   let si = 0; STAGES.forEach((x,i)=>{ if(total>=x.min) si=i; });
   if(faked && si===4) si=3;
+  if(window.FORCE_STAGE!=null) si=window.FORCE_STAGE;
   // 不确定类型时，根据类型题估计最可能的类型
   let SHOW=TYPE, cands=null;
   if(!TYPE){
@@ -902,6 +903,42 @@ function showLegal(){
   }
   checkResume();
   applyGate();
+})();
+</script>
+<script>
+// 预览模式：网址加 ?preview=1，可逐个查看每个类型、每个阶段的结果页
+(function(){
+  if(REQUIRE_CODE || !new URLSearchParams(location.search).has("preview")) return;
+  const bar=document.createElement("div");
+  bar.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:999;background:#fff;border-top:1px solid #ddd;padding:8px 10px;font-size:14px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;box-shadow:0 -4px 12px rgba(0,0,0,.08)";
+  const types=Object.keys(TYPES);
+  bar.innerHTML=`<select id="pvT" style="font-size:15px;padding:4px">${types.map(t=>`<option>${t}</option>`).join("")}</select>
+    ${STAGES.map((x,i)=>`<button data-s="${i}" style="font-size:13px;padding:5px 8px;border:1px solid #ccc;border-radius:8px;background:#f6f6f6">${x.name}</button>`).join("")}
+    <button id="pvN" style="font-size:13px;padding:5px 8px;border:1px solid #ccc;border-radius:8px;background:#f6f6f6">下一个 →</button>
+    <span id="pvL" style="color:#888;font-size:12px"></span>`;
+  document.body.appendChild(bar); document.body.style.paddingBottom="90px";
+  let si=4;
+  function render(){
+    const t=document.getElementById("pvT").value;
+    setType(t);
+    const lvl = si<=1?0:si<=3?1:2;
+    const ans = QUESTIONS.map(q=>{
+      if(q.kind==="likert"){ if(q.m==="lie") return 2; return lvl===0?(q.m==="H"?3:1):lvl===1?2:(q.m==="H"?1:3); }
+      const idx=q.o.map((o,k)=>[o[1],k]).filter(x=>x[0]!=null).sort((a,b)=>a[0]-b[0]);
+      return lvl===0?idx[0][1]:lvl===1?idx[Math.floor(idx.length/2)][1]:idx[idx.length-1][1];
+    });
+    window.FORCE_STAGE=si; showResult(ans); window.FORCE_STAGE=null;
+    bar.querySelectorAll("button[data-s]").forEach(b=>b.style.background=(+b.dataset.s===si)?"#ddd":"#f6f6f6");
+    document.getElementById("pvL").textContent="预览模式，不会保存记录"; window.scrollTo(0,0);
+  }
+  bar.addEventListener("click",e=>{
+    const b=e.target.closest("button"); if(!b) return;
+    if(b.id==="pvN"){ const sel=document.getElementById("pvT"); sel.selectedIndex=(sel.selectedIndex+1)%types.length; }
+    else si=+b.dataset.s;
+    render();
+  });
+  document.getElementById("pvT").addEventListener("change",render);
+  render();
 })();
 </script>
 </body>
