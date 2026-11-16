@@ -182,6 +182,8 @@
   .fn{flex:1;text-align:center;padding:8px 0;border-radius:10px;background:var(--accent-soft);font-weight:700;color:var(--accent);font-size:15px}
   .fn small{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}
   .fn.inf{background:var(--accent);color:#fff} .fn.inf small{color:#ffffffcc}
+  .avatar{display:block;height:230px;max-width:80%;object-fit:contain;margin:14px auto 2px}
+  .share-img .avatar{height:250px}
 </style>
 </head>
 <body>
@@ -553,6 +555,8 @@ function loadLast(){try{const l=JSON.parse(localStorage.getItem(LAST_KEY));retur
 const $ = id=>document.getElementById(id);
 function show(id){["intro","pick","quiz","result"].forEach(s=>$(s).classList.toggle("hidden",s!==id));window.scrollTo(0,0);}
 
+// 已有插画的类型（文件：img/类型-1/2/3.webp，分别对应初阶、中阶、高阶）
+const HAS_IMG = new Set(["INFP"]);
 // 结果页主题色：按类型的四大类换颜色
 const THEMES = {
   NT:{bg:"#f5f3f9",accent:"#6b5fa8",soft:"#e8e4f4",line:"#e4e0ee",light:"#c9c2e3",mid:"#9a8fc4",dark:"#3f3577"},
@@ -760,6 +764,7 @@ function showResult(ans, time){
         <div class="r-title serif">16型人格 · 成长阶段</div>
         <div class="r-label">${T?`${SHOW} · ${T.nick}`:"你的成长阶段"} · ${dateStr}</div>
         ${cands&&cands.length?`<div class="r-label" style="margin-top:4px">根据你的回答，你最可能是 ${cands.join(" / ")}</div>`:""}
+        ${T&&HAS_IMG.has(SHOW)?`<img class="avatar" src="img/${SHOW}-${st.t+1}.webp" alt="">`:""}
         <div class="verdict serif big" style="color:${si>=3?"var(--t-dark)":"var(--accent)"}">${T?SHOW+" · ":""}${st.name}</div>
         ${T?`<div class="persona serif">「${T.st[st.t].t}」</div>`:""}
       </div>
