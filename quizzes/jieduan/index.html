@@ -286,7 +286,7 @@ const SHARED = [
     L("我搞砸一件事时，会像安慰朋友一样安慰自己","H"),
     L("别人不认可我时，我依然知道自己是谁","H"),
     L("我常常需要别人的肯定，才觉得自己做得还行","L"),
-    L("比起别人怎么看，我更在意自己有没有活成想要的样子","H"),
+    "SOLO",
   ]},
   { name:"接纳阴暗面", key:"shadow", qs:[
     L("我讨厌的人身上的某些特点，其实我自己也有","H"),
@@ -353,7 +353,10 @@ function toOptions(item){
   return item.o;
 }
 function buildModules(type){
-  const mods = SHARED.map(m=>({name:m.name,key:m.key,qs:m.qs.slice()}));
+  const isI = type && type[0]==="I";
+  const SOLO = isI ? L("我能主动走进人群，和不太熟的人也聊得自在","H")
+                   : L("我能一个人过好几天（比如独自旅行），而且过得很自在","H");
+  const mods = SHARED.map(m=>({name:m.name,key:m.key,qs:m.qs.map(q=>q==="SOLO"?SOLO:q)}));
   let bal;
   if(type && STACKS[type]){
     const [, aux, ter, inf] = STACKS[type];   // 辅助 2 道 + 第三 2 道 + 劣势 4 道（劣势功能是成长的关键）
@@ -498,7 +501,7 @@ const STAGES = [
 
 const LIE_NOTE = "你的回答里有几处“完美答案”，比如从不发脾气、对每个人都一样友善。荣格把这叫作“人格面具”：我们太想成为理想中的自己，反而看不见真实的自己。所以这次结果最高显示到中高阶。成长，往往是从摘下面具、承认自己不完美开始的。";
 
-const CARE_NOTE = "你提到常常觉得很多事情没什么意义。这种感觉很多人都经历过，它不是缺点，也不代表你“阶段低”。如果它持续了很久、让你很累，和信任的人聊聊，或者打 12356（全国统一心理援助热线），会有人认真听你说。";
+const CARE_NOTE = "你提到常常觉得很多事情没什么意义。这种感觉很多人都经历过，它不是缺点，也不代表你“阶段低”。如果它持续了很久、让你很累，不妨找一个信任的好朋友，或者一位心理咨询师聊聊。你不需要一个人扛着。";
 
 const DIM_TIPS = {
   view:"每天睡前写下一件今天让你觉得“还不错”的小事，练习在看清生活之后依然看见它的好。",
@@ -769,22 +772,22 @@ function showResult(ans, time){
         <div><h4>你的天赋</h4><p>${T.gift}</p></div>
         <div><h4>压力下的你</h4><p>${T.stress}</p></div>
       </div>`:""}
-      <div class="card"><p>${st.text}</p>
+      <div class="card no-img"><p>${st.text}</p>
         ${st.t<2&&T?`<p class="muted-p">再往前一步，你会成为「${T.st[st.t+1].t}」：${T.st[st.t+1].i[0]}</p>`:""}
       </div>
-      ${faked?`<div class="card soft"><h3>一个小发现</h3><p>${LIE_NOTE}</p></div>`:""}
-      ${care?`<div class="card soft"><h3>想对你说</h3><p>${CARE_NOTE}</p></div>`:""}
+      ${faked?`<div class="card soft no-img"><h3>一个小发现</h3><p>${LIE_NOTE}</p></div>`:""}
+      ${care?`<div class="card soft no-img"><h3>想对你说</h3><p>${CARE_NOTE}</p></div>`:""}
       ${TYPE&&STACKS[TYPE]&&roleScores.inf!=null?(()=>{const st4=STACKS[TYPE], inf=st4[3], sc=roleScores.inf;
         const lvl = sc>=70?"发展得不错":sc>=45?"正在发展中":"还在起步阶段";
         return `<div class="card"><h3>你的认知功能</h3>
         <p class="fnstack">${st4.map((f,i)=>`<span class="fn${i===3?" inf":""}">${f}<small>${["主导","辅助","第三","劣势"][i]}</small></span>`).join("")}</p>
         <p>你的劣势功能是<b>${FN_NAME[inf]}（${inf}）</b>，也就是“${FN_DESC[inf]}”的能力。在你身上，它<b>${lvl}</b>。</p>
-        <p class="muted-p">荣格认为，劣势功能是一个人最难、也最有成长空间的地方：压力大时它最容易失控，而随着成熟，它会慢慢变成新的力量。</p></div>`;})():""}
+        <p class="muted-p no-img">荣格认为，劣势功能是一个人最难、也最有成长空间的地方：压力大时它最容易失控，而随着成熟，它会慢慢变成新的力量。</p></div>`;})():""}
       <div class="card"><h3>七个方面</h3>${rows}
         <p class="row-note" style="margin-top:12px">你最成熟的一面是「${MODULES[strong.i].name}」。</p>
       </div>
-      ${weak.length?`<div class="card soft"><h3>下一步可以练习</h3>${weak.map(w=>{const k=MODULES[w.i].key; const tip=(k==="balance"&&TYPE&&STACKS[TYPE])?`多练习你的劣势功能${FN_NAME[STACKS[TYPE][3]]}，比如：“${FN_ITEMS[STACKS[TYPE][3]][0]}”。每周刻意做一次，哪怕很小。`:DIM_TIPS[k]; return `<p><b>${MODULES[w.i].name}：</b>${tip}</p>`;}).join("")}</div>`:""}
-      <div class="brand">test.spelloapp.com/jieduan</div>
+      ${weak.length?`<div class="card soft no-img"><h3>下一步可以练习</h3>${weak.map(w=>{const k=MODULES[w.i].key; const tip=(k==="balance"&&TYPE&&STACKS[TYPE])?`多练习你的劣势功能${FN_NAME[STACKS[TYPE][3]]}，比如：“${FN_ITEMS[STACKS[TYPE][3]][0]}”。每周刻意做一次，哪怕很小。`:DIM_TIPS[k]; return `<p><b>${MODULES[w.i].name}：</b>${tip}</p>`;}).join("")}</div>`:""}
+      <div class="brand no-img">test.spelloapp.com/jieduan</div>
     </div>
     <button class="btn" id="saveBtn" style="margin-top:24px">保存结果图片</button>
     <button class="btn ghost" id="againBtn">重新测一次</button>
@@ -811,6 +814,7 @@ async function saveImage(){
     await loadH2C();
     const holder=document.createElement("div"); holder.className="share-img";
     holder.appendChild($("card").cloneNode(true)); holder.firstChild.removeAttribute("id");
+    holder.querySelectorAll(".no-img").forEach(e=>e.remove());
     document.body.appendChild(holder);
     const bg=getComputedStyle(document.body).backgroundColor;
     let canvas;

@@ -489,7 +489,7 @@ function showResult(ans, time){
       <div class="card">${hl}${tier.text.map(t=>`<p>${t}</p>`).join("")}</div>
       ${pressure?`<div class="card soft"><h3>一个温柔的提醒</h3><p>${PRESSURE_NOTE}</p></div>`:""}
       <div class="card"><h3>七个维度</h3>${rows}</div>
-      <div class="brand">test.spelloapp.com/single</div>
+      <div class="brand no-img">test.spelloapp.com/single</div>
     </div>
     <button class="btn" id="saveBtn" style="margin-top:24px">保存结果图片</button>
     <button class="btn ghost" id="againBtn">重新测一次</button>
@@ -516,6 +516,7 @@ async function saveImage(){
     await loadH2C();
     const holder=document.createElement("div"); holder.className="share-img";
     holder.appendChild($("card").cloneNode(true)); holder.firstChild.removeAttribute("id");
+    holder.querySelectorAll(".no-img").forEach(e=>e.remove());
     document.body.appendChild(holder);
     const bg=getComputedStyle(document.body).backgroundColor;
     let canvas;

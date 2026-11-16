@@ -476,7 +476,7 @@ function showResult(ans, time){
         <p class="row-note" style="margin-top:10px">这些是你打了低分的题。挑一两个最在意的，找个平静的时候和TA谈。TA的反应，本身就是答案的一部分。</p></div>`:""}
       ${unknown.length?`<div class="card"><h3>还没摸清楚的事</h3><div class="tags gray">${unknown.map(w=>`<span>${w}</span>`).join("")}</div>
         <p class="row-note" style="margin-top:10px">这些没有计入分数。${unknown.length>=3?"不少重要的事还没摸清，":""}结婚前，最好把它们都聊过、见过、经历过。</p></div>`:""}
-      <div class="brand">test.spelloapp.com/marry</div>
+      <div class="brand no-img">test.spelloapp.com/marry</div>
     </div>
     <button class="btn" id="saveBtn" style="margin-top:24px">保存结果图片</button>
     <button class="btn ghost" id="againBtn">重新测一次</button>
@@ -503,6 +503,7 @@ async function saveImage(){
     await loadH2C();
     const holder=document.createElement("div"); holder.className="share-img";
     holder.appendChild($("card").cloneNode(true)); holder.firstChild.removeAttribute("id");
+    holder.querySelectorAll(".no-img").forEach(e=>e.remove());
     document.body.appendChild(holder);
     const bg=getComputedStyle(document.body).backgroundColor;
     let canvas;
