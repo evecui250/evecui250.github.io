@@ -280,6 +280,8 @@ let answers = new Array(TOTAL).fill(null);   // 按题目原始编号存
 let order = [...Array(TOTAL).keys()];           // 本次答题的出题顺序
 let cur = 0;                                    // 当前是第几题（按出题顺序）
 const KEY = "together-quiz-v1";
+// 题目指纹：改题后，旧的进度和结果自动作废，避免答案错位
+const QSIG = (()=>{ let h=0; const t=QUESTIONS.map(q=>q.q+"|"+q.o.map(o=>o[0]).join("/")).join("#"); for(let i=0;i<t.length;i++){h=(h*31+t.charCodeAt(i))|0;} return String(h); })();
 
 // 打乱题目顺序；前 3 题不放红线类的重题，开头轻松一点
 function makeOrder(){
@@ -292,12 +294,12 @@ function makeOrder(){
   return a;
 }
 
-function save(){try{localStorage.setItem(KEY,JSON.stringify({answers,order,cur}));}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({answers,order,cur,sig:QSIG}));}catch(e){}}
 function load(){try{return JSON.parse(localStorage.getItem(KEY));}catch(e){return null;}}
 function clearSave(){try{localStorage.removeItem(KEY);}catch(e){}}
 const LAST_KEY = "together-quiz-last-v1";
-function saveLast(){try{localStorage.setItem(LAST_KEY,JSON.stringify({answers,time:Date.now()}));}catch(e){}}
-function loadLast(){try{const l=JSON.parse(localStorage.getItem(LAST_KEY));return (l&&Array.isArray(l.answers)&&l.answers.length===TOTAL&&l.answers.every(a=>a!==null))?l:null;}catch(e){return null;}}
+function saveLast(){try{localStorage.setItem(LAST_KEY,JSON.stringify({answers,time:Date.now(),sig:QSIG}));}catch(e){}}
+function loadLast(){try{const l=JSON.parse(localStorage.getItem(LAST_KEY));return (l&&l.sig===QSIG&&Array.isArray(l.answers)&&l.answers.length===TOTAL&&l.answers.every(a=>a!==null))?l:null;}catch(e){return null;}}
 
 const $ = id=>document.getElementById(id);
 function show(id){["intro","quiz","result"].forEach(s=>$(s).classList.toggle("hidden",s!==id));window.scrollTo(0,0);}
@@ -577,7 +579,7 @@ $("pie").innerHTML=`<img src="img/hero.webp" alt="" style="width:100%;display:bl
 // 有未完成进度时显示“继续”
 (function(){
   const s=load();
-  if(s && Array.isArray(s.answers) && s.answers.length===TOTAL){
+  if(s && s.sig===QSIG && Array.isArray(s.answers) && s.answers.length===TOTAL){
     answers=s.answers; cur=Math.min(s.cur||0, TOTAL-1);
     if(Array.isArray(s.order) && s.order.length===TOTAL) order=s.order;
   }
