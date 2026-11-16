@@ -185,6 +185,16 @@
   .fn.inf{background:var(--accent);color:#fff} .fn.inf small{color:#ffffffcc}
   .avatar{display:block;height:230px;max-width:80%;object-fit:contain;margin:14px auto 2px}
   .share-img .avatar{height:250px}
+  .fnbars{display:flex;gap:10px;align-items:flex-end;margin:4px 0 12px}
+  .fb{flex:1;text-align:center}
+  .fb b{display:block;font-size:17px;color:var(--accent);margin-bottom:4px}
+  .fb.inf b{color:var(--t-dark)} .fb.dom b{font-size:14px;color:var(--muted)}
+  .fb-track{height:96px;border-radius:8px;background:var(--accent-soft);position:relative;overflow:hidden}
+  .fb-track i{position:absolute;left:0;right:0;bottom:0;border-radius:8px;background:var(--accent)}
+  .fb.dom .fb-track i{background:var(--t-light)}
+  .fb.inf .fb-track i{background:var(--t-dark)}
+  .fb span{display:block;font-weight:700;color:var(--accent);margin-top:6px;font-size:15px}
+  .fb small{display:block;font-size:11.5px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -786,8 +796,10 @@ function showResult(ans, time){
       ${TYPE&&STACKS[TYPE]&&roleScores.inf!=null?(()=>{const st4=STACKS[TYPE], inf=st4[3], sc=roleScores.inf;
         const lvl = sc>=70?"发展得不错":sc>=45?"正在发展中":"还在起步阶段";
         return `<div class="card"><h3>你的认知功能</h3>
-        <p class="fnstack">${st4.map((f,i)=>{const r=["","aux","ter","inf"][i], v=r?roleScores[r]:null;
-          return `<span class="fn${i===3?" inf":""}">${f}<em>${i===0?"天性":(v!=null?v:"–")}</em><small>${["主导","辅助","第三","劣势"][i]}</small></span>`;}).join("")}</p>
+        <div class="fnbars">${st4.map((f,i)=>{const r=["","aux","ter","inf"][i], v=r?roleScores[r]:null, h=i===0?100:Math.max(v||0,6);
+          return `<div class="fb${i===0?" dom":""}${i===3?" inf":""}"><b>${i===0?"天性":(v!=null?v:"–")}</b>
+            <div class="fb-track"><i style="height:${h}%"></i></div>
+            <span>${f}</span><small>${["主导","辅助","第三","劣势"][i]}</small></div>`;}).join("")}</div>
         <p class="muted-p" style="margin:0">功能顺序按荣格理论由类型决定；分数根据你的回答得出，主导功能是你的天性，不打分。</p>
         <p style="margin-top:10px">你的劣势功能是<b>${FN_NAME[inf]}</b>，也就是“${FN_DESC[inf]}”的能力。根据你的回答，它目前<b>${lvl}</b>。</p>
         <p class="muted-p no-img">荣格认为，劣势功能是一个人最难、也最有成长空间的地方：压力大时它最容易失控，而随着成熟，它会慢慢变成新的力量。</p></div>`;})():""}
