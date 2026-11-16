@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>我们会在一起吗？概率测试</title>
+<meta name="description" content="TA喜欢我吗？我们有可能吗？从TA的信号、现实条件、你自己和TA的相处模式，算一算你们在一起的概率。">
+<style>
+  :root{
+    --bg:#fdf6f5; --card:#ffffff; --ink:#2e2426; --muted:#8f7f82; --line:#f1e1e2;
+    --accent:#d0657a; --accent-soft:#fbe6ea; --good:#d0657a; --mid:#d9935f; --bad:#8d8fa8;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+    line-height:1.6;}
+  .wrap{max-width:560px;margin:0 auto;padding:24px 20px calc(40px + env(safe-area-inset-bottom));min-height:100vh;display:flex;flex-direction:column}
+  .serif{font-family:"Songti SC","STSong","Noto Serif CJK SC","Source Han Serif SC",serif}
+  h1{font-size:34px;line-height:1.25;margin:48px 0 12px;letter-spacing:1px}
+  h1 em{font-style:normal;color:var(--accent)}
+  .lead{color:var(--muted);font-size:15px;margin:0 0 28px}
+  .pie{width:100%;max-width:340px;margin:4px auto 22px}
+  .pie svg{animation:fade .6s ease}
+  .hb{transform-origin:170px 92px;animation:beat 1.6s ease-in-out infinite}
+  @keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.12)}30%{transform:scale(1)}45%{transform:scale(1.08)}}
+  .pie svg{width:100%;height:100%;display:block;overflow:visible}
+  .pie .seg{transform-origin:170px 170px;animation:pop .6s cubic-bezier(.2,.8,.3,1.2) both}
+  .pie .lbl{font-size:14px;font-weight:600;fill:#fff;letter-spacing:1px;pointer-events:none}
+  .pie .ctr1{font-size:19px;font-weight:600;fill:#6b605a;letter-spacing:3px}
+  .pie .ctr2{font-size:12px;fill:var(--muted);letter-spacing:1px}
+  @keyframes pop{from{opacity:0;transform:scale(.6) rotate(-20deg)}to{opacity:1;transform:none}}
+  .modules{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 28px}
+  .modules div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px}
+  .modules b{display:block;font-size:15px;margin-bottom:2px}
+  .modules span{color:var(--muted);font-size:12.5px}
+  .note{font-size:13px;color:var(--muted);text-align:center;margin:0 0 20px}
+  button{font:inherit;cursor:pointer;border:none}
+  .btn{display:block;width:100%;padding:15px;border-radius:14px;background:var(--accent);color:#fff;font-size:17px;font-weight:600;letter-spacing:1px}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent);margin-top:12px}
+  .hidden{display:none!important}
+
+  /* quiz */
+  .top{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  .link{background:none;color:var(--muted);font-size:14px;padding:6px 0}
+  .link:disabled{opacity:.3}
+  .count{margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .bar{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:28px}
+  .bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+  .mod{font-size:13px;color:var(--accent);font-weight:600;letter-spacing:1px;margin-bottom:8px}
+  .q{font-size:21px;font-weight:600;line-height:1.45;margin:0 0 24px}
+  .opts{display:flex;flex-direction:column;gap:10px}
+  .opt{text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:15px 16px;font-size:16px;color:var(--ink);transition:border-color .15s,background .15s}
+  .opt.na{color:var(--muted);border-style:dashed}
+  .opt:active{transform:scale(.99)}
+  .opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+  @media (hover:hover){.opt:hover{border-color:#ecbcc5}}
+
+  /* result */
+  #card{background:var(--bg);padding:4px 2px 2px}
+  .r-head{text-align:center;margin:20px 0 8px}
+  .r-title{font-size:15px;color:var(--accent);letter-spacing:2px;margin-bottom:14px}
+  .r-label{font-size:13px;color:var(--muted);letter-spacing:2px}
+  .score{font-size:72px;font-weight:700;line-height:1.1;margin:6px 0 0;font-variant-numeric:tabular-nums}
+  .score small{font-size:20px;color:var(--muted);font-weight:500}
+  .verdict{font-size:24px;font-weight:700;margin:10px 0 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:18px}
+  .card h3{margin:0 0 12px;font-size:16px}
+  .card p{margin:0 0 10px;font-size:15.5px}
+  .card p:last-child{margin-bottom:0}
+  .row{margin-bottom:14px}
+  .row:last-child{margin-bottom:0}
+  .row-top{display:flex;justify-content:space-between;font-size:15px;margin-bottom:5px}
+  .row-top b{font-variant-numeric:tabular-nums}
+  .track{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+  .track i{display:block;height:100%;border-radius:4px}
+  .row-note{font-size:13.5px;color:var(--muted);margin-top:5px}
+  .flag{border-color:#ecc4cc;background:#fdf1f3}
+  .flag h3{color:var(--accent)}
+  .flag li{margin-bottom:4px}
+  ul{margin:0;padding-left:20px}
+  .tags{display:flex;flex-wrap:wrap;gap:8px}
+  .tags span{background:var(--accent-soft);color:var(--accent);font-size:13.5px;padding:4px 10px;border-radius:20px}
+  .tags.gray span{background:#f2ebec;color:var(--muted)}
+  .brand{text-align:center;font-size:12px;color:var(--muted);margin-top:18px;letter-spacing:1px}
+  .foot{font-size:12px;color:var(--muted);text-align:center;margin-top:24px}
+  .fade{animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* 保存图片弹层 */
+  .overlay{position:fixed;inset:0;background:rgba(36,24,28,.95);z-index:10;display:flex;flex-direction:column}
+  .ov-top{flex:none;padding:calc(14px + env(safe-area-inset-top)) 16px 12px;text-align:center;color:#fff}
+  .ov-top b{display:block;font-size:18px;margin-bottom:2px}
+  .ov-top span{font-size:13.5px;opacity:.8}
+  .ov-img{flex:1;overflow:auto;padding:0 16px;display:flex;justify-content:center}
+  .ov-img img{width:100%;max-width:420px;height:auto;align-self:flex-start;border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,.35);-webkit-touch-callout:default}
+  .ov-bar{flex:none;display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));max-width:452px;width:100%;margin:0 auto}
+  .ov-bar button{flex:1;padding:13px;border-radius:12px;font-size:16px;font-weight:600}
+  .ov-save{background:var(--accent);color:#fff}
+  .ov-close{background:rgba(255,255,255,.15);color:#fff}
+  .legal-link{display:block;margin:22px auto 0;background:none;color:var(--muted);font-size:12.5px;text-decoration:underline;text-underline-offset:3px}
+  .legal{position:fixed;inset:0;background:var(--bg);z-index:20;overflow:auto;padding:calc(20px + env(safe-area-inset-top)) 22px calc(30px + env(safe-area-inset-bottom))}
+  .legal-in{max-width:560px;margin:0 auto}
+  .legal h2{font-size:20px;margin:8px 0 16px}
+  .legal h4{font-size:15px;margin:18px 0 6px}
+  .legal p{font-size:14px;color:#4a413c;margin:0 0 8px}
+  .gate{margin-bottom:4px}
+  .code-input{display:block;width:100%;padding:14px 16px;border:1.5px solid var(--line);border-radius:14px;font-size:18px;letter-spacing:2px;text-align:center;background:var(--card);color:var(--ink);margin-bottom:12px;font-family:ui-monospace,Menlo,monospace;text-transform:uppercase}
+  .code-input:focus{outline:none;border-color:var(--accent)}
+  .gate-msg{min-height:20px;font-size:14px;color:var(--bad);text-align:center;margin:10px 0 0}
+  .gate-hint{font-size:12.5px;color:var(--muted);text-align:center;margin:4px 0 0}
+  /* 分享图专用排版：固定宽度、两侧留白、大标题 */
+  .share-img{position:fixed;left:-9999px;top:0;width:420px;padding:36px 30px 30px;background:var(--bg)}
+  .share-img .r-head{margin:0 0 6px}
+  .share-img .r-title{font-size:26px;font-weight:700;color:var(--ink);letter-spacing:2px;margin-bottom:10px;line-height:1.35}
+  .share-img .r-label{font-size:13px}
+  .share-img .verdict{font-size:30px}
+  .share-img .verdict.big{font-size:36px}
+  .share-img .score{font-size:80px}
+  .share-img .card{padding:18px 18px;margin-top:16px}
+  .share-img .card p{font-size:15px}
+  .share-img .brand{font-size:14px;margin-top:22px;color:var(--ink);letter-spacing:1px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 开始页 -->
+  <section id="intro" class="fade">
+    <h1 class="serif">我们会<br><em>在一起</em>吗？</h1>
+    <p class="lead">TA 喜不喜欢我？我们有没有可能？<br>算一算你们在一起的概率。</p>
+    <div class="pie" id="pie"></div>
+    <div class="note">23 道题，约 5 分钟，拿不准可以选「不清楚」。<br>按真实情况选，答案只留在你的手机上。</div>
+    <div id="gate" class="gate hidden">
+      <input id="codeInput" class="code-input" placeholder="输入兑换码" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      <button class="btn" id="redeemBtn">验证并开始</button>
+      <p class="gate-msg" id="gateMsg"></p>
+      <p class="gate-hint">兑换码随商品一起发送，没收到的话请联系卖家</p>
+    </div>
+    <button class="btn" id="startBtn">开始测试</button>
+    <button class="btn ghost hidden" id="resumeBtn">继续上次的进度</button>
+    <button class="btn ghost hidden" id="lastBtn">查看上次的结果</button>
+    <button class="legal-link" onclick="showLegal()">使用说明 · 隐私 · 免责声明</button>
+  </section>
+
+  <!-- 答题页 -->
+  <section id="quiz" class="hidden">
+    <div class="top">
+      <button class="link" id="backBtn">‹ 上一题</button>
+      <button class="link" id="homeBtn1">首页</button>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
+    <div id="qbox"></div>
+  </section>
+
+  <!-- 结果页 -->
+  <section id="result" class="hidden"></section>
+
+</div>
+
+<script>
+// ---------- 题库 ----------
+// 选项按从理想到不理想排列；[文字, 分数 0-4 或 null(不适用，不计分), 红线说明(可选)]
+const MODULES = [
+  { name:"TA的信号", key:"signal", qs:[
+    { tag:"好感表示", q:"TA 有没有表现出对你的好感？", o:[
+      ["很明显，我几乎能确定",4],["有一些，但说不准",3],["偶尔有，也可能是我想多了",2],["没感觉到",1],["TA 好像在刻意和我保持距离",0]]},
+    { tag:"暧昧程度", q:"给你们现在的暧昧程度打个分", o:[
+      ["已经像在谈恋爱了，就差一句话",4],["很暧昧，彼此心照不宣",3],["有一点暧昧，偶尔会心动",2],["聊得来，但没越过朋友的界线",1],["就是普通朋友或同事",0]]},
+    { tag:"联系频率", q:"最近两周，你们大概联系多少次？", o:[
+      ["几乎每天都聊",4],["每周好几次",3],["每周一两次",2],["两周才一两次",1],["基本没联系",0]]},
+    { tag:"谁更主动", q:"平时通常是谁先找谁？", o:[
+      ["TA 主动得多",4],["差不多",3],["我主动多一些",2],["几乎都是我",1]]},
+    { tag:"回消息", q:"TA 回你消息的情况？", o:[
+      ["回得快，也很用心",4],["有时快有时慢，但都会认真回",3],["回得慢，或者有点敷衍",1],["经常不回",0]]},
+    { tag:"单独见面", q:"最近一个月，你们单独见面几次？", o:[
+      ["4 次以上",4],["2–3 次",3],["1 次",2],["没有单独见过",1],["我们不在一个城市，暂时见不了",null,null,"skip"]]},
+    { tag:"肢体接触", q:"你们之间有肢体接触吗？", o:[
+      ["有，很明确（牵手、拥抱等）",4],["有一点暧昧的接触",3],["只有不经意的碰到",2],["没有",1]]},
+    { tag:"记得小事", q:"你说过的小事，TA 会记得吗？", o:[
+      ["经常记得，还会提起",4],["偶尔记得",3],["很少记得",1],["不清楚",null]]},
+    { tag:"在意你身边的人", q:"你提到别的异性时，TA 的反应？", o:[
+      ["明显在意，会追问",4],["有一点在意",3],["没什么反应",1],["还没提过",null,null,"skip"]]},
+    { tag:"相处时的状态", q:"和你在一起时，TA 看起来？", o:[
+      ["很放松，也很开心",4],["还不错",3],["有点拘谨，或心不在焉",1],["说不好",null]]},
+  ]},
+  { name:"现实条件", key:"reality", qs:[
+    { tag:"TA是否单身", q:"TA 现在单身吗？", o:[
+      ["单身",4],["不清楚",null],["有对象",0,"taken"]]},
+    { tag:"TA喜欢的性别", q:"TA 喜欢的性别包括你吗？", o:[
+      ["包括",4],["不清楚",null],["不包括",0,"orient"]]},
+    { tag:"TA单身多久", q:"TA 单身多久了？", o:[
+      ["3 个月到 1 年",4],["1 到 5 年",3],["刚分手不到 3 个月",1],["5 年以上",1],["从没谈过恋爱",1],["不清楚",null]]},
+    { tag:"TA在接触别人吗", q:"TA 最近有没有在接触别人？", o:[
+      ["好像没有",4],["好像在和别人暧昧",1],["明确在约会别人",0],["不清楚",null]]},
+    { tag:"未来一年是否异地", q:"未来一年，你们会在同一个城市吗？", o:[
+      ["会，一直在同一个城市",4],["现在异地，但很快会到一起",3],["现在同城，但可能会分开",2],["异地，而且没有到一起的打算",1],["不清楚",null]]},
+    { tag:"未来规划", q:"你们对未来的规划（城市、工作、生活方式）合得上吗？", o:[
+      ["很合得上",4],["大体合得上",3],["有明显分歧",1],["还不了解",null]]},
+  ]},
+  { name:"你这边", key:"you", qs:[
+    { tag:"你有多喜欢TA", q:"你有多喜欢 TA？", o:[
+      ["非常喜欢，认定了",4],["很喜欢",3],["有好感，还在观察",2],["说不清",1]]},
+    { tag:"你表达过吗", q:"你有没有向 TA 表达过好感？", o:[
+      ["暗示过，TA 接住了",4],["表白过，TA 说要想一想",3],["还没表达过",2],["暗示过，TA 装作没看见",1],["表白过，被拒绝了",0,"rejected"]]},
+    { tag:"你的感情经历", q:"你自己的感情经历？", o:[
+      ["谈过几段，比较有经验",4],["谈过一两段",3],["还没谈过（母单）",1]]},
+    { tag:"认识多久", q:"你们认识多久了？", o:[
+      ["半年到三年",4],["一到六个月",3],["不到一个月",2],["三年以上的老朋友",2]]},
+  ]},
+  { name:"TA的状态", key:"ta", qs:[
+    { tag:"忽冷忽热", q:"TA 对你会忽冷忽热吗？", o:[
+      ["一直比较稳定",4],["偶尔",3],["经常",1],["说不好",null]]},
+    { tag:"靠近时的反应", q:"你们关系往前走一步时（多聊一点、多见一次），TA？", o:[
+      ["会顺着往前走",4],["有点犹豫，但没有退",3],["每次靠近，TA 就往后退",0],["还没试过",null]]},
+    { tag:"TA对恋爱的态度", q:"TA 对谈恋爱的态度？", o:[
+      ["想认真谈一段",4],["随缘",3],["说过现在不想谈恋爱",0],["不清楚",null]]},
+  ]},
+];
+
+// 每个方面按分数段（≥75 / 50–74 / <50）的点评
+const MOD_NOTES = {
+  signal:  ["TA 给出的信号很明确，这些通常不是“只是礼貌”。","有信号，但还不够确定。多创造一些单独相处的机会，观察 TA 的反应。","目前 TA 的信号很弱。不一定是不喜欢，但至少还没有表现出来。"],
+  reality: ["现实条件没有阻碍，就看你们俩了。","现实层面有一两件事要留意，提前想清楚会少走弯路。","现实条件阻碍不小。喜欢很重要，但这些问题不会因为喜欢就消失。"],
+  you:     ["你很清楚自己的心意，也已经迈出了步子。","你有心意，但还可以更主动、更清楚一点。","你自己还没准备好，或者还在原地等待。先想清楚你想要什么。"],
+  ta:      ["TA 对感情的态度稳定、开放，是很好的信号。","TA 有些犹豫或摇摆，需要多一点耐心和观察。","TA 现在可能不在适合恋爱的状态，或者容易在靠近时后退。别把 TA 的退缩全怪在自己身上。"],
+};
+
+const TIERS = [
+  { min:85, title:"别测了，快去表白 💌", color:"var(--good)",
+    text:["几乎所有信号都指向同一个答案：TA 很可能也喜欢你。","这种时候最怕的不是被拒绝，而是两个人都在等对方先开口。找一个轻松的时机，把话说出来吧。"] },
+  { min:70, title:"很有戏，再推一把", color:"var(--good)",
+    text:["你们之间有真实的火花，TA 对你也不是没感觉。","现在缺的可能只是一个契机：多约几次单独见面，或者把暗示说得更明白一点。看 TA 接不接，答案就清楚了。"] },
+  { min:50, title:"有好感，但还差点火候", color:"var(--mid)",
+    text:["TA 对你有好感，但还没到非你不可。也可能 TA 也在观察你。","别急着表白，先把关系往前推一点：多一些单独相处，聊一些更私人的话题。如果 TA 愿意接住，再往前走。"] },
+  { min:30, title:"目前更像朋友", color:"var(--bad)",
+    text:["从现在的情况看，TA 更像把你当成朋友。不是你不好，只是 TA 还没往那个方向想，或者有自己的原因。","可以试着创造一点不一样的相处，但也别把所有希望都押在 TA 身上。你的心意值得被认真回应。"] },
+  { min:0, title:"先把心收一收，照顾好自己", color:"var(--bad)",
+    text:["这次的结果可能不是你想听的：TA 给出的信号很少，现实阻碍也不小。","喜欢一个人没有错，但单方面的付出会很累。先把注意力放回自己身上，好好生活。真正合适的人，会让你不用这么猜。"] },
+];
+
+// 一票否决的情况：概率上限和说明
+const CAPS = {
+  orient:  { cap:5,  title:"TA 喜欢的性别不包括你", text:"这不是努力可以改变的事。你的喜欢很珍贵，值得留给能回应它的人。" },
+  taken:   { cap:15, title:"TA 现在有对象", text:"在 TA 单身之前，建议先别投入太多。等待一个不确定的结果，最消耗的是你自己。" },
+  rejected:{ cap:25, title:"你表白过，被拒绝了", text:"被拒绝很难受，但这也是 TA 给出的答案。除非之后 TA 明显主动靠近，否则先把心思放回自己身上。" },
+};
+
+// ---------- 状态 ----------
+const QUESTIONS = [];
+MODULES.forEach((m,mi)=>m.qs.forEach((q,qi)=>QUESTIONS.push({...q, mi, qi})));
+const TOTAL = QUESTIONS.length;
+let answers = new Array(TOTAL).fill(null);   // 按题目原始编号存
+let order = [...Array(TOTAL).keys()];           // 本次答题的出题顺序
+let cur = 0;                                    // 当前是第几题（按出题顺序）
+const KEY = "together-quiz-v1";
+
+// 打乱题目顺序；前 3 题不放红线类的重题，开头轻松一点
+function makeOrder(){
+  const heavy = new Set(QUESTIONS.map((q,i)=>q.o.some(o=>o[2])?i:-1).filter(i=>i>=0));
+  let a;
+  do{
+    a=[...Array(TOTAL).keys()];
+    for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  }while(a.slice(0,3).some(i=>heavy.has(i)));
+  return a;
+}
+
+function save(){try{localStorage.setItem(KEY,JSON.stringify({answers,order,cur}));}catch(e){}}
+function load(){try{return JSON.parse(localStorage.getItem(KEY));}catch(e){return null;}}
+function clearSave(){try{localStorage.removeItem(KEY);}catch(e){}}
+const LAST_KEY = "together-quiz-last-v1";
+function saveLast(){try{localStorage.setItem(LAST_KEY,JSON.stringify({answers,time:Date.now()}));}catch(e){}}
+function loadLast(){try{const l=JSON.parse(localStorage.getItem(LAST_KEY));return (l&&Array.isArray(l.answers)&&l.answers.length===TOTAL&&l.answers.every(a=>a!==null))?l:null;}catch(e){return null;}}
+
+const $ = id=>document.getElementById(id);
+function show(id){["intro","quiz","result"].forEach(s=>$(s).classList.toggle("hidden",s!==id));window.scrollTo(0,0);}
+
+function goHome(){
+  checkResume(); applyGate();
+  show("intro");
+}
+function checkResume(){
+  const has = answers.some(a=>a!==null) && answers.some(a=>a===null);
+  $("resumeBtn").classList.toggle("hidden", !has);
+  $("startBtn").textContent = has ? "重新开始" : "开始测试";
+  const last = loadLast();
+  if(last){const d=new Date(last.time);$("lastBtn").textContent=`查看上次的结果（${d.getMonth()+1}月${d.getDate()}日）`;}
+  $("lastBtn").classList.toggle("hidden", !last);
+}
+
+function start(fresh){
+  if(fresh){answers=new Array(TOTAL).fill(null);order=makeOrder();cur=0;save();}
+  show("quiz");render();
+}
+
+function render(){
+  const qi=order[cur], q=QUESTIONS[qi];
+  $("count").textContent=`${cur+1} / ${TOTAL}`;
+  $("bar").style.width=`${cur/TOTAL*100}%`;
+  $("backBtn").disabled = cur===0;
+  const box=$("qbox");
+  box.innerHTML=`<div class="fade">
+    <p class="q">${q.q}</p>
+    <div class="opts">${q.o.map((o,oi)=>`<button class="opt${o[1]===null?" na":""}${answers[qi]===oi?" sel":""}" data-i="${oi}">${o[0]}</button>`).join("")}</div>
+  </div>`;
+  box.querySelectorAll(".opt").forEach(b=>b.onclick=()=>pick(+b.dataset.i,b));
+}
+
+let locked=false;
+function pick(i,btn){
+  if(locked) return; locked=true;
+  answers[order[cur]]=i; save();
+  document.querySelectorAll(".opt").forEach(b=>b.classList.remove("sel")); btn.classList.add("sel");
+  setTimeout(()=>{
+    locked=false;
+    if(cur<TOTAL-1){cur++;save();render();}
+    else {$("bar").style.width="100%";showResult();}
+  },260);
+}
+
+$("backBtn").onclick=()=>{if(cur>0){cur--;save();render();}};
+$("homeBtn1").onclick=goHome;
+$("startBtn").onclick=()=>start(true);
+
+// ---------- 兑换码 ----------
+const SB_URL = "https://mjsgcvuyousczqexxszs.supabase.co";
+const SB_KEY = "sb_publishable_WEmGQIZnbWUMSXm9oKSWdQ_l7tDrIIE";
+const UNLOCK_KEY = "together-unlock-v1";
+function deviceId(){
+  try{
+    let d=localStorage.getItem("quiz-device-id");
+    if(!d){ d=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random().toString(36).slice(2)); localStorage.setItem("quiz-device-id",d); }
+    return d;
+  }catch(e){ return "nostorage-"+Math.random().toString(36).slice(2); }
+}
+// 通用码直接在本机验证（只存指纹，不存原码）；换码时更新这里
+const LOCAL_CODES = ["693dc54a89c7e465a256323e67edce66885c632ec2fdf33008f9e958c8df5332"];
+async function localCheck(code){
+  try{ const b=await crypto.subtle.digest("SHA-256", new TextEncoder().encode("spello:"+code));
+    const h=[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+    return LOCAL_CODES.includes(h); }catch(e){ return null; }
+}
+function isUnlocked(){ try{ return !!localStorage.getItem(UNLOCK_KEY); }catch(e){ return false; } }
+function setUnlocked(code){ try{ localStorage.setItem(UNLOCK_KEY, code); }catch(e){} }
+function applyGate(){
+  const u=isUnlocked();
+  $("gate").classList.toggle("hidden", u);
+  $("startBtn").classList.toggle("hidden", !u);
+  if(!u){ $("resumeBtn").classList.add("hidden"); $("lastBtn").classList.add("hidden"); }
+}
+async function callRedeem(code, direct){
+  const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),9000);
+  try{
+    const url = direct ? SB_URL+"/rest/v1/rpc/redeem_code" : "/api/rpc/redeem_code";
+    const r=await fetch(url,{method:"POST",signal:ctrl.signal,
+      headers:{"Content-Type":"application/json","apikey":SB_KEY},
+      body:JSON.stringify({p_code:code,p_device:deviceId(),p_quiz:"together"})});
+    if(!r.ok) throw new Error("http "+r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+$("redeemBtn").onclick=async()=>{
+  const code=$("codeInput").value.trim().toUpperCase().replace(/\s+/g,"");
+  const msg=$("gateMsg"), btn=$("redeemBtn");
+  if(!code){ msg.textContent="请先输入兑换码"; return; }
+  btn.disabled=true; btn.textContent="验证中…"; msg.textContent="";
+  const lc=await localCheck(code);
+  if(lc===true){
+    btn.disabled=false; btn.textContent="验证并开始";
+    setUnlocked(code); applyGate(); start(true);
+    callRedeem(code).catch(()=>{});   // 后台记一次使用，失败不影响
+    return;
+  }
+  let res=null;
+  for(let i=0;i<3 && res===null;i++){ try{ res=await callRedeem(code, i===1); }catch(e){ await new Promise(r=>setTimeout(r,600)); } }
+  btn.disabled=false; btn.textContent="验证并开始";
+  if(res==="ok"){ setUnlocked(code); applyGate(); start(true); }
+  else if(res==="used") msg.textContent="这个兑换码已经在其他手机上使用过了";
+  else if(res==="invalid") msg.textContent="兑换码不对，请检查一下（注意区分字母和数字）";
+  else msg.textContent = lc===false ? "兑换码不对，请检查一下（注意区分字母和数字）" : "网络不太好，请稍后再试；一直不行的话请联系客服";
+};
+$("codeInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("redeemBtn").click(); });
+$("resumeBtn").onclick=()=>start(false);
+$("lastBtn").onclick=()=>{const l=loadLast(); if(!l) return; showResult(l.answers, l.time);};
+
+// ---------- 计算结果 ----------
+function compute(answers){
+  const mods=MODULES.map(()=>({sum:0,max:0}));
+  const caps=[], weak=[], unknown=[];
+  QUESTIONS.forEach((q,i)=>{
+    const o=q.o[answers[i]];
+    if(o[1]===null){ if(o[3]!=="skip") unknown.push(q.tag); return; }
+    mods[q.mi].sum+=o[1]; mods[q.mi].max+=4;
+    if(o[2]) caps.push(o[2]);
+    else if(o[1]<=1) weak.push(q.tag);
+  });
+  const valid = mods.map((m,i)=>m.max?{i,s:Math.round(m.sum/m.max*100)}:{i,s:null});
+  const scored = valid.filter(v=>v.s!==null);
+  // TA 的信号最重要，TA 的状态和现实条件其次，你自己这边影响最小
+  const W = {signal:1.6, reality:1.0, you:0.7, ta:1.2};
+  const wsum = scored.reduce((a,v)=>a+W[MODULES[v.i].key],0);
+  let total = wsum ? Math.round(scored.reduce((a,v)=>a+v.s*W[MODULES[v.i].key],0)/wsum) : 50;
+  total = Math.max(1, Math.min(99, total));
+  caps.forEach(c=>{ total=Math.min(total, CAPS[c].cap); });
+  return {modScores:valid.map(v=>v.s),total,caps,weak,unknown};
+}
+function colorFor(s){return s>=70?"var(--good)":s>=50?"var(--mid)":"var(--bad)";}
+
+function showResult(ans, time){
+  const fromHistory = !!ans;
+  if(!fromHistory){ans=answers; saveLast(); clearSave(); answers=new Array(TOTAL).fill(null); cur=0;}
+  const {modScores,total,caps,weak,unknown}=compute(ans);
+  const d=new Date(time||Date.now()), dateStr=`${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`;
+  const tier = TIERS.find(t=>total>=t.min);
+  const rows = MODULES.map((m,i)=>{
+    const s=modScores[i];
+    if(s===null) return `<div class="row"><div class="row-top"><span>${m.name}</span><b style="color:var(--muted)">—</b></div><div class="row-note">这部分还不清楚，暂不计分。</div></div>`;
+    const band = s>=75?0:s>=50?1:2;
+    return `<div class="row">
+      <div class="row-top"><span>${m.name}</span><b style="color:${colorFor(s)}">${s}</b></div>
+      <div class="track"><i style="width:${Math.max(s,3)}%;background:${colorFor(s)}"></i></div>
+      <div class="row-note no-img">${MOD_NOTES[m.key][band]}</div>
+    </div>`;}).join("");
+  const sc = modScores.map((s,i)=>({s,i})).filter(x=>x.s!==null);
+  const lo = sc.length ? sc.reduce((a,b)=>b.s<a.s?b:a) : null;
+  const hl = (!caps.length && lo && lo.s<60) ? `<p>目前最拖后腿的是<b>「${MODULES[lo.i].name}」</b>。</p>` : "";
+  const capCards = [...new Set(caps)].map(c=>`<div class="card flag"><h3>${CAPS[c].title}</h3><p>${CAPS[c].text}</p></div>`).join("");
+
+  $("result").innerHTML = `<div class="fade">
+    <div class="top">
+      <button class="link" id="homeBtn2">‹ 首页</button>
+    </div>
+    <div id="card">
+      <div class="r-head">
+        <div class="r-title serif">我们会在一起吗？</div>
+        <div class="r-label">在一起的概率 · ${dateStr}</div>
+        <div class="score" style="color:${tier.color}">${total}<small> %</small></div>
+        <div class="verdict serif" style="color:${tier.color}">${tier.title}</div>
+      </div>
+      ${capCards}
+      <div class="card no-img">${hl}${tier.text.map(t=>`<p>${t}</p>`).join("")}</div>
+      <div class="card"><h3>四个方面</h3>${rows}</div>
+      ${weak.length?`<div class="card no-img"><h3>拉低概率的地方</h3><div class="tags">${weak.map(w=>`<span>${w}</span>`).join("")}</div>
+        <p class="row-note" style="margin-top:10px">这些是你选了较低分的题。有些可以靠你主动改变（比如多约见面、把心意说明白），有些只能交给时间和 TA。</p></div>`:""}
+      ${unknown.length?`<div class="card no-img"><h3>${unknown.length>=5?"信息还不够，可以先观察这些":"还不清楚的事"}</h3><div class="tags gray">${unknown.map(w=>`<span>${w}</span>`).join("")}</div>
+        <p class="row-note" style="margin-top:10px">这些没有计入概率。${unknown.length>=5?"你选了不少「不清楚」，结果的参考价值会打折扣。":""}找机会侧面了解一下，比急着表白更有用。</p></div>`:""}
+      <div class="brand no-img">test.spelloapp.com/together</div>
+    </div>
+    <button class="btn" id="saveBtn" style="margin-top:24px">保存结果图片</button>
+    <button class="btn ghost" id="againBtn">重新测一次</button>
+    <p class="foot">本测试仅供娱乐和自我觉察参考，不构成专业的心理或情感咨询。<br>TA 的心意，最终还是要 TA 自己告诉你。</p>
+    <button class="legal-link" onclick="showLegal()">使用说明 · 隐私 · 免责声明</button>
+  </div>`;
+  $("homeBtn2").onclick=goHome;
+  $("againBtn").onclick=()=>start(true);
+  $("saveBtn").onclick=saveImage;
+  show("result");
+}
+
+// ---------- 保存图片 ----------
+let h2cLoading=null;
+function loadH2C(){
+  if(window.html2canvas) return Promise.resolve();
+  if(!h2cLoading) h2cLoading=new Promise((res,rej)=>{const s=document.createElement("script");s.src="html2canvas.min.js";s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+  return h2cLoading;
+}
+async function saveImage(){
+  const btn=$("saveBtn"); const old=btn.textContent;
+  btn.textContent="生成中…"; btn.disabled=true;
+  try{
+    await loadH2C();
+    const holder=document.createElement("div"); holder.className="share-img";
+    holder.appendChild($("card").cloneNode(true)); holder.firstChild.removeAttribute("id");
+    holder.querySelectorAll(".no-img").forEach(e=>e.remove());
+    document.body.appendChild(holder);
+    const bg=getComputedStyle(document.body).backgroundColor;
+    let canvas;
+    try{ canvas = await html2canvas(holder,{backgroundColor:bg,scale:2.5,useCORS:true,windowWidth:420,x:0,y:0}); }
+    finally{ holder.remove(); }
+    const url = canvas.toDataURL("image/jpeg",0.92);
+    const blob = await new Promise(r=>canvas.toBlob(r,"image/jpeg",0.92));
+    const file = blob && new File([blob],"我们会在一起吗-结果.jpg",{type:"image/jpeg"});
+    const inApp = /MicroMessenger|xhsdiscover|XiaoHongShu|Weibo|QQ\/|DingTalk|aweme|Lark/i.test(navigator.userAgent);
+    const desktop = window.matchMedia("(hover:hover)").matches;
+    const canShare = !desktop && file && navigator.canShare && navigator.canShare({files:[file]});
+
+    const ov=document.createElement("div"); ov.className="overlay";
+    ov.innerHTML=`
+      <div class="ov-top">
+        <b>${desktop?"图片已下载":canShare?"点下方按钮保存到相册":"长按图片 → 保存图片"}</b>
+        <span>${desktop?"在下载文件夹里可以找到":canShare?"在弹出的菜单里选「存储图像」或「保存图片」":inApp?"长按没反应的话：点右上角「…」选择在浏览器打开，或者直接截图":"图片还没有保存，记得长按哦；不行的话直接截图也可以"}</span>
+      </div>
+      <div class="ov-img"><img src="${url}" alt="测试结果"></div>
+      <div class="ov-bar">
+        ${canShare?`<button class="ov-save">保存到相册</button>`:""}
+        <button class="ov-close">${canShare?"关闭":"我保存好了"}</button>
+      </div>`;
+    ov.querySelector(".ov-close").onclick=()=>ov.remove();
+    const sv=ov.querySelector(".ov-save");
+    if(sv) sv.onclick=async()=>{
+      try{ await navigator.share({files:[file]}); sv.textContent="已保存 ✓"; }
+      catch(e){ if(e && e.name!=="AbortError") ov.querySelector(".ov-top span").textContent="没成功的话，长按图片也可以保存"; }
+    };
+    document.body.appendChild(ov);
+    if(desktop){ const a=document.createElement("a"); a.href=url; a.download="我们会在一起吗-结果.jpg"; a.click(); }
+  }catch(e){
+    alert("生成图片失败，可以直接截图保存哦");
+  }finally{btn.textContent=old;btn.disabled=false;}
+}
+
+// ---------- 使用说明 / 隐私 / 免责 ----------
+function showLegal(){
+  const d=document.createElement("div"); d.className="legal";
+  d.innerHTML=`<div class="legal-in">
+    <button class="link" id="legalBack">‹ 返回</button>
+    <h2 class="serif">使用说明与免责声明</h2>
+    <h4>关于本测试</h4>
+    <p>本测试是一份趣味性质的自我觉察问卷，题目和计分规则由作者原创设计，未经科学量表验证。测试结果仅供娱乐和自我反思参考，不构成心理咨询、心理诊断、情感咨询或任何其他专业建议。测试结果是根据你的描述推算的参考值，不代表对方的真实想法。</p>
+    <p>本测试面向 18 岁及以上的用户。</p>
+    <h4>免责声明</h4>
+    <p>表白、追求、放下等感情决定请结合你自己的实际情况慎重考虑，必要时寻求专业人士（如心理咨询师）的帮助。使用者根据测试结果做出的任何决定及其后果，由使用者自行承担，作者不承担任何责任。</p>
+    <h4>尊重对方</h4>
+    <p>喜欢一个人是很美好的事，也请尊重对方的意愿和边界。如果对方明确拒绝，请不要纠缠、跟踪或打扰对方的生活。</p>
+    <h4>隐私说明</h4>
+    <p>本测试不需要注册，不收集你的姓名、联系方式等个人信息，也不会把你的答案上传到任何服务器。所有计算都在你自己的设备上完成。验证兑换码时，只会发送兑换码本身和一串随机生成的设备编号（用来把兑换码绑定到这台设备），不包含任何个人信息。</p>
+    <p>为了方便你继续答题或查看上次结果，答题进度和最近一次的结果会保存在你当前浏览器的本地存储里，只有你自己的设备能读取。清除浏览器数据即可删除。</p>
+    <p>网站托管服务商可能会按照其自身政策记录常规的访问日志（如 IP 地址、访问时间）。我们使用 Cloudflare Web Analytics 统计匿名的访问量，它不使用 Cookie，不追踪个人身份。以上信息都不包含你的答案。</p>
+    <h4>版权声明</h4>
+    <p>本测试的题目、选项、计分规则、结果文案和页面设计均为原创作品，版权归作者所有。未经书面许可，禁止复制、转载、改编或用于任何商业用途。</p>
+    <p style="margin-top:18px;color:var(--muted)">© ${new Date().getFullYear()} 我们会在一起吗？ 保留所有权利。</p>
+  </div>`;
+  d.querySelector("#legalBack").onclick=()=>d.remove();
+  document.body.appendChild(d);
+}
+
+// ---------- 首页插图 ----------
+(function drawHero(){
+  $("pie").innerHTML=`<svg viewBox="0 0 340 200" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="118" cy="96" r="70" fill="#f6c9d1" opacity=".85"/>
+    <circle cx="222" cy="96" r="70" fill="#f4d3b8" opacity=".85"/>
+    <path d="M118 96m-70 0" />
+    <g class="hb"><path d="M170 118 C 150 102, 140 92, 140 80 C 140 70, 148 63, 157 63 C 163 63, 168 67, 170 72 C 172 67, 177 63, 183 63 C 192 63, 200 70, 200 80 C 200 92, 190 102, 170 118 Z" fill="#d0657a"/></g>
+    <text x="80" y="104" text-anchor="middle" font-size="18" font-weight="600" fill="#a24a5c" letter-spacing="2">你</text>
+    <text x="260" y="104" text-anchor="middle" font-size="18" font-weight="600" fill="#b06a3c" letter-spacing="2">TA</text>
+    <text x="170" y="190" text-anchor="middle" font-size="13" fill="#8f7f82" letter-spacing="3">信号 · 现实 · 你 · TA</text>
+  </svg>`;
+})();
+
+// 有未完成进度时显示“继续”
+(function(){
+  const s=load();
+  if(s && Array.isArray(s.answers) && s.answers.length===TOTAL){
+    answers=s.answers; cur=Math.min(s.cur||0, TOTAL-1);
+    if(Array.isArray(s.order) && s.order.length===TOTAL) order=s.order;
+  }
+  checkResume();
+  applyGate();
+})();
+</script>
+</body>
+</html>
