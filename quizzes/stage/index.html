@@ -567,7 +567,7 @@ const $ = id=>document.getElementById(id);
 function show(id){["intro","pick","quiz","result"].forEach(s=>$(s).classList.toggle("hidden",s!==id));window.scrollTo(0,0);}
 
 // 已有插画的类型（文件：img/类型-1/2/3.webp，分别对应初阶、中阶、高阶）
-const HAS_IMG = new Set(["INFP","INFJ","ENFP"]);
+const HAS_IMG = new Set(["INFP","INFJ","ENFP","ENFJ"]);
 // 结果页主题色：按类型的四大类换颜色
 const THEMES = {
   NT:{bg:"#f5f3f9",accent:"#6b5fa8",soft:"#e8e4f4",line:"#e4e0ee",light:"#c9c2e3",mid:"#9a8fc4",dark:"#3f3577"},
