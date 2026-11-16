@@ -781,7 +781,7 @@ function showResult(ans, time){
         <div><h4>你的天赋</h4><p>${T.gift}</p></div>
         <div><h4>压力下的你</h4><p>${T.stress}</p></div>
       </div>`:""}
-      <div class="card no-img"><p>${st.text}</p>
+      <div class="card no-img"><h3>你现在在哪一步</h3><p>${st.text}</p>
         ${st.t<2&&T?`<p class="muted-p">再往前一步，你会成为「${T.st[st.t+1].t}」：${T.st[st.t+1].i[0]}</p>`:""}
       </div>
       ${faked?`<div class="card soft no-img"><h3>一个小发现</h3><p>${LIE_NOTE}</p></div>`:""}
