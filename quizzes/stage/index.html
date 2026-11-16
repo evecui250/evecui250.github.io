@@ -180,6 +180,7 @@
   .share-img .persona{font-size:22px}
   .fnstack{display:flex;gap:8px;margin:0 0 12px!important}
   .fn{flex:1;text-align:center;padding:8px 0;border-radius:10px;background:var(--accent-soft);font-weight:700;color:var(--accent);font-size:15px}
+  .fn em{display:block;font-style:normal;font-size:20px;font-weight:700;line-height:1.3;margin-top:2px}
   .fn small{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}
   .fn.inf{background:var(--accent);color:#fff} .fn.inf small{color:#ffffffcc}
   .avatar{display:block;height:230px;max-width:80%;object-fit:contain;margin:14px auto 2px}
@@ -785,12 +786,10 @@ function showResult(ans, time){
       ${TYPE&&STACKS[TYPE]&&roleScores.inf!=null?(()=>{const st4=STACKS[TYPE], inf=st4[3], sc=roleScores.inf;
         const lvl = sc>=70?"发展得不错":sc>=45?"正在发展中":"还在起步阶段";
         return `<div class="card"><h3>你的认知功能</h3>
-        <p class="fnstack">${st4.map((f,i)=>`<span class="fn${i===3?" inf":""}">${f}<small>${["主导","辅助","第三","劣势"][i]}</small></span>`).join("")}</p>
-        <p class="muted-p" style="margin-top:0">按照荣格的理论，${TYPE} 的功能顺序是 ${st4.join(" → ")}。主导功能 ${st4[0]} 是你的天性，下面三项是根据你的回答测出来的：</p>
-        ${[["aux",1,"辅助"],["ter",2,"第三"],["inf",3,"劣势"]].filter(([r])=>roleScores[r]!=null).map(([r,k,lab])=>{const v=roleScores[r];
-          return `<div class="row"><div class="row-top"><span>${lab} · ${FN_NAME[st4[k]]}（${st4[k]}）</span><b style="color:${v>=70?"var(--t-dark)":v>=45?"var(--accent)":"var(--t-mid)"}">${v}</b></div>
-          <div class="track"><i style="width:${Math.max(v,3)}%;background:${v>=70?"var(--t-dark)":v>=45?"var(--accent)":"var(--t-light)"}"></i></div></div>`;}).join("")}
-        <p style="margin-top:12px">你的劣势功能是<b>${FN_NAME[inf]}</b>，也就是“${FN_DESC[inf]}”的能力。根据你的回答，它目前<b>${lvl}</b>。</p>
+        <p class="fnstack">${st4.map((f,i)=>{const r=["","aux","ter","inf"][i], v=r?roleScores[r]:null;
+          return `<span class="fn${i===3?" inf":""}">${f}<em>${i===0?"天性":(v!=null?v:"–")}</em><small>${["主导","辅助","第三","劣势"][i]}</small></span>`;}).join("")}</p>
+        <p class="muted-p" style="margin:0">功能顺序按荣格理论由类型决定；分数根据你的回答得出，主导功能是你的天性，不打分。</p>
+        <p style="margin-top:10px">你的劣势功能是<b>${FN_NAME[inf]}</b>，也就是“${FN_DESC[inf]}”的能力。根据你的回答，它目前<b>${lvl}</b>。</p>
         <p class="muted-p no-img">荣格认为，劣势功能是一个人最难、也最有成长空间的地方：压力大时它最容易失控，而随着成熟，它会慢慢变成新的力量。</p></div>`;})():""}
       <div class="card"><h3>七个方面</h3>${rows}
         <p class="row-note" style="margin-top:12px">你最成熟的一面是「${MODULES[strong.i].name}」。</p>
