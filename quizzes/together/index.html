@@ -189,14 +189,13 @@ const C = (tag,q,o)=>({kind:"choice", tag, q, o});
 
 const MODULES = [
   { name:"TA的信号", key:"signal", qs:[
-    L("好感表示","TA 对我有明显的好感表现"),
     S("暧昧程度","给你们现在的暧昧程度打个分",["像在恋爱","很暧昧","有点暧昧","好朋友","普通朋友"]),
     L("联系频率","我们几乎每天都会聊天"),
     L("谁更主动","大多数时候，是 TA 先来找我"),
     L("回消息","TA 回我消息很快，也很用心"),
     C("单独见面","最近一个月，你们单独见过几次面？",[
       ["3 次以上",4],["1–2 次",2.5],["没有单独见过",1],["不在一个城市，暂时见不了",null,null,"skip"]]),
-    L("肢体接触","我们之间有过有点暧昧的肢体接触"),
+    L("肢体接触","我们之间有过牵手、拥抱之类的肢体接触"),
     L("记得小事","TA 会记得我说过的小事",1,true),
     L("礼物和帮忙","TA 送过我礼物，或者特意帮过我的忙"),
     L("在意你身边的人","我提到别的异性时，TA 会明显在意",1,true),
@@ -212,18 +211,19 @@ const MODULES = [
       ["会，一直在同一个城市",4],["现在异地，但很快会到一起",3],["会异地，或者可能分开",1],["不清楚",null]]),
     L("未来规划","我们对未来的规划（城市、工作、生活方式）比较合得上",1,true),
     L("共同话题","我们有很多共同话题或共同爱好"),
+    L("TA的异性朋友","TA 身边的异性朋友很多",-1,true),
   ]},
   { name:"你这边", key:"you", qs:[
     L("你有多喜欢TA","我非常喜欢 TA"),
     C("你表达过吗","你有没有向 TA 表达过好感？",[
       ["表达过，TA 有回应",4],["还没表达过",2],["表达过，TA 没什么回应",1],["明确被拒绝过",0,"rejected"]]),
     C("你的感情经历","你自己的感情经历？",[["谈过几段",4],["谈过一两段",3],["还没谈过（母单）",1]]),
-    C("认识多久","你们认识多久了？",[["不到 1 个月",2],["1–6 个月",3],["半年到 3 年",4],["3 年以上的老朋友",2]]),
   ]},
   { name:"TA的状态", key:"ta", qs:[
-    L("忽冷忽热","TA 对我会忽冷忽热",-1,true),
-    L("靠近时的反应","我们的关系一往前走，TA 就会往后退",-1,true),
-    L("TA对恋爱的态度","TA 看起来想认真谈一段恋爱",1,true),
+    L("想脱单","TA 表达过想脱单、想谈恋爱",1,true),
+    {...L("忽冷忽热","TA 对我会忽冷忽热",-1,true), avoid:true},
+    {...L("靠近就后退","关系一变亲近，TA 就会突然冷淡或拉开距离",-1,true), avoid:true},
+    {...L("很少谈感受","TA 很少聊自己的感受和过去",-1,true), avoid:true},
   ]},
 ];
 
@@ -232,7 +232,7 @@ const MOD_NOTES = {
   signal:  ["TA 给出的信号很明确，这些通常不是“只是礼貌”。","有一些信号，但还不够集中，可能是好感，也可能只是友好。","目前 TA 的信号很弱。不一定是不喜欢，但至少还没有表现出来。"],
   reality: ["现实条件没有阻碍，就看你们俩了。","现实层面有一两件事，会影响你们的走向。","现实条件阻碍不小。喜欢很重要，但这些问题不会因为喜欢就消失。"],
   you:     ["你很清楚自己的心意，也已经迈出了步子。","你有心意，但还没有完全表达出来，或者自己也还在犹豫。","你自己还在观望，或者还没向 TA 表达过。"],
-  ta:      ["TA 对感情的态度稳定、开放，是很好的信号。","TA 有些犹豫或摇摆，需要多一点耐心和观察。","TA 现在可能不在适合恋爱的状态，或者容易在靠近时后退。别把 TA 的退缩全怪在自己身上。"],
+  ta:      ["TA 对感情的态度稳定、开放，是很好的信号。","TA 对恋爱有些犹豫，或者偶尔会退缩。","TA 现在可能不在适合恋爱的状态，或者有回避倾向，在靠近时容易后退。"],
 };
 
 const TIERS = [
@@ -421,14 +421,17 @@ function compute(answers){
   let total = wsum ? Math.round(scored.reduce((a,v)=>a+v.s*W[MODULES[v.i].key],0)/wsum) : 50;
   total = Math.max(1, Math.min(99, total));
   caps.forEach(c=>{ total=Math.min(total, CAPS[c].cap); });
-  return {modScores:valid.map(v=>v.s),total,caps,weak,unknown};
+  // 回避倾向：三道回避题里，答了的平均分偏低（即比较符合）
+  const av=QUESTIONS.map((q,i)=>q.avoid?q.o[answers[i]][1]:null).filter(v=>v!==null);
+  const avoid = av.length>=2 && av.reduce((a,b)=>a+b,0)/av.length<=1.5;
+  return {modScores:valid.map(v=>v.s),total,caps,weak,unknown,avoid};
 }
 function colorFor(s){return s>=70?"var(--good)":s>=50?"var(--mid)":"var(--bad)";}
 
 function showResult(ans, time){
   const fromHistory = !!ans;
   if(!fromHistory){ans=answers; saveLast(); clearSave(); answers=new Array(TOTAL).fill(null); cur=0;}
-  const {modScores,total,caps,weak,unknown}=compute(ans);
+  const {modScores,total,caps,weak,unknown,avoid}=compute(ans);
   const d=new Date(time||Date.now()), dateStr=`${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`;
   const tier = TIERS.find(t=>total>=t.min);
   const rows = MODULES.map((m,i)=>{
@@ -459,11 +462,9 @@ function showResult(ans, time){
       </div>
       ${capCards}
       <div class="card no-img">${hl}${tier.text.map(t=>`<p>${t}</p>`).join("")}</div>
+      ${avoid?`<div class="card flag no-img"><h3>TA 可能有一些回避倾向</h3><p>从你的描述看，TA 在关系变近时容易后退，也不太谈自己的感受。有回避倾向的人，常常不是不喜欢，而是亲密会让 TA 本能地紧张，所以信号会显得时有时无。</p></div>`:""}
       <div class="card"><h3>四个方面</h3>${rows}</div>
-      ${weak.length?`<div class="card no-img"><h3>拉低概率的地方</h3><div class="tags">${weak.map(w=>`<span>${w}</span>`).join("")}</div>
-        <p class="row-note" style="margin-top:10px">这些是你选了较低分的题，它们拉低了整体概率。</p></div>`:""}
-      ${unknown.length?`<div class="card no-img"><h3>${unknown.length>=5?"信息还不够多":"还不清楚的事"}</h3><div class="tags gray">${unknown.map(w=>`<span>${w}</span>`).join("")}</div>
-        <p class="row-note" style="margin-top:10px">这些没有计入概率。${unknown.length>=5?"你选了不少「不清楚」，结果的参考价值会打折扣。":""}</p></div>`:""}
+      ${unknown.length>=5?`<div class="card no-img"><p class="row-note" style="margin:0">你有 ${unknown.length} 道题选了「不清楚」，这部分没有计入概率，结果的参考价值会打一些折扣。</p></div>`:""}
       <div class="brand no-img">test.spelloapp.com/together</div>
     </div>
     <button class="btn" id="saveBtn" style="margin-top:24px">保存结果图片</button>
