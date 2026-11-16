@@ -237,16 +237,33 @@ const MOD_NOTES = {
 
 const TIERS = [
   { min:85, img:"s0", title:"信号非常明确", color:"var(--good)",
-    text:["从你的描述来看，TA 释放的好感信号很多，现实条件也几乎没有阻碍。你们之间的互动，已经明显超出了普通朋友。","这个结果反映的是你观察到的情况。TA 真实的想法，只有 TA 自己最清楚。"] },
+    text:["你对 TA 的这份心意，从答题里就能感受到。而从你的描述来看，TA 也释放了很多好感信号，现实条件几乎没有阻碍，你们之间的互动已经明显超出了普通朋友。",
+          "这样的阶段很珍贵，可以顺其自然地多相处、多了解彼此，让关系按你们自己的节奏往前走。",
+          "这个结果反映的是你观察到的情况，TA 真实的想法，只有 TA 自己最清楚。"] },
   { min:70, img:"b0", title:"彼此很可能都有好感", color:"var(--good)",
-    text:["你们的互动频繁、自然，TA 对你也有不少回应。在大多数方面，你们之间都有往前走的基础。","剩下的不确定，多半来自分数较低的那几项。"] },
+    text:["喜欢一个人时，总会忍不住去猜对方的心思，这很正常。从你的描述来看，你们的互动频繁、自然，TA 对你也有不少回应。",
+          "在大多数方面，你们之间都有往前走的基础。剩下的不确定不必着急，给彼此一点时间看清楚。",
+          "感情里最好的节奏，是两个人都感到舒服的节奏。"] },
   { min:50, img:"s1", title:"有好感，但还不明朗", color:"var(--mid)",
-    text:["TA 对你有一些好感的表现，但信号还不够集中，也可能 TA 自己还没想清楚。","目前的关系，处在朋友和暧昧之间。"] },
+    text:["能感受到你对 TA 的在意，也理解这种“好像有可能，又说不准”的心情。",
+          "TA 对你有一些好感的表现，但信号还不够集中。也许 TA 自己还没想清楚，还在慢慢确认自己的心意。目前你们的关系，处在朋友和暧昧之间。",
+          "这个阶段需要一点耐心，不必急着要一个答案。但如果很长时间都停在原地，让你一直在猜、一直在等，也可以允许自己慢慢放下。"] },
   { min:30, img:"b1", title:"目前更接近朋友", color:"var(--bad)",
-    text:["从现有的信号看，TA 和你的相处更像朋友。","这不代表没有可能，只是现阶段还看不出明显的倾向。"] },
+    text:["喜欢一个人本身就很勇敢，这份心意值得被认真对待。",
+          "从现有的信号看，TA 和你的相处更像朋友。这不代表没有可能，也许时机还不成熟，或者 TA 还没往这个方向想。",
+          "可以继续做自己、自然地相处。如果过了一段时间仍然没有变化，把更多心思放回自己的生活里，也是一种对自己的温柔。"] },
   { min:0, img:"b2", title:"目前可能性较低", color:"var(--bad)",
-    text:["TA 给出的信号较少，或者现实中有比较大的阻碍。","这个结果说明的是现在的情况，不是对你的评价。"] },
+    text:["这个结果可能不是你想看到的。先抱抱你，喜欢一个人没有错。",
+          "从你的描述来看，TA 给出的信号较少，或者现实中有比较大的阻碍。这说明的是现在的情况，不是对你的评价。",
+          "不必勉强自己立刻放下，难过也很正常。只是别让等待消耗太多的你，你值得一段不需要反复猜测的感情。"] },
 ];
+// 最拖后腿的方面：一句解释
+const LOW_NOTES = {
+  signal:"TA 主动释放的信号还不多，可能还在观察，也可能本来就比较慢热。",
+  reality:"现实条件有一些阻碍，比如距离、时机或 TA 的感情状况，这些往往需要时间。",
+  you:"你自己这边还有一些保留，也许还在犹豫，或者还没让 TA 知道你的心意。",
+  ta:"TA 自己可能还没调整好状态，比如对感情有些犹豫，或者靠近时容易后退。这通常和 TA 本身有关，不一定是因为你。",
+};
 
 // 一票否决的情况：概率上限和说明
 const CAPS = {
@@ -445,7 +462,7 @@ function showResult(ans, time){
     </div>`;}).join("");
   const sc = modScores.map((s,i)=>({s,i})).filter(x=>x.s!==null);
   const lo = sc.length ? sc.reduce((a,b)=>b.s<a.s?b:a) : null;
-  const hl = (!caps.length && lo && lo.s<60) ? `<p>目前最拖后腿的是<b>「${MODULES[lo.i].name}」</b>。</p>` : "";
+  const hl = (!caps.length && lo && lo.s<60) ? `<p>目前最拖后腿的是<b>「${MODULES[lo.i].name}」</b>：${LOW_NOTES[MODULES[lo.i].key]}</p>` : "";
   const capCards = [...new Set(caps)].map(c=>`<div class="card flag"><h3>${CAPS[c].title}</h3><p>${CAPS[c].text}</p></div>`).join("");
 
   $("result").innerHTML = `<div class="fade">
@@ -461,7 +478,7 @@ function showResult(ans, time){
         <div class="verdict serif" style="color:${tier.color}">${tier.title}</div>
       </div>
       ${capCards}
-      <div class="card no-img">${hl}${tier.text.map(t=>`<p>${t}</p>`).join("")}</div>
+      <div class="card no-img"><p>${tier.text[0]}</p>${hl}${tier.text.slice(1).map(t=>`<p>${t}</p>`).join("")}</div>
       ${avoid?`<div class="card flag no-img"><h3>TA 可能有一些回避倾向</h3><p>从你的描述看，TA 在关系变近时容易后退，也不太谈自己的感受。有回避倾向的人，常常不是不喜欢，而是亲密会让 TA 本能地紧张，所以信号会显得时有时无。</p></div>`:""}
       <div class="card"><h3>四个方面</h3>${rows}</div>
       ${unknown.length>=5?`<div class="card no-img"><p class="row-note" style="margin:0">你有 ${unknown.length} 道题选了「不清楚」，这部分没有计入概率，结果的参考价值会打一些折扣。</p></div>`:""}
