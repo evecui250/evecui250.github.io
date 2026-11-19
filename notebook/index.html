@@ -55,6 +55,10 @@
   .comment{padding:12px 0;border-bottom:1px dashed var(--line)}
   .comment .m{color:var(--muted);font-size:13px;margin-bottom:4px;display:flex;gap:8px;align-items:center}
   .comment .c{white-space:pre-wrap}
+  .thread{border-bottom:1px dashed var(--line)}
+  .thread .comment{border-bottom:none}
+  .comment.reply{margin-left:22px;padding:8px 0 8px 14px;border-left:2px solid var(--accent-soft)}
+  .reply-box{margin-top:10px}
   .empty{color:var(--muted);text-align:center;padding:40px 0}
   .tabs{display:flex;gap:6px;margin-bottom:18px}
   .tabs button{background:transparent;color:var(--muted);border-color:var(--line)}
@@ -271,26 +275,64 @@ async function viewRead(id){
     <div class="prose">${prose(c.content)}</div>
   </article>
   <section class="comments"><h2>回应</h2>
-    <div id="coms">${(coms||[]).length ? coms.map(m=>`<div class="comment"><div class="m"><span class="pill">${esc(nameOf(m.author_id))}</span>${fmtTime(m.created_at)}
-      ${m.author_id===state.user.id?`<button class="link" data-del="${m.id}">删除</button>`:""}</div><div class="c">${esc(m.content)}</div></div>`).join("") : `<p class="sub">还没有回应。</p>`}</div>
+    <div id="coms"></div>
     <label>写点回应：读了这篇，你注意到了什么？</label>
     <textarea id="cbox" rows="4"></textarea>
     <div class="row" style="margin-top:10px"><button id="send">发送</button></div><div class="msg" id="cmsg"></div>
   </section>
   <p style="margin-top:40px"><a href="#/">← 回目录</a></p>`;
+  let list = coms || [];
+  const $coms = document.getElementById("coms");
+  const byId = Object.fromEntries(list.map(m=>[m.id,m]));
+  const rootOf = m => { let r = m, n = 0; while (r.parent_id && byId[r.parent_id] && n++ < 50) r = byId[r.parent_id]; return r; };
+  const one = (m, isReply) => `<div class="comment${isReply?" reply":""}" data-cid="${m.id}">
+      <div class="m"><span class="pill">${esc(nameOf(m.author_id))}</span>
+        ${isReply && m.parent_id && byId[m.parent_id] && byId[m.parent_id].parent_id ? `<span>回复 ${esc(nameOf(byId[m.parent_id].author_id))}</span>` : ""}
+        <span>${fmtTime(m.created_at)}</span>
+        <button class="link" data-reply="${m.id}">回复</button>
+        ${m.author_id===state.user.id?`<button class="link" data-del="${m.id}">删除</button>`:""}</div>
+      <div class="c">${esc(m.content)}</div>
+      <div class="reply-box hidden" data-box="${m.id}">
+        <textarea rows="3" placeholder="回复 ${esc(nameOf(m.author_id))}…"></textarea>
+        <div class="row" style="margin-top:8px"><button data-send="${m.id}">发送</button><button class="link" data-cancel="${m.id}">取消</button></div>
+        <div class="msg"></div></div></div>`;
+  function renderComments(){
+    Object.keys(byId).forEach(k=>delete byId[k]); list.forEach(m=>byId[m.id]=m);
+    const roots = list.filter(m => !m.parent_id || !byId[m.parent_id]);
+    const kids = {}; list.filter(m => !roots.includes(m)).forEach(m => (kids[rootOf(m).id] ||= []).push(m));
+    $coms.innerHTML = roots.length ? roots.map(r => `<div class="thread">${one(r,false)}${(kids[r.id]||[]).map(k=>one(k,true)).join("")}</div>`).join("")
+                                   : `<p class="sub">还没有回应。</p>`;
+    $coms.querySelectorAll("[data-reply]").forEach(b => b.onclick = () => {
+      const box = $coms.querySelector(`[data-box="${b.dataset.reply}"]`);
+      box.classList.toggle("hidden"); if (!box.classList.contains("hidden")) box.querySelector("textarea").focus();
+    });
+    $coms.querySelectorAll("[data-cancel]").forEach(b => b.onclick = () => $coms.querySelector(`[data-box="${b.dataset.cancel}"]`).classList.add("hidden"));
+    $coms.querySelectorAll("[data-send]").forEach(b => b.onclick = async () => {
+      const box = $coms.querySelector(`[data-box="${b.dataset.send}"]`);
+      const content = box.querySelector("textarea").value.trim(); if (!content) return;
+      b.disabled = true;
+      const { data, error } = await sb.from("book_comments").insert({ chapter_id:id, content, parent_id:b.dataset.send }).select().single();
+      if (error){ b.disabled = false; return setMsg(box.querySelector(".msg"), error.message, true); }
+      list.push(data); renderComments();
+    });
+    $coms.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
+      if(!confirmInline(b,"确定删除？")) return;
+      const { error } = await sb.from("book_comments").delete().eq("id", b.dataset.del);
+      if (error) return;
+      list = list.filter(m => m.id !== b.dataset.del).map(m => m.parent_id === b.dataset.del ? { ...m, parent_id: null } : m);
+      renderComments();
+    });
+  }
+  renderComments();
   const ckey = "notebook-comment-" + id;
   const box = document.getElementById("cbox"); box.value = store.get(ckey) || "";
   box.oninput = () => store.set(ckey, box.value);
   document.getElementById("send").onclick = async () => {
     const content = box.value.trim(); if(!content) return;
-    const { error } = await sb.from("book_comments").insert({ chapter_id:id, content });
+    const { data, error } = await sb.from("book_comments").insert({ chapter_id:id, content }).select().single();
     if (error) return setMsg(document.getElementById("cmsg"), error.message, true);
-    store.del(ckey); viewRead(id);
+    store.del(ckey); box.value = ""; list.push(data); renderComments();
   };
-  $app.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
-    if(!confirmInline(b,"确定删除？")) return;
-    await sb.from("book_comments").delete().eq("id", b.dataset.del); viewRead(id);
-  });
 }
 
 async function viewEdit(id){
