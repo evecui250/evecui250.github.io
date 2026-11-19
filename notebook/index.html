@@ -82,7 +82,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
 });
 
 const $app = document.getElementById("app");
-const state = { user: null, isMember: false, names: {} };
+const state = { user: null, isMember: false, names: {}, members: [] };
 
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmtDate = d => { const x = new Date(d); return `${x.getFullYear()}.${x.getMonth()+1}.${x.getDate()}`; };
@@ -103,8 +103,9 @@ async function refreshSession(){
     const { data } = await sb.rpc("is_book_member");
     state.isMember = !!data;
     if (state.isMember){
-      const { data: ms } = await sb.from("book_members").select("user_id,display_name");
-      state.names = Object.fromEntries((ms||[]).map(m=>[m.user_id, m.display_name]));
+      const { data: ms } = await sb.from("book_members").select("user_id,display_name,created_at").order("created_at");
+      state.members = ms || [];
+      state.names = Object.fromEntries(state.members.map(m=>[m.user_id, m.display_name]));
     }
   }
   document.getElementById("who").textContent = state.user ? (state.names[state.user.id] || state.user.email) : "";
@@ -212,6 +213,11 @@ async function viewHome(){
       <div><h1>目录</h1><p class="sub" style="margin:0">${Object.keys(state.names).length} 位作者 · ${(chs||[]).length} 篇</p></div>
       <a class="btn" href="#/new">写新的一篇</a>
     </div>
+    <div class="card" style="margin-top:22px"><b>成员</b> <span class="who">${state.members.length} / 3</span>
+      ${state.members.map(m=>`<div class="req"><span><span class="pill">${esc(m.display_name)}</span>${m.user_id===state.user.id?` <span class="who">（你）</span>`:""}</span>
+        <span class="row"><span class="who">${fmtDate(m.created_at)} 加入</span>${m.user_id===state.user.id?`<button class="link" id="rename">改名</button>`:""}</span></div>`).join("")}
+      <div id="renameBox" class="hidden row" style="margin-top:12px"><input id="newName" maxlength="40" style="flex:1;min-width:160px" value="${esc(state.names[state.user.id]||"")}"><button id="saveName">保存</button></div>
+      <div class="msg" id="memMsg"></div></div>
     ${reqs?.length ? `<div class="card" style="margin-top:22px"><b>加入申请</b>${reqs.map(r=>`
        <div class="req"><span>${esc(r.display_name)} <span class="who">${esc(r.email||"")}</span></span>
        <span class="row"><button class="ghost" data-ok="${r.user_id}">批准</button><button class="link" data-no="${r.user_id}">拒绝</button></span></div>`).join("")}
@@ -222,6 +228,14 @@ async function viewHome(){
         <div class="t">${esc(c.title||"无题")}</div>
         <div class="m"><span class="pill">${esc(nameOf(c.author_id))}</span>　${countChars(c.content)} 字 · 更新于 ${fmtDate(c.updated_at)}</div></a>`).join("")}
       </div></section>`).join("") : `<div class="empty">还没有内容。写下第一篇吧。</div>`}</div>`;
+  document.getElementById("rename").onclick = () => document.getElementById("renameBox").classList.toggle("hidden");
+  document.getElementById("saveName").onclick = async () => {
+    const n = document.getElementById("newName").value.trim();
+    if (!n) return setMsg(document.getElementById("memMsg"), "名字不能为空", true);
+    const { error } = await sb.from("book_members").update({ display_name: n }).eq("user_id", state.user.id);
+    if (error) return setMsg(document.getElementById("memMsg"), error.message, true);
+    await refreshSession(); viewHome();
+  };
   $app.querySelectorAll("[data-ok]").forEach(b => b.onclick = async () => {
     const { error } = await sb.rpc("book_approve", { p_user: b.dataset.ok });
     if (error) return setMsg(document.getElementById("reqMsg"), error.message.includes("3") ? "已经有 3 位成员了" : error.message, true);
