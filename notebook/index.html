@@ -13,6 +13,7 @@
     --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
   }
   *{box-sizing:border-box}
+  html{scrollbar-gutter:stable;overflow-y:scroll}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6}
   a{color:var(--accent)}
   header{position:sticky;top:0;z-index:5;background:rgba(246,241,232,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
@@ -346,11 +347,11 @@ async function route(){
   if (!state.user) return viewAuth();
   if (!state.isMember) return viewPending();
   const [p, id] = h.split("/");
+  if (p==="read" && id) await viewRead(id);
+  else if (p==="edit" && id) await viewEdit(id);
+  else if (p==="new") await viewEdit(null);
+  else await viewHome();
   window.scrollTo(0,0);
-  if (p==="read" && id) return viewRead(id);
-  if (p==="edit" && id) return viewEdit(id);
-  if (p==="new") return viewEdit(null);
-  return viewHome();
 }
 async function boot(){ await refreshSession(); await route(); }
 window.addEventListener("hashchange", route);
