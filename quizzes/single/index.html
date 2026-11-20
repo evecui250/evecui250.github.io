@@ -152,6 +152,7 @@
   .share-img .card{padding:18px 18px;margin-top:16px}
   .share-img .card p{font-size:15px}
   .share-img .brand{font-size:14px;margin-top:22px;color:var(--ink);letter-spacing:1px}
+  .r-img{display:block;width:78%;max-width:320px;aspect-ratio:1;object-fit:cover;border-radius:28px;margin:6px auto 16px;box-shadow:0 8px 22px rgba(40,60,60,.12)}
 </style>
 </head>
 <body>
@@ -266,15 +267,15 @@ const MOD_NOTES = {
 };
 
 const TIERS = [
-  { min:80, title:"天生的伴侣型", color:"var(--rose)",
+  { min:80, img:"r1", title:"天生的伴侣型", color:"var(--rose)",
     text:["你渴望亲密，愿意包容，也向往长久的承诺。一段好的婚姻会放大你的幸福。","提醒一句：越想要陪伴的人，越要小心别因为怕孤单而将就。等一个真正合适的人，比早点结婚更重要。"] },
-  { min:62, title:"温暖的同行者", color:"var(--rose)",
+  { min:62, img:"r2", title:"温暖的同行者", color:"var(--rose)",
     text:["你适合婚姻，但不是那种把自己全部交出去的类型。你需要一个伴侣，也需要保留一部分自己。","最适合你的，是一段“亲密但不黏腻”的关系：两个人一起走，各自也有自己的生活。"] },
-  { min:42, title:"自由切换型", color:"var(--mid)",
+  { min:42, img:"r3", title:"自由切换型", color:"var(--mid)",
     text:["结婚或者一个人，你都能过得很好。你既享受陪伴，也享受独处。","对你来说，关键不是“要不要结婚”，而是“遇没遇到对的人”。遇到了就好好在一起，没遇到也不必将就。"] },
-  { min:22, title:"自在的独行者", color:"var(--teal)",
+  { min:22, img:"r4", title:"自在的独行者", color:"var(--teal)",
     text:["你很享受一个人的自由，独处对你来说是充电，不是孤单。会照顾自己从来不是不适合婚姻的理由，只是你对婚姻的要求更高。","你不是不能结婚，而是只有遇到一个非常合拍、懂得给你空间的人，婚姻才会让你更好。在那之前，好好经营自己的生活就很好。"] },
-  { min:0, title:"自由的灵魂", color:"var(--teal)",
+  { min:0, img:"r5", title:"自由的灵魂", color:"var(--teal)",
     text:["你的生活已经很完整，一个人过是你最舒服的状态。","这不是缺点，也不需要被“治好”。如果有一天你想结婚，那一定是因为遇到了让你心甘情愿的人，而不是因为到了某个年龄。"] },
 ];
 
@@ -469,6 +470,7 @@ function showResult(ans, time){
     <div id="card">
       <div class="r-head">
         <div class="r-title serif">适合结婚，还是一个人？</div>
+        <img class="r-img" src="img/${tier.img}.webp" alt="">
         <div class="r-label">你的类型 · ${dateStr}</div>
         <div class="verdict serif big" style="color:${tier.color}">${tier.title}</div>
       </div>
